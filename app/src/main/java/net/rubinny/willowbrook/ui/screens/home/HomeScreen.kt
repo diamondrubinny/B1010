@@ -63,8 +63,8 @@ fun HomeScreen(
                 }
                 // One dominant action; everything else is secondary and smaller.
                 BigButton(
-                    text = "Continue the case",
-                    subtitle = "The Lantern of Willowbrook",
+                    text = s.continueTitle,
+                    subtitle = s.continueSubtitle,
                     onClick = onContinue,
                     minWidth = 640.dp,
                     modifier = Modifier.focusRequester(continueFocus),

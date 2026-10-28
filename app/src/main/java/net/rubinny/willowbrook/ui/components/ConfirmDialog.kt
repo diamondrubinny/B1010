@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -52,6 +54,7 @@ fun ConfirmDialog(
             modifier = Modifier
                 .fillMaxSize()
                 .background(colors.background.copy(alpha = 0.92f))
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = Dimens.safeHorizontal, vertical = Dimens.safeVertical),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,

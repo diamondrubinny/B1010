@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "id": "lantern",
+  "title": "The Lantern of Willowbrook",
+  "premise": "The lantern for tonight's autumn fair has gone dim. We are finding three little light charms to make it shine again.",
+  "items": [
+    { "id": "glasses", "label": "Reading glasses", "emoji": "👓" },
+    { "id": "teacup", "label": "Teacup", "emoji": "☕" },
+    { "id": "clock", "label": "Clock", "emoji": "🕰️" },
+    { "id": "book", "label": "Book", "emoji": "📖" },
+    { "id": "honey", "label": "Honey pot", "emoji": "🍯" },
+    { "id": "bread", "label": "Loaf of bread", "emoji": "🍞" },
+    { "id": "strawberries", "label": "Strawberries", "emoji": "🍓" },
+    { "id": "milk", "label": "Glass of milk", "emoji": "🥛" },
+    { "id": "egg", "label": "Egg", "emoji": "🥚" },
+    { "id": "cheese", "label": "Cheese", "emoji": "🧀" },
+    { "id": "biscuit", "label": "Biscuit", "emoji": "🍪" },
+    { "id": "cake", "label": "Slice of cake", "emoji": "🍰" },
+    { "id": "croissant", "label": "Croissant", "emoji": "🥐" },
+    { "id": "apple", "label": "Apple", "emoji": "🍎" },
+    { "id": "lemon", "label": "Lemon", "emoji": "🍋" },
+    { "id": "cherries", "label": "Cherries", "emoji": "🍒" }
+  ],
+  "chapters": [
+    {
+      "id": "ch0_cottage",
+      "title": "Welcome to Willowbrook",
+      "location": "Your cottage",
+      "scene": "cottage",
+      "goal": "Learn how to play with Marmalade the cat.",
+      "recap": "You were at home with Marmalade, getting ready for the day.",
+      "steps": [
+        {
+          "type": "narration",
+          "id": "ch0_intro",
+          "text": "Welcome to Willowbrook, a quiet village of gardens and friendly neighbours. You are the village detective, and everyone knows you are good at finding things."
+        },
+        {
+          "type": "narration",
+          "id": "ch0_marmalade_hello",
+          "speaker": "Marmalade",
+          "portrait": "marmalade",
+          "portraitEmoji": "🐈",
+          "text": "Hello! I'm Marmalade. I will help you. Use the arrow buttons to move, and press OK to choose."
+        },
+        {
+          "type": "hiddenObject",
+          "id": "ch0_find_glasses",
+          "goal": "Let's practise. Can you find your reading glasses?",
+          "targets": ["glasses"],
+          "decoys": ["teacup", "clock", "book"],
+          "hints": ["Your reading glasses have two round lenses."]
+        },
+        {
+          "type": "narration",
+          "id": "ch0_news",
+          "speaker": "Marmalade",
+          "portrait": "marmalade",
+          "portraitEmoji": "🐈",
+          "text": "Well done! Now, some news. The lantern for tonight's autumn fair has gone dim. Three little light charms have rolled away around the village."
+        },
+        {
+          "type": "reward",
+          "id": "ch0_ready",
+          "text": "You are ready to begin. Let's visit the bakery first."
+        }
+      ]
+    },
+    {
+      "id": "ch1_bakery",
+      "title": "The Bakery",
+      "location": "Mrs. Bramble's bakery",
+      "scene": "bakery",
+      "goal": "Help Mrs. Bramble at the bakery and find the first light charm.",
+      "recap": "You were at the bakery, helping Mrs. Bramble look for the first light charm.",
+      "steps": [
+        {
+          "type": "narration",
+          "id": "ch1_arrive",
+          "text": "The bakery smells of warm bread. Mrs. Bramble is busy baking for the fair."
+        },
+        {
+          "type": "narration",
+          "id": "ch1_bramble_hello",
+          "speaker": "Mrs. Bramble",
+          "portrait": "bramble",
+          "portraitEmoji": "👵",
+          "text": "Good morning, detective! A little light charm rolled off my table while I was baking. It must be here somewhere. Could you help me tidy up first?"
+        },
+        {
+          "type": "hiddenObject",
+          "id": "ch1_tidy_kitchen",
+          "goal": "Find the honey pot, the loaf of bread and the strawberries.",
+          "targets": ["honey", "bread", "strawberries"],
+          "decoys": ["milk", "egg", "cheese", "biscuit", "cake"],
+          "hints": [
+            "The honey pot is golden and round.",
+            "The loaf of bread is brown and crusty.",
+            "The strawberries are small and red."
+          ]
+        },
+        {
+          "type": "narration",
+          "id": "ch1_recipe_cards",
+          "speaker": "Mrs. Bramble",
+          "portrait": "bramble",
+          "portraitEmoji": "👵",
+          "text": "Thank you, that's much tidier! My recipe cards are all mixed up. Each card has a twin. Could you put the pairs together?"
+        },
+        {
+          "type": "memoryMatch",
+          "id": "ch1_recipe_pairs",
+          "goal": "Find two cards that are the same.",
+          "pairs": ["croissant", "apple", "lemon", "cherries"]
+        },
+        {
+          "type": "narration",
+          "id": "ch1_twinkle",
+          "speaker": "Marmalade",
+          "portrait": "marmalade",
+          "portraitEmoji": "🐈",
+          "text": "Look! Something is twinkling under the last recipe card. It's the first light charm!"
+        },
+        {
+          "type": "reward",
+          "id": "ch1_charm",
+          "text": "You found the first light charm! Mrs. Bramble gives you a warm scone to say thank you. Two more charms to find.",
+          "charm": true
+        }
+      ]
+    }
+  ]
+}

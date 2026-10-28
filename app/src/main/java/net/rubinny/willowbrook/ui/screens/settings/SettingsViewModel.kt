@@ -31,10 +31,7 @@ class SettingsViewModel(private val container: AppContainer) : ViewModel() {
     }
 
     fun deleteProfile(id: String) {
-        viewModelScope.launch {
-            container.profileRepository.delete(id)
-            container.settingsRepository.update { if (it.lastProfileId == id) it.copy(lastProfileId = null) else it }
-        }
+        viewModelScope.launch { container.deleteProfile(id) }
     }
 
     fun deleteAllData(onDone: () -> Unit) {

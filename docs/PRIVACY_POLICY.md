@@ -19,7 +19,7 @@ Willowbrook Mysteries is provided by [legal name, address, contact email].
 | Information | Why | How long |
 |---|---|---|
 | Player nickname and colour | To show "Who is playing today?" | Until the player is removed or the app is uninstalled |
-| Game progress and hints used | To continue where you stopped and adjust difficulty | Until the player is removed or the app is uninstalled |
+| Game progress, and how much help was used in the last 20 puzzles | To continue where you stopped and adjust difficulty quietly | Until the player is removed or the app is uninstalled |
 | Settings (text size, voice, contrast…) | To make the game comfortable | Until "Delete all data" or uninstall |
 | Caregiver PIN (stored only as a one-way hash) | To prevent settings being changed by accident | Until changed, "Delete all data" or uninstall |
 

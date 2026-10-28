@@ -10,9 +10,14 @@
 - טיוטות: [`docs/PRIVACY_POLICY.md`](docs/PRIVACY_POLICY.md), [`docs/ACCESSIBILITY_STATEMENT.md`](docs/ACCESSIBILITY_STATEMENT.md)
 
 ## סטטוס
-**שלב 1 הושלם:** שלד אפליקציה לטלוויזיה, מערכת עיצוב, ניווט מלא בשלט, פרופילי שחקנים,
-מסך בית, אישור יציאה, הגדרות מלווה עם PIN, ומסך About/פרטיות/נגישות.
-מסך "Continue the case" הוא עדיין placeholder, שיוחלף בשלב 2 במנוע הסיפור והמיני-משחקים.
+- **שלב 1 ✅** שלד לטלוויזיה, ניווט בשלט, פרופילים, הגדרות מלווה עם PIN, אישור לפני יציאה.
+- **שלב 2 ✅** מנוע סיפור (JSON), פרק 0 (הדרכה) ופרק 1 (המאפייה) ניתנים למשחק מלא:
+  חיפוש חפצים, זוגות זיכרון, סולם רמזים בן 5 רמות, התאמת קושי שקטה, שמירת התקדמות,
+  "Welcome back" בחזרה למשחק, ו-Case files להפעלה חוזרת של פרקים.
+- **הבא, שלב 3:** קריינות (קול AI עם fallback ל-TTS), צלילים, ועוד סוגי פעילויות.
+
+איורים: עד שתפיקו את איורי ה-AI (ראו [`docs/ART_PROMPTS_CH01.md`](docs/ART_PROMPTS_CH01.md)),
+המשחק מציג אימוג'י של המערכת. כשמוסיפים קובץ בשם הנכון, הוא מוצג אוטומטית.
 
 ## טכנולוגיות
 Kotlin 2.4 · Jetpack Compose (BOM 2026.09) · Compose for TV (`tv-material` 1.1) · Navigation Compose ·
@@ -65,10 +70,12 @@ cp keystore.properties.example keystore.properties   # למלא ערכים אמ�
 ## מבנה
 ```
 app/src/main/java/net/rubinny/willowbrook/
-├── data/        settings + profiles (DataStore, local only)
+├── data/        settings, profiles, progress (DataStore, local only), content loader
+├── game/        content model, validator, engines (hints, difficulty, hidden object, memory)
 ├── security/    PIN hashing (PBKDF2) + lockout
 ├── ui/theme/    colours, typography, dimensions
 ├── ui/components/  BigButton, ConfirmDialog, PinPad, setting rows…
 ├── ui/navigation/  routes + NavHost
-└── ui/screens/  profiles, home, settings, case placeholder
+└── ui/screens/  profiles, home, settings, play (chapter player), case files
+app/src/main/assets/cases/lantern.json   story content (validated by tests)
 ```

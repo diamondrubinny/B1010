@@ -21,11 +21,12 @@ We aim to meet **WCAG 2.1 level AA**, and use **AAA contrast (7:1 or higher)** f
 - Text size adjustable 100%–160%; Extra-strong contrast mode (21:1).
 - "Less movement on screen" option; no flashing content.
 - Screen-reader (TalkBack) labels on all controls; states such as "On/Off" are spoken.
-- No time limits, no penalties, no "wrong" sounds.
-- Narration with captions (stage 2 onward).
+- No time limits anywhere in the game.
+- No wrong-answer sounds or penalties; help is always available with "Help me", and Marmalade always shows what is left to do.
+- Hints never rely on colour alone: a glowing frame, a spoken-style message, and finally the answer is selected for you.
 
 ## Known limitations
-- Narration and puzzles are still being built (stage 1 contains menus and settings only).
+- Narration (spoken story) is not available yet; all story text is shown on screen.
 - Typing a player name needs the TV's on-screen keyboard, which is controlled by the TV, not by us.
 - Automated tests run in a simulated TV environment; testing with real users and TalkBack on physical devices is still pending.
 

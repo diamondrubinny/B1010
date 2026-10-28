@@ -5,7 +5,9 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
+import net.rubinny.willowbrook.data.content.ContentRepository
 import net.rubinny.willowbrook.data.profiles.ProfileRepository
+import net.rubinny.willowbrook.data.progress.ProgressRepository
 import net.rubinny.willowbrook.data.settings.SettingsRepository
 
 private val Context.appDataStore: DataStore<Preferences> by preferencesDataStore(name = "willowbrook")
@@ -16,6 +18,15 @@ class AppContainer(context: Context) {
 
     val settingsRepository = SettingsRepository(dataStore)
     val profileRepository = ProfileRepository(dataStore)
+    val progressRepository = ProgressRepository(dataStore)
+    val contentRepository = ContentRepository { path -> context.applicationContext.assets.open(path) }
+
+    /** Removes a player together with all of their progress. */
+    suspend fun deleteProfile(profileId: String) {
+        progressRepository.deleteForProfile(profileId)
+        profileRepository.delete(profileId)
+        settingsRepository.update { if (it.lastProfileId == profileId) it.copy(lastProfileId = null) else it }
+    }
 
     /** "Delete all data": profiles, progress, settings and PIN. Cannot be undone. */
     suspend fun deleteAllData() {
