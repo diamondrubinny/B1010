@@ -89,7 +89,7 @@ fun SettingsScreen(
             modifier = rowWidth,
         )
         StepperRow(
-            label = "Music volume",
+            label = "Sound volume",
             valueText = if (s.musicVolume <= 0f) "Off" else "${(s.musicVolume * 100).roundToInt()}%",
             onDecrease = { viewModel.update { it.copy(musicVolume = it.musicVolume - L.MUSIC_VOLUME_STEP) } },
             onIncrease = { viewModel.update { it.copy(musicVolume = it.musicVolume + L.MUSIC_VOLUME_STEP) } },

@@ -14,9 +14,11 @@
 - **שלב 2 ✅** מנוע סיפור (JSON), פרק 0 (הדרכה) ופרק 1 (המאפייה) ניתנים למשחק מלא:
   חיפוש חפצים, זוגות זיכרון, סולם רמזים בן 5 רמות, התאמת קושי שקטה, שמירת התקדמות,
   "Welcome back" בחזרה למשחק, ו-Case files להפעלה חוזרת של פרקים.
-- **הבא, שלב 3:** קריינות (קול AI עם fallback ל-TTS), צלילים, ועוד סוגי פעילויות.
+- **שלב 3 ✅** קריינות (קבצי קול AI כשקיימים, אחרת הקריינות המובנית של הטלוויזיה), "Listen again", צלילי פעמון עדינים,
+  ושלוש פעילויות חדשות: שאלת זיכרון / חידה, מיון, וכישוף-רצף. פרק 2 (הגינה) ניתן למשחק מלא.
+- **הבא, שלב 4:** פרק 3 (הספרייה), פרק 4 (סיום בכיכר הכפר), מסך סיכום למלווה, וכרטיסי זיכרונות (Reminiscence).
 
-איורים: עד שתפיקו את איורי ה-AI (ראו [`docs/ART_PROMPTS_CH01.md`](docs/ART_PROMPTS_CH01.md)),
+איורים: עד שתפיקו את איורי ה-AI (ראו [`docs/ART_PROMPTS.md`](docs/ART_PROMPTS.md)),
 המשחק מציג אימוג'י של המערכת. כשמוסיפים קובץ בשם הנכון, הוא מוצג אוטומטית.
 
 ## טכנולוגיות
@@ -42,6 +44,12 @@ sdk.dir=/path/to/Android/sdk
 ./gradlew :app:assembleDebug       # APK לבדיקות: app/build/outputs/apk/debug/app-debug.apk
 ```
 צילומי המסך (1920×1080) נשמרים ב-`app/build/screenshots/`.
+
+סקריפט ההקלטה לקול ה-AI (`docs/voice/lantern.csv`) נוצר מהקוד. אחרי שינוי טקסט בסיפור, מעדכנים אותו כך:
+```bash
+./gradlew :app:testDebugUnitTest -PupdateVoiceScript=true
+```
+צלילים: `python3 tools/generate_sounds.py` (צלילים מקוריים שנוצרים בקוד, בלי רישוי צד שלישי).
 
 > אם Maven Central מחזיר שגיאה 429, אפשר להגדיר mirror מקומית ב-`~/.gradle/gradle.properties`:
 > `robolectricRepoUrl=https://maven-central.storage-download.googleapis.com/maven2/`
@@ -70,8 +78,10 @@ cp keystore.properties.example keystore.properties   # למלא ערכים אמ�
 ## מבנה
 ```
 app/src/main/java/net/rubinny/willowbrook/
+├── audio/       narrator (recorded voice → on-device TTS fallback), gentle sound effects
 ├── data/        settings, profiles, progress (DataStore, local only), content loader
-├── game/        content model, validator, engines (hints, difficulty, hidden object, memory)
+├── game/        content model, validator, engines (hints, difficulty, hidden object, memory,
+│                choice, sorting, spell), VoiceLines (ids + wording of every spoken line)
 ├── security/    PIN hashing (PBKDF2) + lockout
 ├── ui/theme/    colours, typography, dimensions
 ├── ui/components/  BigButton, ConfirmDialog, PinPad, setting rows…

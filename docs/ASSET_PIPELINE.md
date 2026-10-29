@@ -55,11 +55,12 @@ Subject: <SUBJECT>. Aspect ratio 16:9.
 ## 3. קריינות (AI Voice)
 
 ### זרימה
-1. כל טקסט נאמר במשחק מקבל **מזהה שורה** בקובץ התוכן (JSON), למשל `lantern.ch1.bramble.01`.
-2. סקריפט ייצוא מפיק `voice_script.csv` (`id, speaker, text, emotion`).
+1. לכל שורה קבועה יש **מזהה** שנגזר מהתוכן, למשל `ch1_bramble_hello`, `ch1_tidy_kitchen_hint2` או `ch2_garden_intro`.
+2. הסקריפט `docs/voice/lantern.csv` (`id, speaker, text`) נוצר מהקוד ונבדק אוטומטית, כך שהוא תמיד תואם למשחק.
 3. מייצרים אודיו בכלי AI-voice לבחירתך, קול אחד לכל דמות, קצב איטי (~85%), טון חם ורגוע.
 4. הקבצים נשמרים כ-`app/src/main/assets/voice/<id>.ogg` (Opus/Vorbis, מונו, 48kHz, ~32kbps).
-5. **Fallback אוטומטי:** אם אין קובץ לשורה — המשחק משתמש ב-TextToSpeech של המכשיר. כך תוכן חדש עובד מיד.
+5. **Fallback אוטומטי:** אם אין קובץ לשורה, המשחק משתמש ב-TextToSpeech של המכשיר, כך שתוכן חדש עובד מיד.
+   משפטים שנוצרים בזמן משחק (למשל "That's a lovely teacup") מוקראים תמיד ב-TTS.
 
 ### קולות מומלצים
 | דמות | אופי קול |
@@ -67,7 +68,7 @@ Subject: <SUBJECT>. Aspect ratio 16:9.
 | Narrator | מבוגר/ת, חם/ה, מבטא בריטי עדין, איטי |
 | Marmalade (החתולה) | ידידותי, שקט, לא ילדותי, לא "מצויר" |
 | Mrs. Bramble | אופה חמה ונעימה |
-| Mr. Hollis | גנן רגוע, קול נמוך |
+| Mr. Hollis | גנן רגוע, קול נמוך, מבוגר וחם |
 | Miss Penrose | ספרנית רכה ומדויקת |
 
 ### בדיקה

@@ -78,6 +78,38 @@ sealed interface Step {
         val pairs: List<String>,
     ) : Step
 
+    /** A gentle question with picture answers: recalling something said earlier, or a riddle. */
+    @Serializable
+    @SerialName("choice")
+    data class Choice(
+        override val id: String,
+        val kind: ChoiceKind,
+        val question: String,
+        /** Item ids, 2–3. Gentle difficulty keeps the answer plus the first other option. */
+        val options: List<String>,
+        val answer: String,
+        val hint: String,
+    ) : Step
+
+    /** Put each item where it belongs, one at a time. */
+    @Serializable
+    @SerialName("sorting")
+    data class Sorting(
+        override val id: String,
+        val goal: String,
+        val categories: List<Category>,
+        val items: List<SortItem>,
+    ) : Step
+
+    /** Watch a short sequence of magic symbols, then repeat it. Symbols come from [SpellSymbols]. */
+    @Serializable
+    @SerialName("spell")
+    data class Spell(
+        override val id: String,
+        val goal: String,
+        val sequence: List<String>,
+    ) : Step
+
     @Serializable
     @SerialName("reward")
     data class Reward(
@@ -85,4 +117,28 @@ sealed interface Step {
         val text: String,
         val charm: Boolean = false,
     ) : Step
+}
+
+@Serializable
+enum class ChoiceKind {
+    @SerialName("recall") RECALL,
+    @SerialName("riddle") RIDDLE,
+}
+
+@Serializable
+data class Category(val id: String, val label: String, val emoji: String)
+
+@Serializable
+data class SortItem(val item: String, val category: String)
+
+/** The four kind-magic symbols. Each has its own musical note, so the sequence can be remembered by ear too. */
+enum class SpellSymbol(val id: String, val label: String, val emoji: String) {
+    STAR("star", "Star", "⭐"),
+    MOON("moon", "Moon", "🌙"),
+    LEAF("leaf", "Leaf", "🍃"),
+    FLOWER("flower", "Flower", "🌸");
+
+    companion object {
+        fun byId(id: String): SpellSymbol? = entries.firstOrNull { it.id == id }
+    }
 }

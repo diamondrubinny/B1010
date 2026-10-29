@@ -50,6 +50,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    androidResources {
+        // Recorded voice lines are streamed straight from the APK, so they must stay uncompressed.
+        noCompress += "ogg"
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true
@@ -66,6 +71,8 @@ android {
             // Robolectric's SDK 36 runtime needs this on JDK 17+.
             it.jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED", "--add-opens=java.base/java.io=ALL-UNNAMED")
             // Optional mirror for Robolectric's runtime jars (set in ~/.gradle/gradle.properties if Maven Central rate-limits).
+            // ./gradlew :app:testDebugUnitTest -PupdateVoiceScript=true regenerates docs/voice/*.csv
+            providers.gradleProperty("updateVoiceScript").orNull?.let { v -> it.systemProperty("updateVoiceScript", v) }
             providers.gradleProperty("robolectricRepoUrl").orNull?.let { url ->
                 it.systemProperty("robolectric.dependency.repo.url", url)
             }

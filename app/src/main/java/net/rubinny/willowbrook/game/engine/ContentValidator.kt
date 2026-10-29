@@ -1,6 +1,7 @@
 package net.rubinny.willowbrook.game.engine
 
 import net.rubinny.willowbrook.game.model.CaseContent
+import net.rubinny.willowbrook.game.model.SpellSymbol
 import net.rubinny.willowbrook.game.model.Step
 
 /**
@@ -15,6 +16,14 @@ object ContentValidator {
     const val MAX_HIDDEN_ITEMS = 8
     const val MIN_PAIRS = 2
     const val MAX_PAIRS = 4
+    const val MIN_OPTIONS = 2
+    const val MAX_OPTIONS = 3
+    const val MIN_CATEGORIES = 2
+    const val MAX_CATEGORIES = 3
+    const val MIN_SORT_ITEMS = 2
+    const val MAX_SORT_ITEMS = 6
+    const val MIN_SPELL = 2
+    const val MAX_SPELL = 4
 
     /**
      * Words that suggest theft, crime, danger or loss. Suspicion that "someone took my things"
@@ -73,6 +82,34 @@ object ContentValidator {
                         if ((step.targets + step.decoys).toSet().size != step.targets.size + step.decoys.size) {
                             err("${step.id}: an item appears twice")
                         }
+                    }
+                    is Step.Choice -> {
+                        texts += listOf(step.question, step.hint)
+                        if (step.options.size !in MIN_OPTIONS..MAX_OPTIONS) err("${step.id}: needs $MIN_OPTIONS-$MAX_OPTIONS options")
+                        if (step.options.toSet().size != step.options.size) err("${step.id}: duplicate option")
+                        if (step.answer !in step.options) err("${step.id}: the answer must be one of the options")
+                        step.options.forEach { if (it !in itemIds) err("${step.id}: unknown item '$it'") }
+                    }
+                    is Step.Sorting -> {
+                        texts += step.goal
+                        step.categories.forEach { texts += it.label }
+                        val categoryIds = step.categories.map { it.id }
+                        if (step.categories.size !in MIN_CATEGORIES..MAX_CATEGORIES) {
+                            err("${step.id}: needs $MIN_CATEGORIES-$MAX_CATEGORIES categories")
+                        }
+                        if (categoryIds.toSet().size != categoryIds.size) err("${step.id}: duplicate category")
+                        if (step.items.size !in MIN_SORT_ITEMS..MAX_SORT_ITEMS) err("${step.id}: needs $MIN_SORT_ITEMS-$MAX_SORT_ITEMS items")
+                        if (step.items.map { it.item }.toSet().size != step.items.size) err("${step.id}: an item appears twice")
+                        step.items.forEach {
+                            if (it.item !in itemIds) err("${step.id}: unknown item '${it.item}'")
+                            if (it.category !in categoryIds) err("${step.id}: unknown category '${it.category}'")
+                        }
+                        categoryIds.forEach { c -> if (step.items.none { it.category == c }) err("${step.id}: category '$c' is empty") }
+                    }
+                    is Step.Spell -> {
+                        texts += step.goal
+                        if (step.sequence.size !in MIN_SPELL..MAX_SPELL) err("${step.id}: spell needs $MIN_SPELL-$MAX_SPELL symbols")
+                        step.sequence.forEach { if (SpellSymbol.byId(it) == null) err("${step.id}: unknown symbol '$it'") }
                     }
                     is Step.MemoryMatch -> {
                         texts += step.goal

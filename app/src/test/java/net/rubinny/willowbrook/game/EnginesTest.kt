@@ -124,3 +124,61 @@ class MemoryMatchEngineTest {
         assertEquals(MemoryMatchEngine.Result.Ignored, e.flip(0))
     }
 }
+
+class ChoiceEngineTest {
+    @Test fun `wrong answers are remembered softly and the right one completes`() {
+        val e = net.rubinny.willowbrook.game.engine.ChoiceEngine("q1", listOf("pear", "lemon", "cherries"), "pear")
+        assertEquals(e.options, net.rubinny.willowbrook.game.engine.ChoiceEngine("q1", listOf("pear", "lemon", "cherries"), "pear").options)
+        val wrong = e.options.indexOfFirst { it != "pear" }
+        assertTrue(e.select(wrong) is net.rubinny.willowbrook.game.engine.ChoiceEngine.Result.NotThisOne)
+        assertEquals(setOf(e.options[wrong]), e.triedOptions)
+        assertFalse(e.isComplete)
+        assertEquals(net.rubinny.willowbrook.game.engine.ChoiceEngine.Result.Correct, e.select(e.answerIndex))
+        assertTrue(e.isComplete)
+        assertEquals(net.rubinny.willowbrook.game.engine.ChoiceEngine.Result.Ignored, e.select(0))
+    }
+}
+
+class SortingEngineTest {
+    private val items = listOf(
+        net.rubinny.willowbrook.game.model.SortItem("tulip", "garden"),
+        net.rubinny.willowbrook.game.model.SortItem("teacup", "kitchen"),
+        net.rubinny.willowbrook.game.model.SortItem("ladybird", "garden"),
+        net.rubinny.willowbrook.game.model.SortItem("cheese", "kitchen"),
+        net.rubinny.willowbrook.game.model.SortItem("leaf", "garden"),
+        net.rubinny.willowbrook.game.model.SortItem("bread", "kitchen"),
+    )
+
+    @Test fun `gentle pick keeps both categories`() {
+        val picked = net.rubinny.willowbrook.game.engine.SortingEngine.pick(items, listOf("garden", "kitchen"), 4)
+        assertEquals(4, picked.size)
+        assertEquals(2, picked.count { it.category == "garden" })
+        assertEquals(2, picked.count { it.category == "kitchen" })
+    }
+
+    @Test fun `wrong bin keeps the same item, right bin moves on until complete`() {
+        val e = net.rubinny.willowbrook.game.engine.SortingEngine("s1", items, listOf("garden", "kitchen"))
+        val first = e.current!!
+        val wrongBin = if (first.category == "garden") 1 else 0
+        assertTrue(e.place(wrongBin) is net.rubinny.willowbrook.game.engine.SortingEngine.Result.Wrong)
+        assertEquals(first, e.current)
+        while (!e.isComplete) {
+            assertTrue(e.place(e.correctCategoryIndex!!) is net.rubinny.willowbrook.game.engine.SortingEngine.Result.Correct)
+        }
+        assertEquals(items.size, e.placedItems.size)
+    }
+}
+
+class SpellEngineTest {
+    @Test fun `correct sequence completes, a mistake starts over without failing`() {
+        val e = net.rubinny.willowbrook.game.engine.SpellEngine(listOf("flower", "leaf", "star"))
+        assertTrue(e.input("flower") is net.rubinny.willowbrook.game.engine.SpellEngine.Result.Correct)
+        assertTrue(e.input("moon") is net.rubinny.willowbrook.game.engine.SpellEngine.Result.ShowAgain)
+        assertEquals(0, e.position)
+        listOf("flower", "leaf").forEach { e.input(it) }
+        val last = e.input("star")
+        assertEquals(net.rubinny.willowbrook.game.engine.SpellEngine.Result.Correct("star", complete = true), last)
+        assertTrue(e.isComplete)
+        assertEquals(net.rubinny.willowbrook.game.engine.SpellEngine.Result.Ignored, e.input("star"))
+    }
+}

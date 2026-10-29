@@ -4,22 +4,136 @@
   "title": "The Lantern of Willowbrook",
   "premise": "The lantern for tonight's autumn fair has gone dim. We are finding three little light charms to make it shine again.",
   "items": [
-    { "id": "glasses", "label": "Reading glasses", "emoji": "👓" },
-    { "id": "teacup", "label": "Teacup", "emoji": "☕" },
-    { "id": "clock", "label": "Clock", "emoji": "🕰️" },
-    { "id": "book", "label": "Book", "emoji": "📖" },
-    { "id": "honey", "label": "Honey pot", "emoji": "🍯" },
-    { "id": "bread", "label": "Loaf of bread", "emoji": "🍞" },
-    { "id": "strawberries", "label": "Strawberries", "emoji": "🍓" },
-    { "id": "milk", "label": "Glass of milk", "emoji": "🥛" },
-    { "id": "egg", "label": "Egg", "emoji": "🥚" },
-    { "id": "cheese", "label": "Cheese", "emoji": "🧀" },
-    { "id": "biscuit", "label": "Biscuit", "emoji": "🍪" },
-    { "id": "cake", "label": "Slice of cake", "emoji": "🍰" },
-    { "id": "croissant", "label": "Croissant", "emoji": "🥐" },
-    { "id": "apple", "label": "Apple", "emoji": "🍎" },
-    { "id": "lemon", "label": "Lemon", "emoji": "🍋" },
-    { "id": "cherries", "label": "Cherries", "emoji": "🍒" }
+    {
+      "id": "glasses",
+      "label": "Reading glasses",
+      "emoji": "👓"
+    },
+    {
+      "id": "teacup",
+      "label": "Teacup",
+      "emoji": "☕"
+    },
+    {
+      "id": "clock",
+      "label": "Clock",
+      "emoji": "🕰️"
+    },
+    {
+      "id": "book",
+      "label": "Book",
+      "emoji": "📖"
+    },
+    {
+      "id": "honey",
+      "label": "Honey pot",
+      "emoji": "🍯"
+    },
+    {
+      "id": "bread",
+      "label": "Loaf of bread",
+      "emoji": "🍞"
+    },
+    {
+      "id": "strawberries",
+      "label": "Strawberries",
+      "emoji": "🍓"
+    },
+    {
+      "id": "milk",
+      "label": "Glass of milk",
+      "emoji": "🥛"
+    },
+    {
+      "id": "egg",
+      "label": "Egg",
+      "emoji": "🥚"
+    },
+    {
+      "id": "cheese",
+      "label": "Cheese",
+      "emoji": "🧀"
+    },
+    {
+      "id": "biscuit",
+      "label": "Biscuit",
+      "emoji": "🍪"
+    },
+    {
+      "id": "cake",
+      "label": "Slice of cake",
+      "emoji": "🍰"
+    },
+    {
+      "id": "croissant",
+      "label": "Croissant",
+      "emoji": "🥐"
+    },
+    {
+      "id": "apple",
+      "label": "Apple",
+      "emoji": "🍎"
+    },
+    {
+      "id": "lemon",
+      "label": "Lemon",
+      "emoji": "🍋"
+    },
+    {
+      "id": "cherries",
+      "label": "Cherries",
+      "emoji": "🍒"
+    },
+    {
+      "id": "pear",
+      "label": "Pear",
+      "emoji": "🍐"
+    },
+    {
+      "id": "sunflower",
+      "label": "Sunflower",
+      "emoji": "🌻"
+    },
+    {
+      "id": "tulip",
+      "label": "Tulip",
+      "emoji": "🌷"
+    },
+    {
+      "id": "rose",
+      "label": "Rose",
+      "emoji": "🌹"
+    },
+    {
+      "id": "ladybird",
+      "label": "Ladybird",
+      "emoji": "🐞"
+    },
+    {
+      "id": "mushroom",
+      "label": "Mushroom",
+      "emoji": "🍄"
+    },
+    {
+      "id": "chestnut",
+      "label": "Chestnut",
+      "emoji": "🌰"
+    },
+    {
+      "id": "bee",
+      "label": "Bee",
+      "emoji": "🐝"
+    },
+    {
+      "id": "bird",
+      "label": "Little bird",
+      "emoji": "🐦"
+    },
+    {
+      "id": "maple_leaf",
+      "label": "Autumn leaf",
+      "emoji": "🍁"
+    }
   ],
   "chapters": [
     {
@@ -47,9 +161,17 @@
           "type": "hiddenObject",
           "id": "ch0_find_glasses",
           "goal": "Let's practise. Can you find your reading glasses?",
-          "targets": ["glasses"],
-          "decoys": ["teacup", "clock", "book"],
-          "hints": ["Your reading glasses have two round lenses."]
+          "targets": [
+            "glasses"
+          ],
+          "decoys": [
+            "teacup",
+            "clock",
+            "book"
+          ],
+          "hints": [
+            "Your reading glasses have two round lenses."
+          ]
         },
         {
           "type": "narration",
@@ -85,14 +207,24 @@
           "speaker": "Mrs. Bramble",
           "portrait": "bramble",
           "portraitEmoji": "👵",
-          "text": "Good morning, detective! A little light charm rolled off my table while I was baking. It must be here somewhere. Could you help me tidy up first?"
+          "text": "Good morning, detective! I was baking a pear tart for the fair when a little light charm rolled off my table. Could you help me tidy up first?"
         },
         {
           "type": "hiddenObject",
           "id": "ch1_tidy_kitchen",
           "goal": "Find the honey pot, the loaf of bread and the strawberries.",
-          "targets": ["honey", "bread", "strawberries"],
-          "decoys": ["milk", "egg", "cheese", "biscuit", "cake"],
+          "targets": [
+            "honey",
+            "bread",
+            "strawberries"
+          ],
+          "decoys": [
+            "milk",
+            "egg",
+            "cheese",
+            "biscuit",
+            "cake"
+          ],
           "hints": [
             "The honey pot is golden and round.",
             "The loaf of bread is brown and crusty.",
@@ -111,7 +243,33 @@
           "type": "memoryMatch",
           "id": "ch1_recipe_pairs",
           "goal": "Find two cards that are the same.",
-          "pairs": ["croissant", "apple", "lemon", "cherries"]
+          "pairs": [
+            "croissant",
+            "apple",
+            "lemon",
+            "cherries"
+          ]
+        },
+        {
+          "type": "narration",
+          "id": "ch1_question_intro",
+          "speaker": "Mrs. Bramble",
+          "portrait": "bramble",
+          "portraitEmoji": "👵",
+          "text": "Lovely, all in pairs again! Now, a little question before we look for the charm."
+        },
+        {
+          "type": "choice",
+          "id": "ch1_recall_fruit",
+          "kind": "recall",
+          "question": "What fruit was Mrs. Bramble using in her tart?",
+          "options": [
+            "pear",
+            "cherries",
+            "lemon"
+          ],
+          "answer": "pear",
+          "hint": "She told you when you arrived. It is a sweet green fruit."
         },
         {
           "type": "narration",
@@ -126,6 +284,156 @@
           "id": "ch1_charm",
           "text": "You found the first light charm! Mrs. Bramble gives you a warm scone to say thank you. Two more charms to find.",
           "charm": true
+        }
+      ]
+    },
+    {
+      "id": "ch2_garden",
+      "title": "The Garden",
+      "location": "Mr. Hollis's garden",
+      "scene": "garden",
+      "goal": "Help Mr. Hollis in his garden and find the second light charm.",
+      "recap": "You were in Mr. Hollis's garden, looking for the second light charm.",
+      "steps": [
+        {
+          "type": "narration",
+          "id": "ch2_arrive",
+          "text": "Mr. Hollis's garden is bright with autumn colours. He is raking leaves into a tidy pile."
+        },
+        {
+          "type": "narration",
+          "id": "ch2_hollis_hello",
+          "speaker": "Mr. Hollis",
+          "portrait": "hollis",
+          "portraitEmoji": "👴",
+          "text": "Hello, detective! I saw something sparkle near the flower beds, but my eyes aren't what they were. Shall we look together?"
+        },
+        {
+          "type": "hiddenObject",
+          "id": "ch2_find_garden",
+          "goal": "Find the ladybird, the mushroom and the chestnut.",
+          "targets": [
+            "ladybird",
+            "mushroom",
+            "chestnut"
+          ],
+          "decoys": [
+            "bee",
+            "bird",
+            "sunflower",
+            "maple_leaf",
+            "rose"
+          ],
+          "hints": [
+            "The ladybird is small and red with black spots.",
+            "The mushroom has a round cap and a little stalk.",
+            "The chestnut is shiny and brown."
+          ]
+        },
+        {
+          "type": "narration",
+          "id": "ch2_basket",
+          "speaker": "Mr. Hollis",
+          "portrait": "hollis",
+          "portraitEmoji": "👴",
+          "text": "Thank you! Oh dear, my basket is all muddled. Some things belong in the garden, and some belong in the kitchen."
+        },
+        {
+          "type": "sorting",
+          "id": "ch2_sort_basket",
+          "goal": "Put each thing where it belongs.",
+          "categories": [
+            {
+              "id": "garden",
+              "label": "Garden",
+              "emoji": "🌳"
+            },
+            {
+              "id": "kitchen",
+              "label": "Kitchen",
+              "emoji": "🍳"
+            }
+          ],
+          "items": [
+            {
+              "item": "tulip",
+              "category": "garden"
+            },
+            {
+              "item": "teacup",
+              "category": "kitchen"
+            },
+            {
+              "item": "ladybird",
+              "category": "garden"
+            },
+            {
+              "item": "cheese",
+              "category": "kitchen"
+            },
+            {
+              "item": "maple_leaf",
+              "category": "garden"
+            },
+            {
+              "item": "bread",
+              "category": "kitchen"
+            }
+          ]
+        },
+        {
+          "type": "narration",
+          "id": "ch2_spell_intro",
+          "speaker": "Marmalade",
+          "portrait": "marmalade",
+          "portraitEmoji": "🐈",
+          "text": "The sparkle is under the sleeping flowers. I know a kind spell to wake them for a moment. Watch, then do the same!"
+        },
+        {
+          "type": "spell",
+          "id": "ch2_bloom_spell",
+          "goal": "Watch the magic, then press the same symbols in the same order.",
+          "sequence": [
+            "flower",
+            "leaf",
+            "star",
+            "moon"
+          ]
+        },
+        {
+          "type": "narration",
+          "id": "ch2_flowers",
+          "speaker": "Marmalade",
+          "portrait": "marmalade",
+          "portraitEmoji": "🐈",
+          "text": "The flowers are opening! And look, there between the petals is the second light charm!"
+        },
+        {
+          "type": "narration",
+          "id": "ch2_riddle_intro",
+          "speaker": "Mr. Hollis",
+          "portrait": "hollis",
+          "portraitEmoji": "👴",
+          "text": "Before you go, here is a riddle my grandmother used to tell me."
+        },
+        {
+          "type": "choice",
+          "id": "ch2_riddle_sunflower",
+          "kind": "riddle",
+          "question": "I am tall and yellow, and I turn my face to the sun. What am I?",
+          "options": [
+            "sunflower",
+            "rose",
+            "tulip"
+          ],
+          "answer": "sunflower",
+          "hint": "Think of a big, bright yellow flower."
+        },
+        {
+          "type": "reward",
+          "id": "ch2_charm",
+          "charm": true,
+          "text": "You found the second light charm! Mr. Hollis gives you a bunch of autumn flowers. Just one more charm to find."
         }
       ]
     }

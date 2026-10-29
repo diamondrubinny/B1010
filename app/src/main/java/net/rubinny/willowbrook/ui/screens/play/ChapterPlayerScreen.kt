@@ -1,5 +1,6 @@
 package net.rubinny.willowbrook.ui.screens.play
 
+import android.view.accessibility.AccessibilityManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,9 +33,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,11 +46,15 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import net.rubinny.willowbrook.R
 import net.rubinny.willowbrook.game.engine.HintLevel
+import net.rubinny.willowbrook.audio.Narrator
+import net.rubinny.willowbrook.audio.SoundPlayer
+import net.rubinny.willowbrook.game.model.ChoiceKind
 import net.rubinny.willowbrook.game.model.Step
 import net.rubinny.willowbrook.ui.components.BigButton
 import net.rubinny.willowbrook.ui.components.CompanionBar
 import net.rubinny.willowbrook.ui.components.ConfirmDialog
 import net.rubinny.willowbrook.ui.components.InfoDialog
+import net.rubinny.willowbrook.ui.components.ItemPicture
 import net.rubinny.willowbrook.ui.components.Portrait
 import net.rubinny.willowbrook.ui.components.SceneBackground
 import net.rubinny.willowbrook.ui.components.ScreenScaffold
@@ -55,12 +64,37 @@ import net.rubinny.willowbrook.ui.theme.LocalWillowColors
 import net.rubinny.willowbrook.ui.theme.WillowType
 
 @Composable
-fun ChapterPlayerScreen(viewModel: ChapterPlayerViewModel, onGoHome: () -> Unit) {
+fun ChapterPlayerScreen(
+    viewModel: ChapterPlayerViewModel,
+    narrator: Narrator,
+    soundPlayer: SoundPlayer,
+    onGoHome: () -> Unit,
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var confirmLeave by rememberSaveable { mutableStateOf(false) }
     var showWhat by rememberSaveable { mutableStateOf(false) }
 
     BackHandler { confirmLeave = true }
+
+    // Speech and sounds requested by the game.
+    val accessibility = LocalContext.current.getSystemService(AccessibilityManager::class.java)
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is PlayerEffect.Speak -> {
+                    val talkBackOn = accessibility?.isTouchExplorationEnabled == true
+                    if (!(effect.companion && talkBackOn)) narrator.speak(effect.line, effect.rate)
+                }
+                is PlayerEffect.Sound -> soundPlayer.play(effect.cue, effect.volume)
+            }
+        }
+    }
+    // Leaving the story always stops the voice.
+    DisposableEffect(Unit) { onDispose { narrator.stop() } }
+    val openWhat = {
+        viewModel.onWhatAreWeDoing()
+        showWhat = true
+    }
 
     when (val s = state) {
         PlayerUiState.Loading -> ScreenScaffold(title = "Opening the story…") {}
@@ -69,7 +103,7 @@ fun ChapterPlayerScreen(viewModel: ChapterPlayerViewModel, onGoHome: () -> Unit)
             when (s.phase) {
                 Phase.RECAP -> RecapPhase(s, viewModel::onRecapContinue)
                 Phase.CHAPTER_INTRO -> ChapterIntroPhase(s, viewModel::onChapterIntroContinue)
-                Phase.STEP -> StepPhase(s, viewModel, onWhatAreWeDoing = { showWhat = true })
+                Phase.STEP -> StepPhase(s, viewModel, onWhatAreWeDoing = openWhat)
                 Phase.CHAPTER_COMPLETE -> ChapterCompletePhase(
                     s,
                     onNext = { if (!viewModel.onNextChapter()) onGoHome() },
@@ -83,7 +117,7 @@ fun ChapterPlayerScreen(viewModel: ChapterPlayerViewModel, onGoHome: () -> Unit)
                     title = "What are we doing?",
                     paragraphs = listOf(s.case.premise, "Right now: ${s.chapter.goal}"),
                     buttonText = "Thank you",
-                    onDismiss = { showWhat = false },
+                    onDismiss = { narrator.stop(); showWhat = false },
                 )
             }
         }
@@ -225,10 +259,13 @@ private fun StepPhase(s: PlayerUiState.Playing, viewModel: ChapterPlayerViewMode
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         when (val step = s.step) {
-            is Step.Narration -> NarrationStep(s, step, viewModel::onStepContinue, onWhatAreWeDoing)
-            is Step.Reward -> RewardStep(s, step, viewModel::onStepContinue)
+            is Step.Narration -> NarrationStep(s, step, viewModel::onStepContinue, viewModel::onListenAgain, onWhatAreWeDoing)
+            is Step.Reward -> RewardStep(s, step, viewModel::onStepContinue, viewModel::onListenAgain)
             is Step.HiddenObject -> HiddenObjectStep(s, viewModel, onWhatAreWeDoing)
             is Step.MemoryMatch -> MemoryStep(s, step, viewModel, onWhatAreWeDoing)
+            is Step.Choice -> ChoiceStep(s, viewModel, onWhatAreWeDoing)
+            is Step.Sorting -> SortingStep(s, viewModel, onWhatAreWeDoing)
+            is Step.Spell -> SpellStep(s, viewModel, onWhatAreWeDoing)
         }
     }
     }
@@ -239,6 +276,7 @@ private fun ColumnScope.NarrationStep(
     s: PlayerUiState.Playing,
     step: Step.Narration,
     onContinue: () -> Unit,
+    onListenAgain: () -> Unit,
     onWhatAreWeDoing: () -> Unit,
 ) {
     val colors = LocalWillowColors.current
@@ -259,7 +297,10 @@ private fun ColumnScope.NarrationStep(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             step.speaker?.let { Text(it, style = WillowType.button, color = colors.accent) }
-            Text(step.text, style = WillowType.body, color = colors.textPrimary)
+            StoryText(s, step.text, WillowType.body)
+            if (s.canListen) {
+                BigButton("🔊 Listen again", onClick = onListenAgain, minWidth = 300.dp, minHeight = 72.dp)
+            }
         }
     }
     Spacer(Modifier.weight(1f))
@@ -271,7 +312,7 @@ private fun ColumnScope.NarrationStep(
 }
 
 @Composable
-private fun ColumnScope.RewardStep(s: PlayerUiState.Playing, step: Step.Reward, onContinue: () -> Unit) {
+private fun ColumnScope.RewardStep(s: PlayerUiState.Playing, step: Step.Reward, onContinue: () -> Unit, onListenAgain: () -> Unit) {
     val colors = LocalWillowColors.current
     val focus = remember { FocusRequester() }
     Spacer(Modifier.weight(1f))
@@ -283,18 +324,17 @@ private fun ColumnScope.RewardStep(s: PlayerUiState.Playing, step: Step.Reward, 
         if (step.charm) {
             Icon(painterResource(R.drawable.ic_lantern), contentDescription = "A glowing light charm", tint = Color.Unspecified, modifier = Modifier.size(140.dp))
         }
-        Text(
-            step.text,
-            style = WillowType.title,
-            color = colors.textPrimary,
-            textAlign = TextAlign.Center,
+        Box(
             modifier = Modifier
                 .background(colors.background.copy(alpha = 0.85f), RoundedCornerShape(Dimens.cornerRadius))
                 .padding(28.dp),
-        )
+        ) { StoryText(s, step.text, WillowType.title, TextAlign.Center) }
     }
     Spacer(Modifier.weight(1f))
-    BigButton("Continue", onClick = onContinue, modifier = Modifier.align(Alignment.CenterHorizontally).focusRequester(focus))
+    Row(horizontalArrangement = Arrangement.spacedBy(Dimens.gap), modifier = Modifier.align(Alignment.CenterHorizontally)) {
+        BigButton("Continue", onClick = onContinue, modifier = Modifier.focusRequester(focus))
+        if (s.canListen) BigButton("🔊 Listen again", onClick = onListenAgain, minWidth = 300.dp)
+    }
     LaunchedEffect(step.id) { focus.requestFocusSafely() }
 }
 
@@ -407,6 +447,183 @@ private fun ColumnScope.MemoryStep(
         if (s.hintLevel == HintLevel.GUIDE) s.hintIndex?.let { cardFocus.getOrNull(it)?.requestFocusSafely() }
     }
     LaunchedEffect(ui.complete) { if (ui.complete) continueFocus.requestFocusSafely() }
+}
+
+/**
+ * Story text. Hidden only when the caregiver turned captions off while narration is on,
+ * so there is never a moment with neither words nor voice.
+ */
+@Composable
+private fun StoryText(s: PlayerUiState.Playing, text: String, style: TextStyle, align: TextAlign? = null) {
+    val colors = LocalWillowColors.current
+    if (s.showStoryText) {
+        Text(text, style = style, color = colors.textPrimary, textAlign = align)
+    } else {
+        Text("🔊 Listen…", style = style, color = colors.textSecondary, textAlign = align)
+    }
+}
+
+@Composable
+private fun ColumnScope.ChoiceStep(s: PlayerUiState.Playing, viewModel: ChapterPlayerViewModel, onWhatAreWeDoing: () -> Unit) {
+    val ui = s.choice ?: return
+    val colors = LocalWillowColors.current
+    val optionFocus = remember(s.step.id, ui.options.size) { List(ui.options.size) { FocusRequester() } }
+    val continueFocus = remember { FocusRequester() }
+
+    ActivityHeader(
+        goal = {
+            Text(
+                if (ui.kind == ChoiceKind.RECALL) "Memory question" else "A riddle",
+                style = WillowType.button,
+                color = colors.accent,
+            )
+        },
+        complete = ui.complete,
+        continueFocus = continueFocus,
+        onHelp = viewModel::onHelpMe,
+        onContinue = viewModel::onStepContinue,
+        onWhatAreWeDoing = onWhatAreWeDoing,
+    )
+    Spacer(Modifier.weight(1f))
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colors.background.copy(alpha = 0.85f), RoundedCornerShape(Dimens.cornerRadius))
+            .padding(horizontal = 28.dp, vertical = 16.dp),
+    ) {
+        Text(ui.question, style = WillowType.title, color = colors.textPrimary, modifier = Modifier.semantics { heading() })
+    }
+    TileGrid(count = ui.options.size) { index, modifier ->
+        val item = ui.options[index]
+        OptionTile(
+            item = item,
+            tried = item.id in ui.tried,
+            glowing = s.hintIndex == index,
+            onClick = { viewModel.onChoiceSelected(index) },
+            modifier = modifier.focusRequester(optionFocus[index]),
+        )
+    }
+    Spacer(Modifier.weight(1f))
+    CompanionBar(s.companionMessage, Modifier.fillMaxWidth())
+
+    LaunchedEffect(s.step.id) { optionFocus.firstOrNull()?.requestFocusSafely() }
+    GuideFocus(s, optionFocus)
+    LaunchedEffect(ui.complete) { if (ui.complete) continueFocus.requestFocusSafely() }
+}
+
+@Composable
+private fun ColumnScope.SortingStep(s: PlayerUiState.Playing, viewModel: ChapterPlayerViewModel, onWhatAreWeDoing: () -> Unit) {
+    val ui = s.sorting ?: return
+    val colors = LocalWillowColors.current
+    val binFocus = remember(s.step.id, ui.bins.size) { List(ui.bins.size) { FocusRequester() } }
+    val continueFocus = remember { FocusRequester() }
+
+    ActivityHeader(
+        goal = {
+            Column {
+                Text("Sorting", style = WillowType.label, color = colors.textSecondary)
+                Text("${ui.placedCount} of ${ui.total} sorted", style = WillowType.button, color = colors.textPrimary)
+            }
+        },
+        complete = ui.complete,
+        continueFocus = continueFocus,
+        onHelp = viewModel::onHelpMe,
+        onContinue = viewModel::onStepContinue,
+        onWhatAreWeDoing = onWhatAreWeDoing,
+    )
+    Spacer(Modifier.weight(1f))
+    ui.current?.let { item ->
+        Row(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .background(colors.background.copy(alpha = 0.85f), RoundedCornerShape(Dimens.cornerRadius))
+                .padding(horizontal = 32.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Dimens.gap),
+        ) {
+            ItemPicture(item.id, item.emoji, size = 80.dp)
+            Column {
+                Text(item.label, style = WillowType.title, color = colors.textPrimary)
+                Text("Where does it belong?", style = WillowType.body, color = colors.textSecondary)
+            }
+        }
+    }
+    TileGrid(count = ui.bins.size) { index, modifier ->
+        BinTile(
+            bin = ui.bins[index],
+            glowing = s.hintIndex == index,
+            onClick = { viewModel.onSortingBinSelected(index) },
+            modifier = modifier.focusRequester(binFocus[index]),
+        )
+    }
+    Spacer(Modifier.weight(1f))
+    CompanionBar(s.companionMessage, Modifier.fillMaxWidth())
+
+    LaunchedEffect(s.step.id) { binFocus.firstOrNull()?.requestFocusSafely() }
+    GuideFocus(s, binFocus)
+    LaunchedEffect(ui.complete) { if (ui.complete) continueFocus.requestFocusSafely() }
+}
+
+@Composable
+private fun ColumnScope.SpellStep(s: PlayerUiState.Playing, viewModel: ChapterPlayerViewModel, onWhatAreWeDoing: () -> Unit) {
+    val ui = s.spell ?: return
+    val colors = LocalWillowColors.current
+    val symbolFocus = remember(s.step.id) { List(ui.symbols.size) { FocusRequester() } }
+    val continueFocus = remember { FocusRequester() }
+
+    ActivityHeader(
+        goal = {
+            Column {
+                Text("A kind spell", style = WillowType.label, color = colors.textSecondary)
+                Text(
+                    (0 until ui.length).joinToString(" ") { if (it < ui.position || ui.complete) "●" else "○" },
+                    style = WillowType.button,
+                    color = colors.accent,
+                    modifier = Modifier.semantics { contentDescription = "${ui.position} of ${ui.length} done" },
+                )
+            }
+        },
+        complete = ui.complete,
+        continueFocus = continueFocus,
+        onHelp = viewModel::onHelpMe,
+        onContinue = viewModel::onStepContinue,
+        onWhatAreWeDoing = onWhatAreWeDoing,
+    )
+    Spacer(Modifier.weight(1f))
+    TileGrid(count = ui.symbols.size) { index, modifier ->
+        SymbolTile(
+            symbol = ui.symbols[index],
+            lit = ui.showingSymbol == index,
+            glowing = s.hintIndex == index,
+            onClick = { viewModel.onSpellSymbolSelected(index) },
+            modifier = modifier.focusRequester(symbolFocus[index]),
+        )
+    }
+    if (!ui.complete) {
+        BigButton(
+            if (ui.showing) "Watching…" else "Show me again",
+            onClick = viewModel::onSpellShowAgain,
+            minWidth = 320.dp,
+            minHeight = 72.dp,
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+        )
+    }
+    Spacer(Modifier.weight(1f))
+    CompanionBar(s.companionMessage, Modifier.fillMaxWidth())
+
+    LaunchedEffect(s.step.id) { symbolFocus.firstOrNull()?.requestFocusSafely() }
+    // When the magic has been shown, put the player on the first symbol, ready to repeat it.
+    LaunchedEffect(ui.showing) { if (!ui.showing && !ui.complete) symbolFocus.firstOrNull()?.requestFocusSafely() }
+    GuideFocus(s, symbolFocus)
+    LaunchedEffect(ui.complete) { if (ui.complete) continueFocus.requestFocusSafely() }
+}
+
+/** At the last hint level, focus jumps to the answer so pressing OK always succeeds. */
+@Composable
+private fun GuideFocus(s: PlayerUiState.Playing, requesters: List<FocusRequester>) {
+    LaunchedEffect(s.hintLevel, s.hintIndex) {
+        if (s.hintLevel == HintLevel.GUIDE) s.hintIndex?.let { requesters.getOrNull(it)?.requestFocusSafely() }
+    }
 }
 
 /** 1–4 tiles: one row. 5–6: 3 per row (wide tiles keep labels on one line). 7–8: 4 per row. */

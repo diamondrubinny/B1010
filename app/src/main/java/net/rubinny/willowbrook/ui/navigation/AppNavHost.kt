@@ -97,6 +97,8 @@ fun AppNavHost(
             }
             ChapterPlayerScreen(
                 viewModel = vm,
+                narrator = container.narrator,
+                soundPlayer = container.soundPlayer,
                 onGoHome = { navController.popBackStack(Routes.HOME, inclusive = false) },
             )
         }

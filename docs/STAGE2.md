@@ -16,7 +16,7 @@
 | `ProgressRepository` | שמירה אחרי כל צעד, לכל שחקן. נמחקת יחד עם השחקן |
 | מסך Chapter Player | תזכורת "Welcome back, last time…", צעדים, "What are we doing?", "Help me", Back שואל לפני יציאה |
 | Case Files | רשימת פרקים: הושלם / הבא בתור. הפעלה חוזרת לא משנה את ההתקדמות |
-| `docs/ART_PROMPTS_CH01.md` | רשימת prompts לאיורי AI של פרקים 0–1 |
+| `docs/ART_PROMPTS.md` | רשימת prompts לאיורי AI של פרקים 0–1 |
 
 ## Placeholder עד שיגיעו האיורים
 - חפצים: אימוג'י של המערכת עם תווית טקסט (קריאה ותמונה יחד).

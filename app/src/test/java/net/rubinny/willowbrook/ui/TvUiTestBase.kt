@@ -63,6 +63,17 @@ abstract class TvUiTestBase {
     protected fun right() = press(KeyEvent.KEYCODE_DPAD_RIGHT)
     protected fun back() = press(KeyEvent.KEYCODE_BACK)
 
+    /** Robolectric's clock stands still; this lets timed game events (the spell show) happen. */
+    protected fun passTime(millis: Long) {
+        var left = millis
+        while (left > 0) {
+            val step = minOf(200L, left)
+            org.robolectric.shadows.ShadowLooper.idleMainLooper(step, java.util.concurrent.TimeUnit.MILLISECONDS)
+            rule.waitForIdle()
+            left -= step
+        }
+    }
+
     protected fun shot(name: String) = captureScreenRoboImage("build/screenshots/$name.png")
 
     protected fun waitForText(text: String, substring: Boolean = false) {

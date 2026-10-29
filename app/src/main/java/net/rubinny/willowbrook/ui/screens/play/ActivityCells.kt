@@ -20,10 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Icon
@@ -31,6 +33,7 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import net.rubinny.willowbrook.R
 import net.rubinny.willowbrook.game.model.Item
+import net.rubinny.willowbrook.game.model.SpellSymbol
 import net.rubinny.willowbrook.ui.components.ItemPicture
 import net.rubinny.willowbrook.ui.theme.Dimens
 import net.rubinny.willowbrook.ui.theme.LocalReduceMotion
@@ -63,20 +66,26 @@ private fun Tile(
     done: Boolean,
     accessibilityLabel: String,
     modifier: Modifier = Modifier,
+    lit: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val colors = LocalWillowColors.current
     val shape = RoundedCornerShape(Dimens.cornerRadius)
     val glow = glowAlpha(glowing)
     // The glow lives in the border only, so text contrast on the tile never drops.
-    val base = if (done && !glowing) colors.surface.copy(alpha = 0.55f) else colors.surface
+    // "Lit" (a spell symbol being shown) uses a cream fill with dark text: clearly different from gold focus.
+    val base = when {
+        lit -> colors.textPrimary
+        done && !glowing -> colors.surface.copy(alpha = 0.55f)
+        else -> colors.surface
+    }
     Surface(
         onClick = onClick,
         modifier = modifier.semantics { contentDescription = accessibilityLabel },
         shape = ClickableSurfaceDefaults.shape(shape = shape),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = base,
-            contentColor = colors.textPrimary,
+            contentColor = if (lit) colors.textOnFocus else colors.textPrimary,
             focusedContainerColor = colors.surfaceFocused,
             focusedContentColor = colors.textOnFocus,
         ),
@@ -90,7 +99,10 @@ private fun Tile(
             ),
             focusedBorder = Border(BorderStroke(Dimens.focusBorder, colors.focusRing), shape = shape),
         ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = if (LocalReduceMotion.current) 1f else 1.05f),
+        scale = ClickableSurfaceDefaults.scale(
+            scale = if (lit && !LocalReduceMotion.current) 1.08f else 1f,
+            focusedScale = if (LocalReduceMotion.current) 1f else 1.05f,
+        ),
     ) {
         Column(
             modifier = Modifier
@@ -138,5 +150,54 @@ fun MemoryCard(position: Int, card: MemoryCardUi, glowing: Boolean, onClick: () 
             // Card back: the lantern motif, same for every card.
             Icon(painter = painterResource(R.drawable.ic_lantern), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(72.dp))
         }
+    }
+}
+
+/** An answer to a question. A tried wrong answer is dimmed but stays selectable. */
+@Composable
+fun OptionTile(item: Item, tried: Boolean, glowing: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Tile(
+        onClick = onClick,
+        glowing = glowing,
+        done = tried,
+        accessibilityLabel = item.label + if (tried) ", not this one" else "",
+        modifier = modifier,
+    ) {
+        ItemPicture(item.id, item.emoji, size = 64.dp)
+        Text(text = item.label, style = WillowType.label, textAlign = TextAlign.Center)
+    }
+}
+
+/** A sorting destination, showing the items already placed in it. */
+@Composable
+fun BinTile(bin: SortingBinUi, glowing: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val placed = bin.placed.joinToString(" ") { it.emoji }
+    Tile(
+        onClick = onClick,
+        glowing = glowing,
+        done = false,
+        accessibilityLabel = bin.category.label +
+            if (bin.placed.isEmpty()) "" else ", has " + bin.placed.joinToString(", ") { it.label },
+        modifier = modifier,
+    ) {
+        Text(text = bin.category.emoji, fontSize = 40.sp, color = Color.Unspecified, modifier = Modifier.clearAndSetSemantics { })
+        Text(text = bin.category.label, style = WillowType.button, textAlign = TextAlign.Center)
+        if (placed.isNotEmpty()) Text(text = placed, fontSize = 24.sp, modifier = Modifier.clearAndSetSemantics { })
+    }
+}
+
+/** A magic symbol. [lit] while the spell is being shown. */
+@Composable
+fun SymbolTile(symbol: SpellSymbol, lit: Boolean, glowing: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Tile(
+        onClick = onClick,
+        glowing = glowing,
+        done = false,
+        lit = lit,
+        accessibilityLabel = symbol.label + if (lit) ", shining now" else "",
+        modifier = modifier,
+    ) {
+        Text(text = symbol.emoji, fontSize = 52.sp, color = Color.Unspecified, modifier = Modifier.clearAndSetSemantics { })
+        Text(text = symbol.label, style = WillowType.button, textAlign = TextAlign.Center)
     }
 }

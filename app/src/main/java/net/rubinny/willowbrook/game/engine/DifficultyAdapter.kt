@@ -32,6 +32,24 @@ object DifficultyAdapter {
         EffectiveDifficulty.STANDARD -> available
     }
 
+    /** Questions: gentle = answer + one other option, standard = all (max 3). */
+    fun choiceOptions(difficulty: EffectiveDifficulty, available: Int): Int = when (difficulty) {
+        EffectiveDifficulty.GENTLE -> minOf(2, available)
+        EffectiveDifficulty.STANDARD -> available
+    }
+
+    /** Sorting: gentle = 4 items, standard = all (max 6). */
+    fun sortingItems(difficulty: EffectiveDifficulty, available: Int): Int = when (difficulty) {
+        EffectiveDifficulty.GENTLE -> minOf(4, available)
+        EffectiveDifficulty.STANDARD -> available
+    }
+
+    /** Spell: gentle = 2 symbols, standard = the full sequence (max 4). */
+    fun spellLength(difficulty: EffectiveDifficulty, available: Int): Int = when (difficulty) {
+        EffectiveDifficulty.GENTLE -> minOf(2, available)
+        EffectiveDifficulty.STANDARD -> available
+    }
+
     /** Memory match: gentle = 2 pairs (4 cards), standard = up to 4 pairs (8 cards). */
     fun memoryPairs(difficulty: EffectiveDifficulty, available: Int): Int = when (difficulty) {
         EffectiveDifficulty.GENTLE -> minOf(2, available)

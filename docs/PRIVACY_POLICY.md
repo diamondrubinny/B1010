@@ -29,7 +29,7 @@ We ask for a nickname only. Please do **not** enter a full name, age, health inf
 The app opts out of Android cloud backup and device-to-device transfer, so this information is not copied to Google or to another device.
 
 ## Voice and pictures
-Narration and pictures are included inside the app. If a recorded voice is missing, the TV's built-in text-to-speech engine reads the text **on the device**. No text or audio is sent anywhere by this app.
+Narration and pictures are included inside the app. If a recorded voice is missing, the TV's built-in text-to-speech engine reads the text. Only story text and short game messages are spoken; players' names are never passed to text-to-speech. This app sends no text or audio anywhere.
 *(Requires verification: some device text-to-speech engines may have their own settings — see your TV's settings.)*
 
 ## Your choices and rights

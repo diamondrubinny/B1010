@@ -1,4 +1,4 @@
-# Prompts לאיורי AI — פרקים 0–1
+# Prompts לאיורי AI — פרקים 0–2
 
 כל prompt מתחיל ב-**prompt הבסיס** מתוך [`ASSET_PIPELINE.md`](ASSET_PIPELINE.md), ובמקום `<SUBJECT>` מכניסים את הנושא מהטבלאות.
 את הקבצים המוכנים שמים בתיקייה `app/src/main/res/drawable-nodpi/` בשם המדויק שבטבלה.
@@ -10,6 +10,7 @@
 | קובץ | `<SUBJECT>` |
 |---|---|
 | `scene_cottage.webp` | the cosy sitting room of a small English cottage, armchair with a knitted blanket, fireplace with a gentle fire, bookshelf, window with autumn trees outside, a ginger cat basket by the fire, wide view with calm empty space in the centre |
+| `scene_garden.webp` | an English cottage garden in autumn, flower beds, a wooden wheelbarrow, a neat pile of raked leaves, an apple tree, a low stone wall, soft golden afternoon light, calm empty space in the centre |
 | `scene_bakery.webp` | the inside of a small 1950s village bakery, wooden counter, shelves of bread loaves, a large old oven glowing warmly, flour on a wooden table, jars on shelves, autumn light through the window, calm empty space in the centre |
 
 הרקע מוצג מתחת לשכבה כהה (72%) כדי לשמור על קריאות הטקסט, ולכן כדאי לבחור תמונה עם אזורים רגועים ובלי פרטים קטנים במרכז.
@@ -18,6 +19,7 @@
 | קובץ | `<SUBJECT>` |
 |---|---|
 | `char_marmalade.webp` | a friendly ginger tabby cat sitting upright, gentle smile, bright kind eyes, soft fur, looking at the viewer, full body, transparent background |
+| `char_hollis.webp` | Mr. Hollis, a gentle gardener in his seventies, flat cap, tweed waistcoat over a rolled-sleeve shirt, kind wrinkled smile, holding a small trowel, half body, transparent background |
 | `char_bramble.webp` | Mrs. Bramble, a warm and kind baker in her sixties, rosy cheeks, grey hair in a bun, flour-dusted apron over a 1950s floral dress, holding a wooden spoon, friendly smile, half body, transparent background |
 
 ## חפצים (512×512, רקע שקוף, WebP lossless)
@@ -41,11 +43,21 @@
 | `obj_apple.webp` | shiny red apple with a leaf |
 | `obj_lemon.webp` | bright yellow lemon with a leaf |
 | `obj_cherries.webp` | pair of red cherries on a stem |
+| `obj_pear.webp` | ripe green pear with a leaf |
+| `obj_sunflower.webp` | tall yellow sunflower |
+| `obj_tulip.webp` | single pink tulip |
+| `obj_rose.webp` | single red rose |
+| `obj_ladybird.webp` | friendly red ladybird with black spots (not an insect close-up — soft and simple) |
+| `obj_mushroom.webp` | small brown woodland mushroom |
+| `obj_chestnut.webp` | shiny brown chestnut |
+| `obj_bee.webp` | friendly round bumblebee (soft and simple) |
+| `obj_bird.webp` | small robin |
+| `obj_maple_leaf.webp` | orange autumn leaf |
 
 ## כללים לחפצים
 - כל חפץ צריך להיות מזוהה גם בגודל קטן (כ-56dp על המסך). מומלץ לבדוק בהקטנה ל-128px.
 - החפצים בכל סצנה צריכים להיות שונים זה מזה בצורה ובצבע, כדי לא לבלבל.
 - שומרים על סגנון אחיד לכל החפצים: אותה תאורה, אותו כיוון צל, אותה רמת פירוט.
 
-## קריינות (שלב 3)
-סקריפט הקול (`voice_script.csv`) ייווצר אוטומטית מהתוכן בשלב 3.
+## קריינות
+סקריפט הקול נמצא ב-`docs/voice/lantern.csv`. מקליטים כל שורה לקובץ `app/src/main/assets/voice/<id>.ogg`.

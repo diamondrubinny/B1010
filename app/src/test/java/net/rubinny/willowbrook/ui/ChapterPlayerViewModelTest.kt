@@ -13,11 +13,16 @@ import net.rubinny.willowbrook.data.content.ContentRepository
 import net.rubinny.willowbrook.data.progress.ProgressRepository
 import net.rubinny.willowbrook.data.settings.SettingsRepository
 import net.rubinny.willowbrook.game.engine.HintLevel
+import net.rubinny.willowbrook.game.model.SpellSymbol
 import net.rubinny.willowbrook.game.model.Step
 import net.rubinny.willowbrook.newDataStore
 import net.rubinny.willowbrook.ui.screens.play.ChapterPlayerViewModel
 import net.rubinny.willowbrook.ui.screens.play.Phase
 import net.rubinny.willowbrook.ui.screens.play.PlayerUiState
+import kotlinx.coroutines.launch
+import net.rubinny.willowbrook.audio.SoundCue
+import net.rubinny.willowbrook.game.engine.SpokenLine
+import net.rubinny.willowbrook.ui.screens.play.PlayerEffect
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -79,6 +84,20 @@ class ChapterPlayerViewModelTest {
                     val ui = playing().hiddenObject!!
                     val target = ui.targets.first { it.id !in ui.found }
                     onHiddenCellSelected(ui.cells.indexOfFirst { it.id == target.id })
+                }
+            }
+            is Step.Choice -> onChoiceSelected(playing().choice!!.options.indexOfFirst { it.id == playing().choice!!.answer })
+            is Step.Sorting -> while (!playing().sorting!!.complete) {
+                val step = playing().step as Step.Sorting
+                val current = playing().sorting!!.current!!
+                val category = step.items.first { it.item == current.id }.category
+                onSortingBinSelected(step.categories.indexOfFirst { it.id == category })
+            }
+            is Step.Spell -> {
+                advance(60_000) // let the magic be shown
+                val step = playing().step as Step.Spell
+                step.sequence.take(playing().spell!!.length).forEach { id ->
+                    onSpellSymbolSelected(SpellSymbol.byId(id)!!.ordinal)
                 }
             }
             is Step.MemoryMatch -> {
@@ -195,6 +214,152 @@ class ChapterPlayerViewModelTest {
         assertEquals(false, vm.onNextChapter()) // replays end at home
         assertEquals(before.chapterIndex, progress.get("p1", "lantern").chapterIndex)
         assertEquals(before.recentHintLevels, progress.get("p1", "lantern").recentHintLevels)
+    }
+
+    private fun startAt(chapter: Int, step: Int) = runBlocking {
+        progress.save("p1", progress.get("p1", "lantern").copy(chapterIndex = chapter, stepIndex = step))
+    }
+
+    /** Starts at a saved step, passes the recap, and records every effect from then on. */
+    private fun ChapterPlayerViewModel.openSavedStep(effects: MutableList<PlayerEffect>) = runBlocking {
+        await { it.phase == Phase.RECAP }
+        backgroundScope.launch { this@openSavedStep.effects.collect { effects += it } }
+        onRecapContinue()
+        await { it.phase == Phase.STEP }
+    }
+
+    private val effects = mutableListOf<PlayerEffect>()
+    private val backgroundScope = kotlinx.coroutines.CoroutineScope(UnconfinedTestDispatcher(scheduler))
+
+    private fun spoken() = effects.filterIsInstance<PlayerEffect.Speak>().map { it.line }
+    private fun sounds() = effects.filterIsInstance<PlayerEffect.Sound>().map { it.cue }
+
+    @Test fun `entering a step speaks its line with the recorded-voice id`() {
+        startAt(1, 2)
+        val vm = vm()
+        vm.openSavedStep(effects)
+        assertEquals(SpokenLine("ch1_tidy_kitchen_goal", "Find the honey pot, the loaf of bread and the strawberries."), spoken().last())
+        assertTrue(!effects.filterIsInstance<PlayerEffect.Speak>().last().companion) // story line: always read
+    }
+
+    @Test fun `narration off means no speech, and captions cannot be hidden`() = runBlocking {
+        settings.update { it.copy(narrationEnabled = false, captionsEnabled = false) }
+        startAt(1, 2)
+        val vm = vm()
+        vm.openSavedStep(effects)
+        assertTrue(spoken().isEmpty())
+        assertTrue(vm.playing().showStoryText)
+        assertTrue(!vm.playing().canListen)
+    }
+
+    @Test fun `captions off with narration on hides story text`() = runBlocking {
+        settings.update { it.copy(captionsEnabled = false) }
+        startAt(1, 1)
+        val vm = vm()
+        vm.openSavedStep(effects)
+        assertTrue(!vm.playing().showStoryText)
+        vm.onListenAgain()
+        assertEquals("ch1_bramble_hello", spoken().last().id)
+    }
+
+    @Test fun `found plays a chime, a wrong pick plays nothing and is spoken kindly`() {
+        startAt(1, 2)
+        val vm = vm()
+        vm.openSavedStep(effects)
+        val ui = vm.playing().hiddenObject!!
+        val wrong = ui.cells.indexOfFirst { c -> ui.targets.none { it.id == c.id } }
+        vm.onHiddenCellSelected(wrong)
+        assertTrue(sounds().isEmpty())
+        assertTrue(spoken().last().text.startsWith("That's a lovely"))
+        assertNull(spoken().last().id) // made up during play: read by text-to-speech
+        assertTrue(effects.filterIsInstance<PlayerEffect.Speak>().last().companion) // TalkBack reads it itself
+        vm.onHiddenCellSelected(ui.cells.indexOfFirst { it.id == "honey" })
+        assertEquals(listOf(SoundCue.FOUND), sounds())
+    }
+
+    @Test fun `hints are spoken once, not every second`() {
+        startAt(1, 2)
+        val vm = vm()
+        vm.openSavedStep(effects)
+        val before = spoken().size
+        advance(20_000)
+        advance(5_000)
+        assertEquals(before + 1, spoken().size)
+        vm.onHelpMe()
+        assertEquals(SpokenLine("ch1_tidy_kitchen_hint1", "The honey pot is golden and round."), spoken().last())
+    }
+
+    @Test fun `recall question - wrong option is dimmed, right option completes`() {
+        startAt(1, 6)
+        val vm = vm()
+        vm.openSavedStep(effects)
+        val ui = vm.playing().choice!!
+        assertEquals(2, ui.options.size) // gentle: answer + one other
+        assertTrue(ui.options.any { it.id == "pear" })
+        val wrong = ui.options.indexOfFirst { it.id != "pear" }
+        vm.onChoiceSelected(wrong)
+        assertEquals(setOf(ui.options[wrong].id), vm.playing().choice!!.tried)
+        vm.onChoiceSelected(ui.options.indexOfFirst { it.id == "pear" })
+        assertTrue(vm.playing().choice!!.complete)
+        assertTrue(vm.playing().companionMessage!!.contains("pear"))
+        assertEquals(SoundCue.COMPLETE, sounds().last())
+    }
+
+    @Test fun `sorting - gentle uses 4 items and a wrong bin gets a kind question`() {
+        startAt(2, 4)
+        val vm = vm()
+        vm.openSavedStep(effects)
+        val ui = vm.playing().sorting!!
+        assertEquals(4, ui.total)
+        val step = vm.playing().step as Step.Sorting
+        val current = ui.current!!
+        val right = step.items.first { it.item == current.id }.category
+        vm.onSortingBinSelected(step.categories.indexOfFirst { it.id != right })
+        assertTrue(vm.playing().companionMessage!!, vm.playing().companionMessage!!.startsWith("Hmm, would we keep"))
+        assertEquals(current, vm.playing().sorting!!.current)
+        vm.onSortingBinSelected(step.categories.indexOfFirst { it.id == right })
+        assertEquals(1, vm.playing().sorting!!.placedCount)
+    }
+
+    @Test fun `spell - the magic is shown with notes, input waits, mistakes show it again`() {
+        startAt(2, 6)
+        val vm = vm()
+        vm.openSavedStep(effects)
+        val spell = vm.playing().spell!!
+        assertTrue(spell.showing)
+        assertEquals(2, spell.length) // gentle
+        vm.onSpellSymbolSelected(SpellSymbol.FLOWER.ordinal) // ignored while showing
+        assertEquals(0, vm.playing().spell!!.position)
+
+        advance(3_000) // lead-in
+        assertEquals(SpellSymbol.FLOWER.ordinal, vm.playing().spell!!.showingSymbol)
+        assertEquals(SoundCue.NOTE_FLOWER, sounds().last())
+        advance(1_600)
+        assertEquals(SpellSymbol.LEAF.ordinal, vm.playing().spell!!.showingSymbol)
+        advance(1_600)
+        assertTrue(!vm.playing().spell!!.showing)
+        assertEquals("Now you try. Press the symbols in the same order.", vm.playing().companionMessage)
+
+        vm.onSpellSymbolSelected(SpellSymbol.MOON.ordinal) // mistake
+        assertTrue(vm.playing().spell!!.showing)
+        advance(1_200 + 2 * 1_600)
+        vm.onSpellSymbolSelected(SpellSymbol.FLOWER.ordinal)
+        vm.onSpellSymbolSelected(SpellSymbol.LEAF.ordinal)
+        assertTrue(vm.playing().spell!!.complete)
+        assertEquals(SoundCue.COMPLETE, sounds().last())
+    }
+
+    @Test fun `chapter 2 can be played to the end`() = runBlocking {
+        startAt(2, 0)
+        val vm = vm()
+        vm.await { it.phase == Phase.RECAP }
+        vm.onRecapContinue()
+        vm.await { it.phase == Phase.CHAPTER_INTRO }
+        vm.onChapterIntroContinue()
+        while (vm.playing().phase == Phase.STEP) vm.solveCurrentStep()
+        assertEquals(Phase.CHAPTER_COMPLETE, vm.playing().phase)
+        val saved = withTimeout(10_000) { progress.progress("p1", "lantern").first { it.chapterIndex == 3 } }
+        assertTrue("ch2_garden" in saved.completedChapters)
     }
 
     @Test fun `finished case shows the finished screen`() = runBlocking {

@@ -23,10 +23,13 @@ We aim to meet **WCAG 2.1 level AA**, and use **AAA contrast (7:1 or higher)** f
 - Screen-reader (TalkBack) labels on all controls; states such as "On/Off" are spoken.
 - No time limits anywhere in the game.
 - No wrong-answer sounds or penalties; help is always available with "Help me", and Marmalade always shows what is left to do.
+- The story is read aloud, with "Listen again" on every story screen. Captions are always available, and can only be turned off while narration is on.
+- When TalkBack is on, Marmalade's messages are announced by TalkBack only, so nothing is heard twice.
+- Sounds are soft bells with gentle starts; there is no sound for a wrong answer.
 - Hints never rely on colour alone: a glowing frame, a spoken-style message, and finally the answer is selected for you.
 
 ## Known limitations
-- Narration (spoken story) is not available yet; all story text is shown on screen.
+- Narration uses the TV's own text-to-speech voice until recorded voices are added; its quality depends on the TV.
 - Typing a player name needs the TV's on-screen keyboard, which is controlled by the TV, not by us.
 - Automated tests run in a simulated TV environment; testing with real users and TalkBack on physical devices is still pending.
 
