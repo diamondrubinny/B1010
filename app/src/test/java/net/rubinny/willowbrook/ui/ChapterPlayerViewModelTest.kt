@@ -51,7 +51,14 @@ class ChapterPlayerViewModelTest {
         settings = SettingsRepository(store)
     }
 
-    @After fun tearDown() = Dispatchers.resetMain()
+    /** Every line spoken in any scenario must be in the recording script (so it has a recorded voice). */
+    @After fun tearDown() {
+        Dispatchers.resetMain()
+        val case = runBlocking { content.load("lantern") }
+        val scripted = net.rubinny.willowbrook.game.engine.VoiceLines.script(case).map { it.second.id }.toSet()
+        val missing = spoken().filter { it.id !in scripted }
+        assertTrue("Spoken lines without a recording: $missing", missing.isEmpty())
+    }
 
     private fun vm(replay: Int? = null) = ChapterPlayerViewModel(
         profileId = "p1",
@@ -271,7 +278,7 @@ class ChapterPlayerViewModelTest {
         vm.onHiddenCellSelected(wrong)
         assertTrue(sounds().isEmpty())
         assertTrue(spoken().last().text.startsWith("That's a lovely"))
-        assertNull(spoken().last().id) // made up during play: read by text-to-speech
+        assertEquals(net.rubinny.willowbrook.game.engine.Phrases.idFor(spoken().last().text), spoken().last().id) // recorded play-time phrase
         assertTrue(effects.filterIsInstance<PlayerEffect.Speak>().last().companion) // TalkBack reads it itself
         vm.onHiddenCellSelected(ui.cells.indexOfFirst { it.id == "honey" })
         assertEquals(listOf(SoundCue.FOUND), sounds())
@@ -281,12 +288,16 @@ class ChapterPlayerViewModelTest {
         startAt(1, 2)
         val vm = vm()
         vm.openSavedStep(effects)
-        val before = spoken().size
+        // Count only Marmalade's lines: the story lines (recap, goal) arrive from another thread at slightly
+        // different moments, so including them would make the count racy.
+        fun companionLines() = effects.filterIsInstance<PlayerEffect.Speak>().filter { it.companion }.map { it.line }
+        assertEquals(0, companionLines().size)
         advance(20_000)
         advance(5_000)
-        assertEquals(before + 1, spoken().size)
+        assertEquals(1, companionLines().size)
+        assertEquals("Remember, we're looking for the honey pot.", companionLines().last().text)
         vm.onHelpMe()
-        assertEquals(SpokenLine("ch1_tidy_kitchen_hint1", "The honey pot is golden and round."), spoken().last())
+        assertEquals(SpokenLine("ch1_tidy_kitchen_hint1", "The honey pot is golden and round."), companionLines().last())
     }
 
     @Test fun `recall question - wrong option is dimmed, right option completes`() {
@@ -315,7 +326,7 @@ class ChapterPlayerViewModelTest {
         val current = ui.current!!
         val right = step.items.first { it.item == current.id }.category
         vm.onSortingBinSelected(step.categories.indexOfFirst { it.id != right })
-        assertTrue(vm.playing().companionMessage!!, vm.playing().companionMessage!!.startsWith("Hmm, would we keep"))
+        assertTrue(vm.playing().companionMessage!!, vm.playing().companionMessage!!.startsWith("I wonder, would we keep"))
         assertEquals(current, vm.playing().sorting!!.current)
         vm.onSortingBinSelected(step.categories.indexOfFirst { it.id == right })
         assertEquals(1, vm.playing().sorting!!.placedCount)

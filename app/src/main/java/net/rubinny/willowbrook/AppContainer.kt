@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import net.rubinny.willowbrook.audio.AndroidNarrator
+import net.rubinny.willowbrook.audio.MusicPlayer
 import net.rubinny.willowbrook.audio.Narrator
 import net.rubinny.willowbrook.audio.SoundPlayer
 import net.rubinny.willowbrook.data.content.ContentRepository
@@ -25,7 +26,10 @@ class AppContainer(context: Context) {
     val contentRepository = ContentRepository { path -> context.applicationContext.assets.open(path) }
 
     /** Created on first use (text-to-speech start-up takes a moment) and kept for the app's lifetime. */
-    val narrator: Narrator by lazy { AndroidNarrator(context.applicationContext) }
+    val musicPlayer: MusicPlayer by lazy { MusicPlayer(context.applicationContext) }
+    val narrator: Narrator by lazy {
+        AndroidNarrator(context.applicationContext).also { n -> n.onSpeakingChanged = { musicPlayer.setDucked(it) } }
+    }
     val soundPlayer: SoundPlayer by lazy { SoundPlayer(context.applicationContext) }
 
     /** Removes a player together with all of their progress. */

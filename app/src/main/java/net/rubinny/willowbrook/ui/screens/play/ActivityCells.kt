@@ -34,6 +34,7 @@ import androidx.tv.material3.Text
 import net.rubinny.willowbrook.R
 import net.rubinny.willowbrook.game.model.Item
 import net.rubinny.willowbrook.game.model.SpellSymbol
+import net.rubinny.willowbrook.ui.components.ArtPicture
 import net.rubinny.willowbrook.ui.components.ItemPicture
 import net.rubinny.willowbrook.ui.theme.Dimens
 import net.rubinny.willowbrook.ui.theme.LocalReduceMotion
@@ -124,7 +125,7 @@ fun HiddenObjectCell(item: Item, found: Boolean, glowing: Boolean, onClick: () -
         accessibilityLabel = item.label + if (found) ", found" else "",
         modifier = modifier,
     ) {
-        ItemPicture(item.id, item.emoji, size = 56.dp)
+        ItemPicture(item.id, item.emoji, size = 76.dp)
         Text(text = if (found) "✓ ${item.label}" else item.label, style = WillowType.label, textAlign = TextAlign.Center)
     }
 }
@@ -144,7 +145,7 @@ fun MemoryCard(position: Int, card: MemoryCardUi, glowing: Boolean, onClick: () 
         modifier = modifier,
     ) {
         if (showFace) {
-            ItemPicture(card.item.id, card.item.emoji, size = 56.dp)
+            ItemPicture(card.item.id, card.item.emoji, size = 76.dp)
             Text(text = if (card.matched) "✓ ${card.item.label}" else card.item.label, style = WillowType.label, textAlign = TextAlign.Center)
         } else {
             // Card back: the lantern motif, same for every card.
@@ -163,7 +164,7 @@ fun OptionTile(item: Item, tried: Boolean, glowing: Boolean, onClick: () -> Unit
         accessibilityLabel = item.label + if (tried) ", not this one" else "",
         modifier = modifier,
     ) {
-        ItemPicture(item.id, item.emoji, size = 64.dp)
+        ItemPicture(item.id, item.emoji, size = 80.dp)
         Text(text = item.label, style = WillowType.label, textAlign = TextAlign.Center)
     }
 }
@@ -180,7 +181,7 @@ fun BinTile(bin: SortingBinUi, glowing: Boolean, onClick: () -> Unit, modifier: 
             if (bin.placed.isEmpty()) "" else ", has " + bin.placed.joinToString(", ") { it.label },
         modifier = modifier,
     ) {
-        Text(text = bin.category.emoji, fontSize = 40.sp, color = Color.Unspecified, modifier = Modifier.clearAndSetSemantics { })
+        ArtPicture("cat_${bin.category.id}", bin.category.emoji, size = 72.dp)
         Text(text = bin.category.label, style = WillowType.button, textAlign = TextAlign.Center)
         if (placed.isNotEmpty()) Text(text = placed, fontSize = 24.sp, modifier = Modifier.clearAndSetSemantics { })
     }
@@ -197,7 +198,7 @@ fun SymbolTile(symbol: SpellSymbol, lit: Boolean, glowing: Boolean, onClick: () 
         accessibilityLabel = symbol.label + if (lit) ", shining now" else "",
         modifier = modifier,
     ) {
-        Text(text = symbol.emoji, fontSize = 52.sp, color = Color.Unspecified, modifier = Modifier.clearAndSetSemantics { })
+        ArtPicture("sym_${symbol.id}", symbol.emoji, size = 76.dp)
         Text(text = symbol.label, style = WillowType.button, textAlign = TextAlign.Center)
     }
 }

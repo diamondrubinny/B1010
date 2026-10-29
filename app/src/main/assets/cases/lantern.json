@@ -7,7 +7,8 @@
     {
       "id": "glasses",
       "label": "Reading glasses",
-      "emoji": "👓"
+      "emoji": "👓",
+      "plural": true
     },
     {
       "id": "teacup",
@@ -37,7 +38,8 @@
     {
       "id": "strawberries",
       "label": "Strawberries",
-      "emoji": "🍓"
+      "emoji": "🍓",
+      "plural": true
     },
     {
       "id": "milk",
@@ -82,7 +84,8 @@
     {
       "id": "cherries",
       "label": "Cherries",
-      "emoji": "🍒"
+      "emoji": "🍒",
+      "plural": true
     },
     {
       "id": "pear",
@@ -162,7 +165,8 @@
     {
       "id": "scissors",
       "label": "Scissors",
-      "emoji": "✂️"
+      "emoji": "✂️",
+      "plural": true
     },
     {
       "id": "newspaper",
@@ -212,27 +216,32 @@
     {
       "id": "mountains",
       "label": "Mountains",
-      "emoji": "⛰️"
+      "emoji": "⛰️",
+      "plural": true
     },
     {
       "id": "stars",
       "label": "The stars",
-      "emoji": "🌟"
+      "emoji": "🌟",
+      "plural": true
     },
     {
       "id": "bramble",
       "label": "Mrs. Bramble",
-      "emoji": "👵"
+      "emoji": "👵",
+      "properName": true
     },
     {
       "id": "hollis",
       "label": "Mr. Hollis",
-      "emoji": "👴"
+      "emoji": "👴",
+      "properName": true
     },
     {
       "id": "penrose",
       "label": "Miss Penrose",
-      "emoji": "👩"
+      "emoji": "👩",
+      "properName": true
     }
   ],
   "chapters": [
@@ -610,7 +619,8 @@
             {
               "id": "bookshelf",
               "label": "Bookshelf",
-              "emoji": "📚"
+              "emoji": "📚",
+              "preposition": "on"
             },
             {
               "id": "cloakroom",

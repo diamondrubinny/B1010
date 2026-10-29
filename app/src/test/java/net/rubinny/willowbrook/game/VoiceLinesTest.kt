@@ -24,6 +24,15 @@ class VoiceLinesTest {
         ids.forEach { assertTrue(it, it.matches(Regex("[a-z0-9_]+"))) }
     }
 
+    /** Every scripted line has its recording, and no stale recording is left behind (wording changes change ids). */
+    @Test fun `every line is recorded and no recording is orphaned`() {
+        val voiceDir = File("src/main/assets/voice")
+        val recorded = voiceDir.listFiles { f -> f.name.endsWith(".ogg") }!!.map { it.name.removeSuffix(".ogg") }.toSet()
+        val scripted = VoiceLines.script(case).map { it.second.id!! }.toSet()
+        assertEquals("Missing recordings", emptySet<String>(), scripted - recorded)
+        assertEquals("Orphaned recordings", emptySet<String>(), recorded - scripted)
+    }
+
     @Test fun `hints are included for recording`() {
         val ids = VoiceLines.script(case).map { it.second.id }
         assertTrue("ch1_tidy_kitchen_hint3" in ids)

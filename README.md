@@ -18,10 +18,12 @@
   ושלוש פעילויות חדשות: שאלת זיכרון / חידה, מיון, וכישוף-רצף. פרק 2 (הגינה) ניתן למשחק מלא.
 - **שלב 4 ✅** התיק המלא, פרקים 0–4: הספרייה, וסיום בכיכר הכפר בהדלקת הפנס. נוספו כרטיסי "Let's chat" בסוף כל פרק,
   וסיכום התקדמות למלווה בהגדרות (מאחורי PIN).
-- **הבא:** איורי AI והקלטות קול (בצד שלך), בדיקה על טלוויזיה אמיתית, ושלב 5 (QA, ביצועים, Checklist לפרודקשן).
-
-איורים: עד שתפיקו את איורי ה-AI (ראו [`docs/ART_PROMPTS.md`](docs/ART_PROMPTS.md)),
-המשחק מציג אימוג'י של המערכת. כשמוסיפים קובץ בשם הנכון, הוא מוצג אוטומטית.
+- **שלב 5 ✅** כל הנכסים אמיתיים ומקוריים:
+  - 285 קטעי קריינות (Piper, קולות בנחלת הכלל), שנבדקו אוטומטית לתוכן, קצב ועוצמה.
+  - 3 קטעי מוזיקה, ומוזיקה שיורדת כשמישהו מדבר.
+  - 54 איורי חפצים וסמלים, 4 דמויות, 5 סצנות, ובאנר.
+  - מסך התאוששות אחרי קריסה, SBOM, סריקת חולשות, בנייה חתומה, ו-[`docs/PRODUCTION_CHECKLIST.md`](docs/PRODUCTION_CHECKLIST.md).
+- **הבא:** בדיקה על טלוויזיה אמיתית ועם משתמשים, אישורים מקצועיים, ומפתח חתימה אמיתי.
 
 ## טכנולוגיות
 Kotlin 2.4 · Jetpack Compose (BOM 2026.09) · Compose for TV (`tv-material` 1.1) · Navigation Compose ·
@@ -51,7 +53,16 @@ sdk.dir=/path/to/Android/sdk
 ```bash
 ./gradlew :app:testDebugUnitTest -PupdateVoiceScript=true
 ```
-צלילים: `python3 tools/generate_sounds.py` (צלילים מקוריים שנוצרים בקוד, בלי רישוי צד שלישי).
+### נכסים (כולם נוצרים מקוד מקור בריפו)
+```bash
+python3 tools/art/build.py                 # איורים: SVG ← Chromium ← WebP (res/drawable-nodpi, res/drawable-xhdpi)
+python3 tools/generate_music.py            # מוזיקת רקע (res/raw/music_*.ogg)
+python3 tools/generate_sounds.py           # צלילי פעמון (res/raw/*.wav)
+# קריינות: Piper ב-virtualenv + הורדת 4 הקולות (ראו docs/CREDITS.md):
+venv/bin/python tools/voice/generate_voice.py --voices VOICES_DIR --prune
+python3 tools/osv_scan.py docs/sbom/app-sbom.json   # סריקת חולשות (אחרי ./gradlew :app:cyclonedxDirectBom)
+```
+קרדיטים ורישוי: [`docs/CREDITS.md`](docs/CREDITS.md).
 
 > אם Maven Central מחזיר שגיאה 429, אפשר להגדיר mirror מקומית ב-`~/.gradle/gradle.properties`:
 > `robolectricRepoUrl=https://maven-central.storage-download.googleapis.com/maven2/`

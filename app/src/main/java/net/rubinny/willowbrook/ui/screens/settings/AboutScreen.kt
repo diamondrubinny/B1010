@@ -62,7 +62,10 @@ fun AboutScreen(onClose: () -> Unit) {
         )
         ReadableBlock(
             heading = "Credits",
-            body = "Font: Atkinson Hyperlegible by the Braille Institute, SIL Open Font License 1.1.",
+            body = "Voices: computer-generated (synthetic) voices made with Piper from public-domain recordings " +
+                "(LibriVox and LJ Speech). They do not imitate any real person. " +
+                "Pictures, music and sounds: original work made for this game. " +
+                "Font: Atkinson Hyperlegible by the Braille Institute, SIL Open Font License 1.1.",
             modifier = width,
         )
     }

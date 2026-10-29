@@ -1,6 +1,10 @@
 package net.rubinny.willowbrook.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.navigation.compose.currentBackStackEntryAsState
+import net.rubinny.willowbrook.audio.MusicTrack
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -33,6 +37,10 @@ fun AppNavHost(
     onExitApp: () -> Unit,
     navController: NavHostController = rememberNavController(),
 ) {
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val inStory = backStackEntry?.destination?.route == Routes.PLAY
+    LaunchedEffect(inStory) { if (!inStory) container.musicPlayer.play(MusicTrack.MENU) }
+
     NavHost(navController = navController, startDestination = Routes.PROFILES) {
 
         composable(Routes.PROFILES) {
@@ -101,6 +109,7 @@ fun AppNavHost(
                 viewModel = vm,
                 narrator = container.narrator,
                 soundPlayer = container.soundPlayer,
+                musicPlayer = container.musicPlayer,
                 onGoHome = { navController.popBackStack(Routes.HOME, inclusive = false) },
             )
         }

@@ -39,6 +39,7 @@ roborazzi-compose = { group = "io.github.takahirom.roborazzi", name = "roborazzi
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTestJunit" }
 
 [plugins]
+cyclonedx = { id = "org.cyclonedx.bom", version = "3.5.1" }
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

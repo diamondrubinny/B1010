@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- AI artwork is looked up by name at runtime (scene_*, obj_*, char_*), so resource shrinking must keep it. -->
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@drawable/scene_*,@drawable/obj_*,@drawable/char_*" />
+    tools:keep="@drawable/scene_*,@drawable/obj_*,@drawable/char_*,@drawable/sym_*,@drawable/cat_*" />

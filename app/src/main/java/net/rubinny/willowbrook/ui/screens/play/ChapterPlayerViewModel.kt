@@ -24,6 +24,9 @@ import net.rubinny.willowbrook.game.engine.HiddenObjectEngine
 import net.rubinny.willowbrook.game.engine.HintLadder
 import net.rubinny.willowbrook.game.engine.HintLevel
 import net.rubinny.willowbrook.game.engine.MemoryMatchEngine
+import net.rubinny.willowbrook.game.engine.Noun
+import net.rubinny.willowbrook.game.engine.Phrases
+import net.rubinny.willowbrook.game.engine.Place
 import net.rubinny.willowbrook.game.engine.SortingEngine
 import net.rubinny.willowbrook.game.engine.SpellEngine
 import net.rubinny.willowbrook.game.engine.SpokenLine
@@ -295,18 +298,14 @@ class ChapterPlayerViewModel(
             is HiddenObjectEngine.Result.Found -> {
                 markProgress()
                 sound(if (r.complete) SoundCue.COMPLETE else SoundCue.FOUND)
-                val next = engine.nextTarget?.let { label(case, it).lowercase() }
-                if (r.complete) {
-                    "Wonderful! You found everything."
-                } else {
-                    "Yes! You found the ${label(case, r.item).lowercase()}. Now let's find the $next."
-                }
+                val next = engine.nextTarget?.let { noun(case, it) }
+                if (r.complete || next == null) Phrases.foundAll() else Phrases.found(noun(case, r.item), next)
             }
-            is HiddenObjectEngine.Result.AlreadyFound -> "You already found the ${label(case, r.item).lowercase()}."
+            is HiddenObjectEngine.Result.AlreadyFound -> Phrases.alreadyFound(noun(case, r.item))
             is HiddenObjectEngine.Result.NotTarget -> {
                 wrongChoices++
-                val wanted = engine.nextTarget?.let { label(case, it).lowercase() }
-                "That's a lovely ${label(case, r.item).lowercase()}. We're looking for the $wanted."
+                val wanted = engine.nextTarget?.let { noun(case, it) } ?: noun(case, r.item)
+                Phrases.lovely(noun(case, r.item), wanted)
             }
         }
         if (engine.isComplete) stopActivityJobs()
@@ -321,18 +320,18 @@ class ChapterPlayerViewModel(
             MemoryMatchEngine.Result.Ignored -> return
             is MemoryMatchEngine.Result.FirstFlipped -> {
                 sound(SoundCue.FLIP)
-                feedback = "Now find its twin."
+                feedback = Phrases.findTwin()
             }
             is MemoryMatchEngine.Result.Matched -> {
                 markProgress()
                 sound(if (r.complete) SoundCue.COMPLETE else SoundCue.FOUND)
-                feedback = if (r.complete) "Every card has its twin. Well done!" else "A pair! Well done."
+                feedback = if (r.complete) Phrases.allPairs() else Phrases.aPair()
                 if (r.complete) stopActivityJobs()
             }
             is MemoryMatchEngine.Result.Mismatched -> {
                 sound(SoundCue.FLIP)
                 wrongChoices++
-                feedback = "Not quite a pair. Let's turn them back and look again."
+                feedback = Phrases.notAPair()
                 viewModelScope.launch {
                     delay(mismatchRevealMillis)
                     engine.hideMismatch()
@@ -354,13 +353,12 @@ class ChapterPlayerViewModel(
             ChoiceEngine.Result.Correct -> {
                 markProgress()
                 sound(SoundCue.COMPLETE)
-                val answer = label(s.case, step.answer).lowercase()
-                feedback = if (step.kind == ChoiceKind.RECALL) "Yes! It was the $answer. What a good memory!" else "Yes! It's the $answer. Well solved!"
+                feedback = Phrases.correct(step.kind, noun(s.case, step.answer))
                 stopActivityJobs()
             }
             is ChoiceEngine.Result.NotThisOne -> {
                 wrongChoices++
-                feedback = "Not the ${label(s.case, r.item).lowercase()}. Let's think again."
+                feedback = Phrases.notThis(noun(s.case, r.item))
             }
         }
         refresh()
@@ -372,20 +370,19 @@ class ChapterPlayerViewModel(
         val s = playing() ?: return
         val engine = sortingEngine ?: return
         val step = s.step as? Step.Sorting ?: return
-        fun categoryLabel(id: String) = step.categories.first { it.id == id }.label.lowercase()
+        fun place(id: String) = Place.of(step.categories.first { it.id == id })
         when (val r = engine.place(index)) {
             SortingEngine.Result.Ignored -> return
             is SortingEngine.Result.Correct -> {
                 markProgress()
                 sound(if (r.complete) SoundCue.COMPLETE else SoundCue.FOUND)
-                val item = label(s.case, r.item).lowercase()
-                val placedIn = categoryLabel(step.items.first { it.item == r.item }.category)
-                feedback = if (r.complete) "All sorted. Thank you!" else "Yes, the $item goes in the $placedIn."
+                val placedIn = place(step.items.first { it.item == r.item }.category)
+                feedback = if (r.complete) Phrases.allSorted() else Phrases.sortedInto(noun(s.case, r.item), placedIn)
                 if (r.complete) stopActivityJobs()
             }
             is SortingEngine.Result.Wrong -> {
                 wrongChoices++
-                feedback = "Hmm, would we keep a ${label(s.case, r.item).lowercase()} in the ${categoryLabel(r.chosenCategory)}? Let's try again."
+                feedback = Phrases.wouldWeKeep(noun(s.case, r.item), place(r.chosenCategory))
             }
         }
         refresh()
@@ -402,7 +399,7 @@ class ChapterPlayerViewModel(
             is SpellEngine.Result.Correct -> {
                 markProgress()
                 SoundCue.noteFor(symbol.id)?.let(::sound)
-                feedback = if (r.complete) "The spell worked! Well done." else "${symbol.label}! Yes."
+                feedback = if (r.complete) Phrases.spellWorked() else Phrases.symbolYes(symbol)
                 if (r.complete) {
                     sound(SoundCue.COMPLETE)
                     stopActivityJobs()
@@ -410,7 +407,7 @@ class ChapterPlayerViewModel(
             }
             is SpellEngine.Result.ShowAgain -> {
                 wrongChoices++
-                feedback = "Let's watch the magic once more."
+                feedback = Phrases.watchAgain()
                 refresh()
                 showSpell(leadIn = 1_200)
                 return
@@ -439,7 +436,7 @@ class ChapterPlayerViewModel(
             for (id in engine.sequence) {
                 val symbol = SpellSymbol.byId(id) ?: continue
                 spellShowingSymbol = symbol.ordinal
-                feedback = "${symbol.label}…"
+                feedback = Phrases.showing(symbol)
                 SoundCue.noteFor(id)?.let(::sound)
                 refresh()
                 delay(spellSymbolMillis)
@@ -448,7 +445,7 @@ class ChapterPlayerViewModel(
                 delay(spellGapMillis)
             }
             spellShowing = false
-            feedback = "Now you try. Press the symbols in the same order."
+            feedback = Phrases.nowYouTry()
             lastProgressAt = clock() // hint timing starts once the player can act
             refresh()
         }
@@ -505,7 +502,8 @@ class ChapterPlayerViewModel(
         val spoken = feedback ?: hint.text
         if (spoken != null && spoken != lastSpokenCompanion) {
             lastSpokenCompanion = spoken
-            speak(if (feedback == null && hint.line != null) hint.line else SpokenLine(null, spoken), companion = true)
+            // Content hints use their authored id; play-time phrases use a stable id derived from the text.
+            speak(if (feedback == null && hint.line != null) hint.line else SpokenLine(Phrases.idFor(spoken), spoken), companion = true)
         }
 
         _state.value = s.copy(
@@ -527,8 +525,8 @@ class ChapterPlayerViewModel(
     }
 
     private fun hintFor(case: CaseContent, step: Step, level: HintLevel): Hint {
-        val glow = "I think it's the one that is glowing."
-        val guide = "Here it is! Press OK."
+        val glow = Phrases.glowing()
+        val guide = Phrases.hereItIs()
         return when (step) {
             is Step.HiddenObject -> {
                 val engine = hiddenEngine ?: return Hint.NONE
@@ -536,7 +534,7 @@ class ChapterPlayerViewModel(
                 val targetIndex = step.targets.indexOf(target)
                 val verbal = VoiceLines.hint(step, targetIndex)
                 val text = when (level) {
-                    HintLevel.REMIND -> "Remember, we're looking for the ${label(case, target).lowercase()}."
+                    HintLevel.REMIND -> Phrases.rememberLooking(noun(case, target))
                     HintLevel.VERBAL -> verbal?.text
                     HintLevel.HIGHLIGHT -> glow
                     else -> guide
@@ -545,11 +543,11 @@ class ChapterPlayerViewModel(
             }
             is Step.MemoryMatch -> {
                 val engine = memoryEngine ?: return Hint.NONE
-                val pendingLabel = engine.pendingIndex?.let { label(case, engine.cards[it].item).lowercase() }
+                val pending = engine.pendingIndex?.let { noun(case, engine.cards[it].item) }
                 val text = when (level) {
-                    HintLevel.REMIND -> "We're looking for two cards that are the same."
-                    HintLevel.VERBAL -> if (pendingLabel != null) "Where did you see another $pendingLabel?" else "Turn over a card to see what is on it."
-                    HintLevel.HIGHLIGHT -> "Try the card that is glowing."
+                    HintLevel.REMIND -> Phrases.lookingForPairs()
+                    HintLevel.VERBAL -> if (pending != null) Phrases.whereAnother(pending) else Phrases.turnACard()
+                    HintLevel.HIGHLIGHT -> Phrases.tryGlowingCard()
                     else -> guide
                 }
                 Hint(text, engine.suggestedIndex())
@@ -566,11 +564,11 @@ class ChapterPlayerViewModel(
             }
             is Step.Sorting -> {
                 val engine = sortingEngine ?: return Hint.NONE
-                val item = engine.current?.let { label(case, it.item).lowercase() } ?: return Hint.NONE
+                val item = engine.current?.let { noun(case, it.item) } ?: return Hint.NONE
                 val text = when (level) {
-                    HintLevel.REMIND -> "Where does the $item belong?"
-                    HintLevel.VERBAL -> "Think about where you would usually find a $item."
-                    HintLevel.HIGHLIGHT -> "I think it goes where it's glowing."
+                    HintLevel.REMIND -> Phrases.whereBelongs(item)
+                    HintLevel.VERBAL -> Phrases.thinkWhere(item)
+                    HintLevel.HIGHLIGHT -> Phrases.goesWhereGlowing()
                     else -> guide
                 }
                 Hint(text, engine.correctCategoryIndex)
@@ -579,9 +577,9 @@ class ChapterPlayerViewModel(
                 val engine = spellEngine ?: return Hint.NONE
                 val next = engine.expected?.let(SpellSymbol::byId) ?: return Hint.NONE
                 val text = when (level) {
-                    HintLevel.REMIND -> "Press the symbols in the same order as the magic."
-                    HintLevel.VERBAL -> "Next is the ${next.label.lowercase()}."
-                    HintLevel.HIGHLIGHT -> "Try the symbol that is glowing."
+                    HintLevel.REMIND -> Phrases.sameOrder()
+                    HintLevel.VERBAL -> Phrases.nextIs(next)
+                    HintLevel.HIGHLIGHT -> Phrases.tryGlowingSymbol()
                     else -> guide
                 }
                 Hint(text, next.ordinal)
@@ -595,13 +593,12 @@ class ChapterPlayerViewModel(
         is Step.HiddenObject -> {
             val engine = hiddenEngine
             val remaining = engine?.targets?.filterNot { it in engine.foundItems }.orEmpty()
-            if (remaining.isEmpty()) null
-            else "Please find " + naturalList(remaining.map { "the " + label(case, it).lowercase() }) + "."
+            if (remaining.isEmpty()) null else Phrases.pleaseFind(remaining.map { noun(case, it) })
         }
         is Step.MemoryMatch -> step.goal
-        is Step.Choice -> "Take your time. Choose the picture you think is right."
-        is Step.Sorting -> sortingEngine?.current?.let { "Where does the ${label(case, it.item).lowercase()} belong?" }
-        is Step.Spell -> if (spellShowing) "Watch the magic…" else "Now you try. Press the symbols in the same order."
+        is Step.Choice -> Phrases.takeYourTime()
+        is Step.Sorting -> sortingEngine?.current?.let { Phrases.whereBelongs(noun(case, it.item)) }
+        is Step.Spell -> if (spellShowing) Phrases.watchTheMagic() else Phrases.nowYouTry()
         else -> null
     }
 
@@ -649,16 +646,9 @@ class ChapterPlayerViewModel(
         complete = e.isComplete,
     )
 
-    /** "a", "a and b", "a, b and c" — plain English for lists. */
-    private fun naturalList(parts: List<String>): String = when (parts.size) {
-        0 -> ""
-        1 -> parts[0]
-        else -> parts.dropLast(1).joinToString(", ") + " and " + parts.last()
-    }
-
     private fun item(case: CaseContent, id: String): Item = case.item(id) ?: Item(id, id, "❔")
 
-    private fun label(case: CaseContent, id: String): String = item(case, id).label
+    private fun noun(case: CaseContent, id: String): Noun = Noun.of(item(case, id))
 
     override fun onCleared() {
         stopActivityJobs()

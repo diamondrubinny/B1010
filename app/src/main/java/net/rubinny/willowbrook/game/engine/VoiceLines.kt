@@ -77,6 +77,8 @@ object VoiceLines {
             chapter.chat.indices.forEach { i -> lines += "Narrator" to chat(chapter, i)!! }
         }
         lines += "Narrator" to caseSolved(case)
+        // Play-time phrases (feedback and hints), spoken by Marmalade.
+        PhraseCatalog.all(case).forEach { lines += "Marmalade" to SpokenLine(Phrases.idFor(it), it) }
         return lines
     }
 }

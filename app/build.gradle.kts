@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.cyclonedx)
 }
 
 // Release signing is read from keystore.properties (git-ignored). See README.
@@ -48,6 +49,11 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    lint {
+        // TVs use xhdpi/xxhdpi (and tvdpi, scaled from these); mdpi/hdpi banner variants would never be used.
+        disable += "IconMissingDensityFolder"
     }
 
     androidResources {
@@ -114,4 +120,10 @@ dependencies {
 
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+}
+
+// SBOM of what actually ships in the release APK (no test or build-tool libraries).
+// ./gradlew :app:cyclonedxDirectBom  ->  app/build/reports/cyclonedx-direct/bom.json
+tasks.withType<org.cyclonedx.gradle.CyclonedxDirectTask>().configureEach {
+    includeConfigs.set(listOf("releaseRuntimeClasspath"))
 }

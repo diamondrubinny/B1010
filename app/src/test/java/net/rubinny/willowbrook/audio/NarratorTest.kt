@@ -21,7 +21,7 @@ class NarratorTest {
     @Test fun `without a recorded file the line is read by text-to-speech`() {
         val narrator = AndroidNarrator(ApplicationProvider.getApplicationContext())
         narrator.onInit(TextToSpeech.SUCCESS)
-        narrator.speak(SpokenLine("ch0_intro", "Welcome to Willowbrook."), 0.85f)
+        narrator.speak(SpokenLine("no_recording_for_this_line", "Welcome to Willowbrook."), 0.85f)
         assertEquals("Welcome to Willowbrook.", lastSpoken())
         narrator.release()
     }

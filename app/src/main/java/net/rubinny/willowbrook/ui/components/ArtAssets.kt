@@ -65,10 +65,14 @@ fun SceneBackground(scene: String?, modifier: Modifier = Modifier, content: @Com
     }
 }
 
-/** An object picture: AI art "obj_<id>" when available, otherwise the placeholder emoji. Decorative (labelled by parent). */
+/** An object picture: artwork "obj_<id>" when available, otherwise the placeholder emoji. Decorative (labelled by parent). */
 @Composable
-fun ItemPicture(itemId: String, emoji: String, size: Dp) {
-    val artId = rememberArtId("obj_$itemId")
+fun ItemPicture(itemId: String, emoji: String, size: Dp) = ArtPicture("obj_$itemId", emoji, size)
+
+/** Any artwork by resource name, falling back to an emoji. Decorative. */
+@Composable
+fun ArtPicture(artName: String, emoji: String, size: Dp) {
+    val artId = rememberArtId(artName)
     if (artId != 0) {
         Image(painterResource(artId), contentDescription = null, modifier = Modifier.size(size))
     } else {

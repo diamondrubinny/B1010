@@ -99,6 +99,16 @@ fun SettingsScreen(
             modifier = rowWidth,
         )
 
+        StepperRow(
+            label = "Music volume",
+            valueText = if (s.backgroundMusicVolume <= 0f) "Off" else "${(s.backgroundMusicVolume * 100).roundToInt()}%",
+            onDecrease = { viewModel.update { it.copy(backgroundMusicVolume = it.backgroundMusicVolume - L.MUSIC_VOLUME_STEP) } },
+            onIncrease = { viewModel.update { it.copy(backgroundMusicVolume = it.backgroundMusicVolume + L.MUSIC_VOLUME_STEP) } },
+            canDecrease = s.backgroundMusicVolume > L.MUSIC_VOLUME_MIN,
+            canIncrease = s.backgroundMusicVolume < L.MUSIC_VOLUME_MAX,
+            modifier = rowWidth,
+        )
+
         Section("Puzzles")
         ActionRow(
             label = "Difficulty: ${s.difficulty.displayName()}",

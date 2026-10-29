@@ -52,6 +52,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
             prefs[Keys.REDUCE_MOTION] = next.reduceMotion
             prefs[Keys.HIGH_CONTRAST] = next.highContrast
             prefs[Keys.MUSIC_VOLUME] = next.musicVolume
+            prefs[Keys.BACKGROUND_MUSIC] = next.backgroundMusicVolume
             if (next.lastProfileId == null) prefs.remove(Keys.LAST_PROFILE) else prefs[Keys.LAST_PROFILE] = next.lastProfileId
         }
     }
@@ -97,6 +98,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
             reduceMotion = this[Keys.REDUCE_MOTION] ?: defaults.reduceMotion,
             highContrast = this[Keys.HIGH_CONTRAST] ?: defaults.highContrast,
             musicVolume = this[Keys.MUSIC_VOLUME] ?: defaults.musicVolume,
+            backgroundMusicVolume = this[Keys.BACKGROUND_MUSIC] ?: defaults.backgroundMusicVolume,
             lastProfileId = this[Keys.LAST_PROFILE],
         ).sanitized()
     }
@@ -111,6 +113,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         val REDUCE_MOTION = booleanPreferencesKey("reduce_motion")
         val HIGH_CONTRAST = booleanPreferencesKey("high_contrast")
         val MUSIC_VOLUME = floatPreferencesKey("music_volume")
+        val BACKGROUND_MUSIC = floatPreferencesKey("background_music_volume")
         val LAST_PROFILE = stringPreferencesKey("last_profile_id")
         val PIN_HASH = stringPreferencesKey("pin_hash")
         val PIN_FAILED = intPreferencesKey("pin_failed_attempts")

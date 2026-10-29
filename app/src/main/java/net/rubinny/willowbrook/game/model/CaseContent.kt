@@ -26,6 +26,10 @@ data class Item(
     val id: String,
     val label: String,
     val emoji: String,
+    /** True for people ("Mrs. Bramble"): spoken without "the" and never lower-cased. */
+    val properName: Boolean = false,
+    /** True for plural labels ("Scissors", "Strawberries"): "those are lovely scissors", never "a scissors". */
+    val plural: Boolean = false,
 )
 
 @Serializable
@@ -128,7 +132,13 @@ enum class ChoiceKind {
 }
 
 @Serializable
-data class Category(val id: String, val label: String, val emoji: String)
+data class Category(
+    val id: String,
+    val label: String,
+    val emoji: String,
+    /** "in the kitchen", "on the bookshelf". */
+    val preposition: String = "in",
+)
 
 @Serializable
 data class SortItem(val item: String, val category: String)

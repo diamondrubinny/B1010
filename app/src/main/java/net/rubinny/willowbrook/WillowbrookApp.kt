@@ -8,6 +8,7 @@ class WillowbrookApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        CrashGuard.install(this)
         container = AppContainer(this)
     }
 }

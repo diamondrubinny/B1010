@@ -37,7 +37,7 @@ fun CompanionBar(message: String?, modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Portrait(key = "marmalade", emoji = "🐈", size = 56.dp)
+        Portrait(key = "marmalade_face", emoji = "🐈", size = 56.dp)
         Text(
             text = message ?: "I'm here if you need me.",
             style = WillowType.body,

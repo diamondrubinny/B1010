@@ -27,10 +27,12 @@ We aim to meet **WCAG 2.1 level AA**, and use **AAA contrast (7:1 or higher)** f
 - When TalkBack is on, Marmalade's messages are announced by TalkBack only, so nothing is heard twice.
 - "Let's chat" cards offer open, gentle conversation starters after each chapter, shown and read aloud.
 - Sounds are soft bells with gentle starts; there is no sound for a wrong answer.
+- Gentle background music lowers automatically whenever someone speaks, has its own volume setting, and can be turned off.
+- Narration is paced slowly (at most about 2.7 words per second, with pauses between sentences), and the speaking-speed setting also applies to recordings.
 - Hints never rely on colour alone: a glowing frame, a spoken-style message, and finally the answer is selected for you.
 
 ## Known limitations
-- Narration uses the TV's own text-to-speech voice until recorded voices are added; its quality depends on the TV.
+- Narration is recorded with synthetic voices; a few sentences may sound less natural than a human reader.
 - Typing a player name needs the TV's on-screen keyboard, which is controlled by the TV, not by us.
 - Automated tests run in a simulated TV environment; testing with real users and TalkBack on physical devices is still pending.
 

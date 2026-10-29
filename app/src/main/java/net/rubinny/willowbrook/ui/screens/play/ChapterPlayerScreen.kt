@@ -46,6 +46,8 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import net.rubinny.willowbrook.R
 import net.rubinny.willowbrook.game.engine.HintLevel
+import net.rubinny.willowbrook.audio.MusicPlayer
+import net.rubinny.willowbrook.audio.MusicTrack
 import net.rubinny.willowbrook.audio.Narrator
 import net.rubinny.willowbrook.audio.SoundPlayer
 import net.rubinny.willowbrook.game.model.ChoiceKind
@@ -68,6 +70,7 @@ fun ChapterPlayerScreen(
     viewModel: ChapterPlayerViewModel,
     narrator: Narrator,
     soundPlayer: SoundPlayer,
+    musicPlayer: MusicPlayer,
     onGoHome: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -90,6 +93,10 @@ fun ChapterPlayerScreen(
             }
         }
     }
+    // The finale chapter (and the "case solved" screen) gets brighter music.
+    val playing = state as? PlayerUiState.Playing
+    val finale = playing != null && (playing.chapterIndex == playing.case.chapters.lastIndex || playing.phase == Phase.CASE_FINISHED)
+    LaunchedEffect(finale, playing != null) { if (playing != null) musicPlayer.play(if (finale) MusicTrack.FINALE else MusicTrack.STORY) }
     // Leaving the story always stops the voice.
     DisposableEffect(Unit) { onDispose { narrator.stop() } }
     val openWhat = {
@@ -188,7 +195,7 @@ private fun Body(text: String, color: Color = LocalWillowColors.current.textPrim
 private fun RecapPhase(s: PlayerUiState.Playing, onContinue: () -> Unit) {
     val focus = remember { FocusRequester() }
     CenterCard {
-        Portrait(key = "marmalade", emoji = "🐈", size = 96.dp)
+        Portrait(key = "marmalade_face", emoji = "🐈", size = 96.dp)
         Heading("Welcome back!")
         s.recapText?.let { Body("Last time: $it", LocalWillowColors.current.textSecondary) }
         Body("Let's carry on.")
@@ -562,7 +569,7 @@ private fun ColumnScope.SortingStep(s: PlayerUiState.Playing, viewModel: Chapter
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(Dimens.gap),
         ) {
-            ItemPicture(item.id, item.emoji, size = 80.dp)
+            ItemPicture(item.id, item.emoji, size = 100.dp)
             Column {
                 Text(item.label, style = WillowType.title, color = colors.textPrimary)
                 Text("Where does it belong?", style = WillowType.body, color = colors.textSecondary)

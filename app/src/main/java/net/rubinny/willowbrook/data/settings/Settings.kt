@@ -16,7 +16,10 @@ data class Settings(
     val hintDelaySec: Int = SettingsLimits.HINT_DELAY_DEFAULT,
     val reduceMotion: Boolean = false,
     val highContrast: Boolean = false,
+    /** Volume of the gentle sound effects (bells). Field name kept for stored-data compatibility. */
     val musicVolume: Float = SettingsLimits.MUSIC_VOLUME_DEFAULT,
+    /** Volume of the background music; 0 = off. */
+    val backgroundMusicVolume: Float = SettingsLimits.BACKGROUND_MUSIC_DEFAULT,
     val lastProfileId: String? = null,
 )
 
@@ -40,6 +43,8 @@ object SettingsLimits {
     const val MUSIC_VOLUME_MAX = 1f
     const val MUSIC_VOLUME_STEP = 0.1f
     const val MUSIC_VOLUME_DEFAULT = 0.3f
+
+    const val BACKGROUND_MUSIC_DEFAULT = 0.4f
 }
 
 /** Clamps every numeric field into its allowed range; values are rounded to avoid float drift (1.2000001 -> 1.2). */
@@ -48,6 +53,7 @@ fun Settings.sanitized(): Settings = copy(
     speechRate = speechRate.roundTo2().coerceIn(SettingsLimits.SPEECH_RATE_MIN, SettingsLimits.SPEECH_RATE_MAX),
     hintDelaySec = hintDelaySec.coerceIn(SettingsLimits.HINT_DELAY_MIN, SettingsLimits.HINT_DELAY_MAX),
     musicVolume = musicVolume.roundTo2().coerceIn(SettingsLimits.MUSIC_VOLUME_MIN, SettingsLimits.MUSIC_VOLUME_MAX),
+    backgroundMusicVolume = backgroundMusicVolume.roundTo2().coerceIn(SettingsLimits.MUSIC_VOLUME_MIN, SettingsLimits.MUSIC_VOLUME_MAX),
 )
 
 private fun Float.roundTo2(): Float = Math.round(this * 100f) / 100f

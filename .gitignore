@@ -15,3 +15,7 @@ keystore.properties
 *.jks
 *.keystore
 .env
+
+# Python caches (asset tools)
+__pycache__/
+*.pyc
