@@ -46,7 +46,7 @@ class VoiceLinesTest {
     @Test fun `voice script is up to date`() {
         val expected = csv()
         if (System.getProperty("updateVoiceScript") == "true") {
-            scriptFile.parentFile.mkdirs()
+            scriptFile.parentFile?.mkdirs()
             scriptFile.writeText(expected)
         }
         assertTrue("Missing ${scriptFile.path}; run with -PupdateVoiceScript=true", scriptFile.exists())
