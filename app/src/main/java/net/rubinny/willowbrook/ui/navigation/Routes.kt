@@ -12,6 +12,7 @@ object Routes {
     const val CHANGE_PIN = "pin/change"
     const val SETTINGS = "settings"
     const val ABOUT = "about"
+    const val SUMMARY = "summary"
 
     const val ARG_PROFILE_ID = "profileId"
     const val ARG_CHAPTER = "chapter"

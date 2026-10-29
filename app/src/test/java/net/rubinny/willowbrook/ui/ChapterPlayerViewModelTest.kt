@@ -362,9 +362,40 @@ class ChapterPlayerViewModelTest {
         assertTrue("ch2_garden" in saved.completedChapters)
     }
 
+    @Test fun `chapters 3 and 4 can be played to the end, and the case is solved`() = runBlocking {
+        startAt(3, 0)
+        val vm = vm()
+        vm.await { it.phase == Phase.RECAP }
+        vm.onRecapContinue()
+        vm.await { it.phase == Phase.CHAPTER_INTRO }
+        vm.onChapterIntroContinue()
+        while (vm.playing().phase == Phase.STEP) vm.solveCurrentStep()
+        assertEquals(Phase.CHAPTER_COMPLETE, vm.playing().phase)
+        assertTrue(vm.onNextChapter())
+        assertEquals(4, vm.playing().chapterIndex)
+        vm.onChapterIntroContinue()
+        while (vm.playing().phase == Phase.STEP) vm.solveCurrentStep()
+        assertEquals(Phase.CHAPTER_COMPLETE, vm.playing().phase)
+        assertTrue(!vm.onNextChapter()) // last chapter
+        val saved = withTimeout(10_000) { progress.progress("p1", "lantern").first { it.chapterIndex == 5 } }
+        assertTrue(saved.completedChapters.containsAll(listOf("ch3_library", "ch4_square")))
+    }
+
+    @Test fun `let's chat reads the question aloud`() = runBlocking {
+        startAt(1, 0)
+        val vm = vm()
+        vm.await { it.phase == Phase.RECAP }
+        backgroundScope.launch { vm.effects.collect { effects += it } }
+        vm.onChat(0)
+        assertEquals("ch1_bakery_chat1", spoken().last().id)
+        vm.onChat(1)
+        assertEquals("ch1_bakery_chat2", spoken().last().id)
+    }
+
     @Test fun `finished case shows the finished screen`() = runBlocking {
         progress.save("p1", progress.get("p1", "lantern").copy(chapterIndex = 99))
         val vm = vm()
+        backgroundScope.launch { vm.effects.collect { effects += it } }
         assertNotNull(vm.await { it.phase == Phase.CASE_FINISHED })
     }
 }

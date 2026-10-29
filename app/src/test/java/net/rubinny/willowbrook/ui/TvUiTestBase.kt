@@ -6,6 +6,7 @@ import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isFocused
@@ -83,7 +84,9 @@ abstract class TvUiTestBase {
     /** Text of the focused node (merged), for assertions like "focus is on the glasses". */
     protected fun focusedDescription(): String {
         val node = rule.onAllNodes(isFocused()).fetchSemanticsNodes().firstOrNull() ?: return "<nothing focused>"
-        return node.config.toString()
+        val text = node.config.getOrNull(androidx.compose.ui.semantics.SemanticsProperties.Text)?.joinToString(" ")
+        val description = node.config.getOrNull(androidx.compose.ui.semantics.SemanticsProperties.ContentDescription)?.joinToString(" ")
+        return listOfNotNull(text, description).joinToString(" | ").ifEmpty { node.config.toString() }
     }
 
     /** Moves focus to an on-screen button (a stand-in for a few arrow presses whose count depends on layout). */

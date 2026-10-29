@@ -24,6 +24,8 @@ import net.rubinny.willowbrook.ui.screens.settings.PinGateScreen
 import net.rubinny.willowbrook.ui.screens.settings.PinViewModel
 import net.rubinny.willowbrook.ui.screens.settings.SettingsScreen
 import net.rubinny.willowbrook.ui.screens.settings.SettingsViewModel
+import net.rubinny.willowbrook.ui.screens.settings.SummaryScreen
+import net.rubinny.willowbrook.ui.screens.settings.SummaryViewModel
 
 @Composable
 fun AppNavHost(
@@ -143,6 +145,7 @@ fun AppNavHost(
                 onAddPlayer = { navController.navigate(Routes.CREATE_PROFILE) },
                 onChangePin = { navController.navigate(Routes.CHANGE_PIN) },
                 onAbout = { navController.navigate(Routes.ABOUT) },
+                onSummary = { navController.navigate(Routes.SUMMARY) },
                 onAllDataDeleted = {
                     navController.navigate(Routes.PROFILES) {
                         popUpTo(navController.graph.id) { inclusive = true }
@@ -159,6 +162,11 @@ fun AppNavHost(
                 onUnlocked = { navController.popBackStack() },
                 onCancel = { navController.popBackStack() },
             )
+        }
+
+        composable(Routes.SUMMARY) {
+            val vm = viewModel { SummaryViewModel(container) }
+            SummaryScreen(viewModel = vm, onClose = { navController.popBackStack() })
         }
 
         composable(Routes.ABOUT) {

@@ -25,6 +25,7 @@ We aim to meet **WCAG 2.1 level AA**, and use **AAA contrast (7:1 or higher)** f
 - No wrong-answer sounds or penalties; help is always available with "Help me", and Marmalade always shows what is left to do.
 - The story is read aloud, with "Listen again" on every story screen. Captions are always available, and can only be turned off while narration is on.
 - When TalkBack is on, Marmalade's messages are announced by TalkBack only, so nothing is heard twice.
+- "Let's chat" cards offer open, gentle conversation starters after each chapter, shown and read aloud.
 - Sounds are soft bells with gentle starts; there is no sound for a wrong answer.
 - Hints never rely on colour alone: a glowing frame, a spoken-style message, and finally the answer is selected for you.
 

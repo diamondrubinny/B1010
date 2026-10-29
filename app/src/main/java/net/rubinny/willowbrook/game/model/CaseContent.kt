@@ -40,6 +40,8 @@ data class Chapter(
     /** Shown when resuming: "Last time, …". */
     val recap: String,
     val steps: List<Step>,
+    /** Optional conversation starters for the caregiver ("Let's chat"). Never recorded or stored. */
+    val chat: List<String> = emptyList(),
 )
 
 @Serializable

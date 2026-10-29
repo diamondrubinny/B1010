@@ -111,9 +111,14 @@ class TvJourneyTest : TvUiTestBase() {
         waitForText("140%")
         // High contrast toggle is the next row.
         down()
+        assertTrue(focusedDescription(), focusedDescription().startsWith("Extra-strong contrast"))
         ok()
         val repo = (rule.activity.application as WillowbrookApp).container.settingsRepository
-        rule.waitUntil(10_000) { runBlocking { repo.current().highContrast } }
+        // The save resumes on the (simulated) main thread, so let it run while waiting.
+        rule.waitUntil(10_000) {
+            org.robolectric.shadows.ShadowLooper.idleMainLooper()
+            runBlocking { repo.current().highContrast }
+        }
         rule.waitForIdle()
         shot("09_settings_large_high_contrast")
 

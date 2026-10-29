@@ -45,6 +45,7 @@ fun SettingsScreen(
     onAddPlayer: () -> Unit,
     onChangePin: () -> Unit,
     onAbout: () -> Unit,
+    onSummary: () -> Unit,
     onAllDataDeleted: () -> Unit,
     onClose: () -> Unit,
 ) {
@@ -119,6 +120,12 @@ fun SettingsScreen(
         )
 
         Section("Players")
+        ActionRow(
+            label = "Progress summary",
+            detail = "Chapters finished and how much help was needed",
+            onClick = onSummary,
+            modifier = rowWidth,
+        )
         state.profiles.forEach { profile ->
             ActionRow(
                 label = "Remove ${profile.nickname}",

@@ -107,7 +107,7 @@ class ChapterPlayerViewModel(
             }
             if (progress.chapterIndex >= case.chapters.size) {
                 _state.value = base.copy(chapterIndex = case.chapters.lastIndex, phase = Phase.CASE_FINISHED)
-                speak(SpokenLine(null, "You have finished every chapter so far! More chapters are on the way."))
+                speak(VoiceLines.caseSolved(case))
                 return
             }
             val chapterIndex = progress.chapterIndex
@@ -165,6 +165,12 @@ class ChapterPlayerViewModel(
             Phase.CHAPTER_COMPLETE -> speak(VoiceLines.chapterComplete(s.chapter))
             else -> s.recapText?.let { speak(SpokenLine(null, it)) }
         }
+    }
+
+    /** "Let's chat": reads a conversation starter aloud. Nothing about the conversation is stored. */
+    fun onChat(index: Int) {
+        val s = playing() ?: return
+        VoiceLines.chat(s.chapter, index)?.let(::speak)
     }
 
     fun onWhatAreWeDoing() {

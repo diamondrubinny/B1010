@@ -24,6 +24,7 @@ object ContentValidator {
     const val MAX_SORT_ITEMS = 6
     const val MIN_SPELL = 2
     const val MAX_SPELL = 4
+    const val MAX_CHAT = 4
 
     /**
      * Words that suggest theft, crime, danger or loss. Suspicion that "someone took my things"
@@ -35,6 +36,7 @@ object ContentValidator {
         "dead", "death", "die", "died", "kill", "killed", "murder", "blood", "poison",
         "scary", "terrifying", "monster", "ghost", "witch", "curse", "cursed", "danger", "dangerous",
         "lost forever", "never come back", "missing person",
+        "hospital", "funeral", "passed away", "illness", "dementia", "memory loss",
     )
 
     fun validate(content: CaseContent): List<String> {
@@ -64,6 +66,13 @@ object ContentValidator {
             if (chapter.steps.lastOrNull() !is Step.Reward) err("Chapter '${chapter.id}' must end with a reward")
             if (!chapter.scene.matches(Regex("[a-z][a-z0-9_]*"))) err("Chapter '${chapter.id}' scene key must be snake_case")
             texts += listOf(chapter.title, chapter.location, chapter.goal, chapter.recap)
+            texts += chapter.chat
+            if (chapter.chat.size > MAX_CHAT) err("Chapter '${chapter.id}' has more than $MAX_CHAT chat questions")
+            chapter.chat.forEach { q ->
+                // Testing memory ("Do you remember…?") can cause frustration; ask open, inviting questions instead.
+                if (q.trim().lowercase().startsWith("do you remember")) err("Chat question should not test memory: \"$q\"")
+                if (!q.trim().endsWith("?")) err("Chat question should be a question: \"$q\"")
+            }
 
             chapter.steps.forEach { step ->
                 when (step) {

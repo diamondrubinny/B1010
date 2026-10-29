@@ -73,6 +73,7 @@ fun ChapterPlayerScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var confirmLeave by rememberSaveable { mutableStateOf(false) }
     var showWhat by rememberSaveable { mutableStateOf(false) }
+    var chatIndex by rememberSaveable { mutableStateOf<Int?>(null) }
 
     BackHandler { confirmLeave = true }
 
@@ -108,8 +109,22 @@ fun ChapterPlayerScreen(
                     s,
                     onNext = { if (!viewModel.onNextChapter()) onGoHome() },
                     onRest = onGoHome,
+                    onChat = { chatIndex = 0; viewModel.onChat(0) },
                 )
-                Phase.CASE_FINISHED -> CaseFinishedPhase(onGoHome)
+                Phase.CASE_FINISHED -> CaseFinishedPhase(s, onGoHome)
+            }
+            chatIndex?.let { index ->
+                val questions = s.chapter.chat
+                ChatDialog(
+                    question = questions[index % questions.size],
+                    onAnother = {
+                        val next = (index + 1) % questions.size
+                        chatIndex = next
+                        viewModel.onChat(next)
+                    },
+                    onDone = { narrator.stop(); chatIndex = null },
+                    canAskAnother = questions.size > 1,
+                )
             }
             if (showWhat) {
                 // Big picture + current chapter. The current task itself is always in Marmalade's bar.
@@ -201,14 +216,17 @@ private fun ChapterIntroPhase(s: PlayerUiState.Playing, onBegin: () -> Unit) {
 }
 
 @Composable
-private fun ChapterCompletePhase(s: PlayerUiState.Playing, onNext: () -> Unit, onRest: () -> Unit) {
+private fun ChapterCompletePhase(s: PlayerUiState.Playing, onNext: () -> Unit, onRest: () -> Unit, onChat: () -> Unit) {
     val focus = remember { FocusRequester() }
     val next = s.case.chapters.getOrNull(s.chapterIndex + 1)?.takeIf { !s.replay }
+    val solvedCase = !s.replay && s.chapterIndex == s.case.chapters.lastIndex
     CenterCard {
-        Icon(painterResource(R.drawable.ic_lantern), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(120.dp))
-        Heading("Well done, detective!")
+        // Lantern beside the heading (not above it) so the "Let's chat" button still fits on a TV screen.
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Icon(painterResource(R.drawable.ic_lantern), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(72.dp))
+            Heading(if (solvedCase) "You solved the whole case!" else "Well done, detective!")
+        }
         Body("You finished \"${s.chapter.title}\".")
-        if (next == null && !s.replay) Body("More chapters are on the way.", LocalWillowColors.current.textSecondary)
         Row(horizontalArrangement = Arrangement.spacedBy(Dimens.gap)) {
             if (next != null) {
                 BigButton("Next: ${next.title}", onClick = onNext, minWidth = 360.dp, modifier = Modifier.focusRequester(focus))
@@ -217,17 +235,20 @@ private fun ChapterCompletePhase(s: PlayerUiState.Playing, onNext: () -> Unit, o
                 BigButton("Back home", onClick = onRest, modifier = Modifier.focusRequester(focus))
             }
         }
+        if (s.chapter.chat.isNotEmpty()) {
+            BigButton("💬 Let's chat", onClick = onChat, minWidth = 300.dp, minHeight = 72.dp)
+        }
     }
     LaunchedEffect(s.chapterIndex) { focus.requestFocusSafely() }
 }
 
 @Composable
-private fun CaseFinishedPhase(onGoHome: () -> Unit) {
+private fun CaseFinishedPhase(s: PlayerUiState.Playing, onGoHome: () -> Unit) {
     val focus = remember { FocusRequester() }
     CenterCard {
         Icon(painterResource(R.drawable.ic_lantern), contentDescription = null, tint = Color.Unspecified, modifier = Modifier.size(120.dp))
-        Heading("You have finished every chapter so far!")
-        Body("More chapters are on the way. You can play any chapter again from Case files.")
+        Heading("You solved ${s.case.title}!")
+        Body("You can play any chapter again from Case files.")
         BigButton("Back home", onClick = onGoHome, modifier = Modifier.focusRequester(focus))
     }
     LaunchedEffect(Unit) { focus.requestFocusSafely() }
@@ -616,6 +637,57 @@ private fun ColumnScope.SpellStep(s: PlayerUiState.Playing, viewModel: ChapterPl
     LaunchedEffect(ui.showing) { if (!ui.showing && !ui.complete) symbolFocus.firstOrNull()?.requestFocusSafely() }
     GuideFocus(s, symbolFocus)
     LaunchedEffect(ui.complete) { if (ui.complete) continueFocus.requestFocusSafely() }
+}
+
+/**
+ * A conversation starter for the caregiver and player. Nothing is recorded or stored;
+ * the questions are open and gentle, never "Do you remember…?".
+ */
+@Composable
+private fun ChatDialog(question: String, onAnother: () -> Unit, onDone: () -> Unit, canAskAnother: Boolean) {
+    val colors = LocalWillowColors.current
+    val focus = remember { FocusRequester() }
+    androidx.compose.ui.window.Dialog(
+        onDismissRequest = onDone,
+        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        LaunchedEffect(Unit) { focus.requestFocusSafely() }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colors.background.copy(alpha = 0.92f))
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = Dimens.safeHorizontal, vertical = Dimens.safeVertical),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Column(
+                modifier = Modifier
+                    .widthIn(max = 880.dp)
+                    .background(colors.surface, RoundedCornerShape(Dimens.cornerRadius))
+                    .padding(28.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                Text("💬 Let's chat", style = WillowType.title, color = colors.accent, modifier = Modifier.semantics { heading() })
+                Text(
+                    "For the caregiver: a gentle way to start a conversation. There are no right or wrong answers.",
+                    style = WillowType.label,
+                    color = colors.textSecondary,
+                    textAlign = TextAlign.Center,
+                )
+                Text(question, style = WillowType.title, color = colors.textPrimary, textAlign = TextAlign.Center)
+                Row(horizontalArrangement = Arrangement.spacedBy(Dimens.gap)) {
+                    if (canAskAnother) {
+                        BigButton("Another question", onClick = onAnother, minWidth = 320.dp, modifier = Modifier.focusRequester(focus))
+                        BigButton("Done", onClick = onDone, minWidth = 200.dp)
+                    } else {
+                        BigButton("Done", onClick = onDone, minWidth = 200.dp, modifier = Modifier.focusRequester(focus))
+                    }
+                }
+            }
+        }
+    }
 }
 
 /** At the last hint level, focus jumps to the answer so pressing OK always succeeds. */

@@ -29,6 +29,12 @@ object VoiceLines {
     fun chapterComplete(chapter: Chapter) =
         SpokenLine("${chapter.id}_complete", "Well done, detective! You finished ${chapter.title}.")
 
+    fun caseSolved(case: CaseContent) =
+        SpokenLine("${case.id}_solved", "You solved ${case.title}! You can play any chapter again from Case files.")
+
+    fun chat(chapter: Chapter, index: Int): SpokenLine? =
+        chapter.chat.getOrNull(index)?.let { SpokenLine("${chapter.id}_chat${index + 1}", it) }
+
     fun whatAreWeDoing(case: CaseContent, chapter: Chapter) =
         SpokenLine("${chapter.id}_what", "${case.premise} Right now: ${chapter.goal}")
 
@@ -68,7 +74,9 @@ object VoiceLines {
                 }
             }
             lines += "Narrator" to chapterComplete(chapter)
+            chapter.chat.indices.forEach { i -> lines += "Narrator" to chat(chapter, i)!! }
         }
+        lines += "Narrator" to caseSolved(case)
         return lines
     }
 }

@@ -23,6 +23,10 @@ Willowbrook Mysteries is provided by [legal name, address, contact email].
 | Settings (text size, voice, contrast…) | To make the game comfortable | Until "Delete all data" or uninstall |
 | Caregiver PIN (stored only as a one-way hash) | To prevent settings being changed by accident | Until changed, "Delete all data" or uninstall |
 
+The caregiver can see a short **progress summary** in Caregiver settings (behind the PIN). It is built from the information above and is not stored separately. It is only about the game and is not a medical assessment.
+
+**"Let's chat"** conversation cards are only shown and read aloud. Nothing that is said is recorded or stored.
+
 We ask for a nickname only. Please do **not** enter a full name, age, health information or other personal details.
 
 ## Backups

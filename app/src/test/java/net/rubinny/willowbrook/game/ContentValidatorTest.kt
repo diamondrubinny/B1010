@@ -89,6 +89,18 @@ class ContentValidatorTest {
         assertTrue(errors(withStep("ch2_bloom_spell") { (it as Step.Spell).copy(sequence = listOf("star", "comet")) }).any { "unknown symbol" in it })
     }
 
+    @Test fun `chat questions are open questions that never test memory`() {
+        fun withChat(chat: List<String>) = shipped.copy(chapters = shipped.chapters.mapIndexed { i, c -> if (i == 1) c.copy(chat = chat) else c })
+        assertTrue(errors(withChat(listOf("Do you remember your first school?"))).any { "test memory" in it })
+        assertTrue(errors(withChat(listOf("Tell me about baking."))).any { "question" in it })
+        assertTrue(errors(withChat(List(5) { "What do you like?" })).any { "more than" in it })
+        assertTrue(errors(withChat(listOf("Did you visit a hospital?"))).any { "hospital" in it })
+    }
+
+    @Test fun `every chapter offers chat questions`() {
+        shipped.chapters.forEach { assertTrue(it.id, it.chat.isNotEmpty()) }
+    }
+
     private fun assertThrows(block: () -> Unit) {
         try {
             block()

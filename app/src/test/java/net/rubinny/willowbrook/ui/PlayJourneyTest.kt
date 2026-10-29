@@ -207,8 +207,128 @@ class PlayJourneyTest : TvUiTestBase() {
         ok()
         waitForText("You found the second light charm!", substring = true)
         ok()
-        waitForText("More chapters are on the way.")
+        waitForText("Well done, detective!")
+        rule.onNodeWithText("Next: The Library").assertIsFocused()
+    }
+
+    /** Chapters 3–4 to the end of the case, then "Let's chat" and the caregiver summary. */
+    @Test fun playChapters3and4_chatAndSummary() {
+        runBlocking {
+            val profile = (app.container.profileRepository.add("Ruth", Avatar.SAGE) as ProfileRepository.AddResult.Added).profile
+            app.container.progressRepository.save(
+                profile.id,
+                CaseProgress("lantern", chapterIndex = 3, completedChapters = listOf("ch0_cottage", "ch1_bakery", "ch2_garden")),
+            )
+        }
+        waitForText("Who is playing today?")
+        ok()
+        waitForText("Continue the case")
+        ok()
+        waitForText("Welcome back!")
+        ok()
+        waitForText("Chapter 3")
+        ok()
+
+        // Chapter 3: the library.
+        waitForText("The village library is quiet", substring = true)
+        ok()
+        waitForText("a lovely book about the sea", substring = true)
+        ok()
+        waitForText("Please find")
+        shot("40_library_hidden")
+        repeat(3) { askForFullHelp(); ok() }
+        waitForText("Wonderful! You found everything.")
+        ok()
+        waitForText("People leave all sorts of things here", substring = true)
+        ok()
+        waitForText("Where does it belong?")
+        shot("41_library_sorting")
+        repeat(4) { askForFullHelp(); ok() }
+        waitForText("All sorted. Thank you!")
+        ok()
+        waitForText("Something glints", substring = true)
+        ok()
+        waitForText("Matching pairs")
+        repeat(2) { askForFullHelp(); ok(); ok() }
+        waitForText("Every card has its twin. Well done!")
+        ok()
+        waitForText("a little question for a good detective", substring = true)
+        ok()
+        waitForText("What was Miss Penrose's book about?")
+        askForFullHelp()
+        ok()
+        waitForText("What a good memory", substring = true)
+        ok()
+        waitForText("third light charm, shining", substring = true)
+        ok()
+        waitForText("You found the third light charm!", substring = true)
+        ok()
+
+        // Chapter complete: "Let's chat" conversation starters.
+        waitForText("Well done, detective!")
+        focusButton("💬 Let's chat")
+        ok()
+        waitForText("What kind of books or stories do you enjoy?")
+        rule.onNodeWithText("Another question").assertIsFocused()
+        shot("42_lets_chat")
+        ok()
+        waitForText("Did you have a favourite place to sit and read?")
+        right()
+        ok() // Done
+        waitForText("Next: The Lantern Lights Up")
+        focusButton("Next: The Lantern Lights Up")
+        ok()
+
+        // Chapter 4: the finale.
+        waitForText("Chapter 4")
+        shot("43_finale_intro")
+        ok()
+        waitForText("The village square is ready", substring = true)
+        ok()
+        waitForText("let's thank the friends", substring = true)
+        ok()
+        waitForText("Who was baking a pear tart?")
+        shot("44_who_question")
+        askForFullHelp()
+        ok()
+        waitForText("What a good memory", substring = true)
+        ok()
+        waitForText("Who was raking leaves in the garden?")
+        askForFullHelp()
+        ok()
+        waitForText("What a good memory", substring = true)
+        ok()
+        waitForText("the kindest spell of all", substring = true)
+        ok()
+        waitForText("A kind spell")
+        passTime(7_500)
+        waitForText("Now you try. Press the symbols in the same order.")
+        repeat(2) { askForFullHelp(); ok() }
+        waitForText("The spell worked! Well done.")
+        ok()
+        waitForText("the great lantern lights up", substring = true)
+        ok()
+        waitForText("Willowbrook is lucky to have you", substring = true)
+        ok()
+        waitForText("You solved the mystery of the lantern!", substring = true)
+        ok()
+        waitForText("You solved the whole case!")
+        shot("45_case_solved")
         rule.onNodeWithText("Back home").assertIsFocused()
+        ok()
+
+        // Home, then the caregiver summary behind the PIN.
+        waitForText("Visit the case again")
+        focusButton("Settings")
+        ok()
+        waitForText("Choose a 4-digit caregiver PIN")
+        repeat(2) { listOf(android.view.KeyEvent.KEYCODE_1, android.view.KeyEvent.KEYCODE_3, android.view.KeyEvent.KEYCODE_5, android.view.KeyEvent.KEYCODE_7).forEach(::press) }
+        waitForText("Reading and seeing")
+        focusButton("Progress summary")
+        ok()
+        waitForText("Chapters finished: 5 of 5", substring = true)
+        waitForText("not a medical assessment", substring = true)
+        shot("46_progress_summary")
     }
 
     @Test fun backDuringActivity_asksAndKeepsPlaying() {

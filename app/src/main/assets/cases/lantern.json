@@ -133,6 +133,106 @@
       "id": "maple_leaf",
       "label": "Autumn leaf",
       "emoji": "🍁"
+    },
+    {
+      "id": "magnifier",
+      "label": "Magnifying glass",
+      "emoji": "🔍"
+    },
+    {
+      "id": "candle",
+      "label": "Candle",
+      "emoji": "🕯️"
+    },
+    {
+      "id": "key",
+      "label": "Key",
+      "emoji": "🔑"
+    },
+    {
+      "id": "globe",
+      "label": "Globe",
+      "emoji": "🌍"
+    },
+    {
+      "id": "pencil",
+      "label": "Pencil",
+      "emoji": "✏️"
+    },
+    {
+      "id": "scissors",
+      "label": "Scissors",
+      "emoji": "✂️"
+    },
+    {
+      "id": "newspaper",
+      "label": "Newspaper",
+      "emoji": "📰"
+    },
+    {
+      "id": "map",
+      "label": "Map",
+      "emoji": "🗺️"
+    },
+    {
+      "id": "top_hat",
+      "label": "Hat",
+      "emoji": "🎩"
+    },
+    {
+      "id": "umbrella",
+      "label": "Umbrella",
+      "emoji": "☂️"
+    },
+    {
+      "id": "boot",
+      "label": "Boot",
+      "emoji": "👢"
+    },
+    {
+      "id": "books",
+      "label": "Pile of books",
+      "emoji": "📚"
+    },
+    {
+      "id": "pen",
+      "label": "Fountain pen",
+      "emoji": "🖋️"
+    },
+    {
+      "id": "letter",
+      "label": "Letter",
+      "emoji": "✉️"
+    },
+    {
+      "id": "sea",
+      "label": "The sea",
+      "emoji": "🌊"
+    },
+    {
+      "id": "mountains",
+      "label": "Mountains",
+      "emoji": "⛰️"
+    },
+    {
+      "id": "stars",
+      "label": "The stars",
+      "emoji": "🌟"
+    },
+    {
+      "id": "bramble",
+      "label": "Mrs. Bramble",
+      "emoji": "👵"
+    },
+    {
+      "id": "hollis",
+      "label": "Mr. Hollis",
+      "emoji": "👴"
+    },
+    {
+      "id": "penrose",
+      "label": "Miss Penrose",
+      "emoji": "👩"
     }
   ],
   "chapters": [
@@ -186,6 +286,10 @@
           "id": "ch0_ready",
           "text": "You are ready to begin. Let's visit the bakery first."
         }
+      ],
+      "chat": [
+        "What do you like to do on a quiet morning?",
+        "Have you ever had a cat or a dog? What was it like?"
       ]
     },
     {
@@ -285,6 +389,11 @@
           "text": "You found the first light charm! Mrs. Bramble gives you a warm scone to say thank you. Two more charms to find.",
           "charm": true
         }
+      ],
+      "chat": [
+        "Did you ever bake bread or cakes? What did you like to make?",
+        "What was your favourite treat when you were young?",
+        "Which smells remind you of a warm kitchen?"
       ]
     },
     {
@@ -435,6 +544,258 @@
           "charm": true,
           "text": "You found the second light charm! Mr. Hollis gives you a bunch of autumn flowers. Just one more charm to find."
         }
+      ],
+      "chat": [
+        "Did you ever have a garden? What did you like to grow?",
+        "What is your favourite flower?",
+        "Which season do you like best, and why?"
+      ]
+    },
+    {
+      "id": "ch3_library",
+      "title": "The Library",
+      "location": "The village library",
+      "scene": "library",
+      "goal": "Help Miss Penrose at the library and find the third light charm.",
+      "recap": "You were at the library, helping Miss Penrose look for the third light charm.",
+      "steps": [
+        {
+          "type": "narration",
+          "id": "ch3_arrive",
+          "text": "The village library is quiet and warm. Tall shelves are full of books, and a clock ticks softly."
+        },
+        {
+          "type": "narration",
+          "id": "ch3_penrose_hello",
+          "portrait": "penrose",
+          "portraitEmoji": "👩",
+          "speaker": "Miss Penrose",
+          "text": "Welcome, detective! I was reading a lovely book about the sea when I heard a little tinkle. I think the last charm has rolled somewhere in here."
+        },
+        {
+          "type": "hiddenObject",
+          "id": "ch3_find_desk",
+          "goal": "Find the magnifying glass, the candle and the key.",
+          "targets": [
+            "magnifier",
+            "candle",
+            "key"
+          ],
+          "decoys": [
+            "globe",
+            "pencil",
+            "scissors",
+            "clock",
+            "book"
+          ],
+          "hints": [
+            "The magnifying glass has a round glass and a handle.",
+            "The candle is tall, with a little flame on top.",
+            "The key is small and golden."
+          ]
+        },
+        {
+          "type": "narration",
+          "id": "ch3_lost_property",
+          "portrait": "penrose",
+          "portraitEmoji": "👩",
+          "speaker": "Miss Penrose",
+          "text": "Thank you! People leave all sorts of things here. Books and papers go on the bookshelf, and hats and umbrellas go to the cloakroom."
+        },
+        {
+          "type": "sorting",
+          "id": "ch3_sort_returns",
+          "goal": "Put each thing where it belongs.",
+          "categories": [
+            {
+              "id": "bookshelf",
+              "label": "Bookshelf",
+              "emoji": "📚"
+            },
+            {
+              "id": "cloakroom",
+              "label": "Cloakroom",
+              "emoji": "☂️"
+            }
+          ],
+          "items": [
+            {
+              "item": "book",
+              "category": "bookshelf"
+            },
+            {
+              "item": "top_hat",
+              "category": "cloakroom"
+            },
+            {
+              "item": "newspaper",
+              "category": "bookshelf"
+            },
+            {
+              "item": "umbrella",
+              "category": "cloakroom"
+            },
+            {
+              "item": "map",
+              "category": "bookshelf"
+            },
+            {
+              "item": "boot",
+              "category": "cloakroom"
+            }
+          ]
+        },
+        {
+          "type": "narration",
+          "id": "ch3_cards",
+          "portrait": "marmalade",
+          "portraitEmoji": "🐈",
+          "speaker": "Marmalade",
+          "text": "Something glints behind the reading cards. Let's put the pairs together and look underneath!"
+        },
+        {
+          "type": "memoryMatch",
+          "id": "ch3_reading_pairs",
+          "goal": "Find two cards that are the same.",
+          "pairs": [
+            "books",
+            "pen",
+            "letter",
+            "candle"
+          ]
+        },
+        {
+          "type": "narration",
+          "id": "ch3_question_intro",
+          "portrait": "penrose",
+          "portraitEmoji": "👩",
+          "speaker": "Miss Penrose",
+          "text": "Lovely work! Before you look, a little question for a good detective."
+        },
+        {
+          "type": "choice",
+          "id": "ch3_recall_book",
+          "kind": "recall",
+          "question": "What was Miss Penrose's book about?",
+          "options": [
+            "sea",
+            "mountains",
+            "stars"
+          ],
+          "answer": "sea",
+          "hint": "She told you when you arrived. Think of waves and boats."
+        },
+        {
+          "type": "narration",
+          "id": "ch3_twinkle",
+          "portrait": "marmalade",
+          "portraitEmoji": "🐈",
+          "speaker": "Marmalade",
+          "text": "Look under the last card! It's the third light charm, shining brightly!"
+        },
+        {
+          "type": "reward",
+          "id": "ch3_charm",
+          "charm": true,
+          "text": "You found the third light charm! Miss Penrose claps her hands. Now let's take all three charms to the village square."
+        }
+      ],
+      "chat": [
+        "What kind of books or stories do you enjoy?",
+        "Did you have a favourite place to sit and read?",
+        "Is there a song or a poem you like?"
+      ]
+    },
+    {
+      "id": "ch4_square",
+      "title": "The Lantern Lights Up",
+      "location": "The village square",
+      "scene": "square",
+      "goal": "Bring the three light charms to the lantern and light it for the fair.",
+      "recap": "You were in the village square, getting ready to light the lantern.",
+      "steps": [
+        {
+          "type": "narration",
+          "id": "ch4_arrive",
+          "text": "The village square is ready for the fair. There is bunting, a band, and a big lantern in the middle. Everyone has come to watch."
+        },
+        {
+          "type": "narration",
+          "id": "ch4_thank_friends",
+          "portrait": "marmalade",
+          "portraitEmoji": "🐈",
+          "speaker": "Marmalade",
+          "text": "Here are the three light charms you found. Before we light the lantern, let's thank the friends who helped us."
+        },
+        {
+          "type": "choice",
+          "id": "ch4_recall_bramble",
+          "kind": "recall",
+          "question": "Who was baking a pear tart?",
+          "options": [
+            "bramble",
+            "hollis",
+            "penrose"
+          ],
+          "answer": "bramble",
+          "hint": "It was at the bakery, where the bread smelled so good."
+        },
+        {
+          "type": "choice",
+          "id": "ch4_recall_hollis",
+          "kind": "recall",
+          "question": "Who was raking leaves in the garden?",
+          "options": [
+            "hollis",
+            "penrose",
+            "bramble"
+          ],
+          "answer": "hollis",
+          "hint": "He looks after the flower beds."
+        },
+        {
+          "type": "narration",
+          "id": "ch4_spell_intro",
+          "portrait": "marmalade",
+          "portraitEmoji": "🐈",
+          "speaker": "Marmalade",
+          "text": "Now for the kindest spell of all. Watch the magic, then do the same, and the lantern will shine!"
+        },
+        {
+          "type": "spell",
+          "id": "ch4_light_spell",
+          "goal": "Watch the magic, then press the same symbols in the same order.",
+          "sequence": [
+            "star",
+            "moon",
+            "leaf",
+            "flower"
+          ]
+        },
+        {
+          "type": "narration",
+          "id": "ch4_celebration",
+          "text": "The three charms glow, and the great lantern lights up with a warm golden light! Everyone cheers, and the band begins to play."
+        },
+        {
+          "type": "narration",
+          "id": "ch4_thanks",
+          "portrait": "bramble",
+          "portraitEmoji": "👵",
+          "speaker": "Mrs. Bramble",
+          "text": "Thank you, detective! The fair can begin. Willowbrook is lucky to have you."
+        },
+        {
+          "type": "reward",
+          "id": "ch4_lantern",
+          "charm": true,
+          "text": "You solved the mystery of the lantern! Enjoy the autumn fair, detective."
+        }
+      ],
+      "chat": [
+        "Did you ever go to a fair or a street party? What was it like?",
+        "What music do you like to sing or dance to?",
+        "What makes a celebration special for you?"
       ]
     }
   ]
