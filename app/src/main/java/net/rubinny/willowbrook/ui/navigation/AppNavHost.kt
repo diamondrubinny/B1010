@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
+import net.rubinny.willowbrook.audio.Ambience
 import net.rubinny.willowbrook.audio.MusicTrack
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -39,7 +40,12 @@ fun AppNavHost(
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val inStory = backStackEntry?.destination?.route == Routes.PLAY
-    LaunchedEffect(inStory) { if (!inStory) container.musicPlayer.play(MusicTrack.MENU) }
+    LaunchedEffect(inStory) {
+        if (!inStory) {
+            container.musicPlayer.play(MusicTrack.MENU)
+            container.ambiencePlayer.play(null as Ambience?)
+        }
+    }
 
     NavHost(navController = navController, startDestination = Routes.PROFILES) {
 
@@ -110,6 +116,7 @@ fun AppNavHost(
                 narrator = container.narrator,
                 soundPlayer = container.soundPlayer,
                 musicPlayer = container.musicPlayer,
+                ambiencePlayer = container.ambiencePlayer,
                 onGoHome = { navController.popBackStack(Routes.HOME, inclusive = false) },
             )
         }

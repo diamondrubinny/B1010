@@ -108,6 +108,15 @@ fun SettingsScreen(
             canIncrease = s.backgroundMusicVolume < L.MUSIC_VOLUME_MAX,
             modifier = rowWidth,
         )
+        StepperRow(
+            label = "Scene sounds",
+            valueText = if (s.ambienceVolume <= 0f) "Off" else "${(s.ambienceVolume * 100).roundToInt()}%",
+            onDecrease = { viewModel.update { it.copy(ambienceVolume = it.ambienceVolume - L.MUSIC_VOLUME_STEP) } },
+            onIncrease = { viewModel.update { it.copy(ambienceVolume = it.ambienceVolume + L.MUSIC_VOLUME_STEP) } },
+            canDecrease = s.ambienceVolume > L.MUSIC_VOLUME_MIN,
+            canIncrease = s.ambienceVolume < L.MUSIC_VOLUME_MAX,
+            modifier = rowWidth,
+        )
 
         Section("Puzzles")
         ActionRow(

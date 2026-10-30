@@ -37,12 +37,13 @@ class SettingsRepositoryTest {
 
     @Test fun `values are clamped to safe ranges`() = runBlocking {
         val repo = SettingsRepository(tmp.newDataStore())
-        repo.update { it.copy(textScale = 9f, speechRate = 0.01f, hintDelaySec = 999, musicVolume = -3f) }
+        repo.update { it.copy(textScale = 9f, speechRate = 0.01f, hintDelaySec = 999, musicVolume = -3f, ambienceVolume = 7f) }
         val s = repo.current()
         assertEquals(SettingsLimits.TEXT_SCALE_MAX, s.textScale)
         assertEquals(SettingsLimits.SPEECH_RATE_MIN, s.speechRate)
         assertEquals(SettingsLimits.HINT_DELAY_MAX, s.hintDelaySec)
         assertEquals(SettingsLimits.MUSIC_VOLUME_MIN, s.musicVolume)
+        assertEquals(SettingsLimits.MUSIC_VOLUME_MAX, s.ambienceVolume)
     }
 
     @Test fun `stepping does not accumulate float drift`() {

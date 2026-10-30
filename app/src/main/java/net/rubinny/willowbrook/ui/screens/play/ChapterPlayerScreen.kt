@@ -46,6 +46,7 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import net.rubinny.willowbrook.R
 import net.rubinny.willowbrook.game.engine.HintLevel
+import net.rubinny.willowbrook.audio.Ambience
 import net.rubinny.willowbrook.audio.MusicPlayer
 import net.rubinny.willowbrook.audio.MusicTrack
 import net.rubinny.willowbrook.audio.Narrator
@@ -74,6 +75,7 @@ fun ChapterPlayerScreen(
     narrator: Narrator,
     soundPlayer: SoundPlayer,
     musicPlayer: MusicPlayer,
+    ambiencePlayer: MusicPlayer,
     onGoHome: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -96,10 +98,16 @@ fun ChapterPlayerScreen(
             }
         }
     }
-    // The finale chapter (and the "case solved" screen) gets brighter music.
+    // Each place has its own music and soft scene sounds; the finale (and "case solved") is brighter.
     val playing = state as? PlayerUiState.Playing
     val finale = playing != null && (playing.chapterIndex == playing.case.chapters.lastIndex || playing.phase == Phase.CASE_FINISHED)
-    LaunchedEffect(finale, playing != null) { if (playing != null) musicPlayer.play(if (finale) MusicTrack.FINALE else MusicTrack.STORY) }
+    val scene = playing?.chapter?.scene
+    LaunchedEffect(finale, scene, playing != null) {
+        if (playing != null) {
+            musicPlayer.play(if (finale) MusicTrack.FINALE else MusicTrack.forScene(scene))
+            ambiencePlayer.play(Ambience.forScene(scene))
+        }
+    }
     // Leaving the story always stops the voice.
     DisposableEffect(Unit) { onDispose { narrator.stop() } }
     val openWhat = {

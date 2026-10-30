@@ -20,6 +20,8 @@ data class Settings(
     val musicVolume: Float = SettingsLimits.MUSIC_VOLUME_DEFAULT,
     /** Volume of the background music; 0 = off. */
     val backgroundMusicVolume: Float = SettingsLimits.BACKGROUND_MUSIC_DEFAULT,
+    /** Volume of the soft scene sounds (fire, birds, breeze); 0 = off. */
+    val ambienceVolume: Float = SettingsLimits.AMBIENCE_DEFAULT,
     val lastProfileId: String? = null,
 )
 
@@ -45,6 +47,9 @@ object SettingsLimits {
     const val MUSIC_VOLUME_DEFAULT = 0.3f
 
     const val BACKGROUND_MUSIC_DEFAULT = 0.4f
+
+    /** The ambience files are 10 dB quieter than the music; at 0.6 they sit about 6 dB under it. */
+    const val AMBIENCE_DEFAULT = 0.6f
 }
 
 /** Clamps every numeric field into its allowed range; values are rounded to avoid float drift (1.2000001 -> 1.2). */
@@ -54,6 +59,7 @@ fun Settings.sanitized(): Settings = copy(
     hintDelaySec = hintDelaySec.coerceIn(SettingsLimits.HINT_DELAY_MIN, SettingsLimits.HINT_DELAY_MAX),
     musicVolume = musicVolume.roundTo2().coerceIn(SettingsLimits.MUSIC_VOLUME_MIN, SettingsLimits.MUSIC_VOLUME_MAX),
     backgroundMusicVolume = backgroundMusicVolume.roundTo2().coerceIn(SettingsLimits.MUSIC_VOLUME_MIN, SettingsLimits.MUSIC_VOLUME_MAX),
+    ambienceVolume = ambienceVolume.roundTo2().coerceIn(SettingsLimits.MUSIC_VOLUME_MIN, SettingsLimits.MUSIC_VOLUME_MAX),
 )
 
 private fun Float.roundTo2(): Float = Math.round(this * 100f) / 100f

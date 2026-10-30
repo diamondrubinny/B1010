@@ -22,7 +22,8 @@ using only voices **trained from scratch on public-domain recordings**:
 - The voices are synthetic and do not imitate any real person, including Dr. Rubinny's voice.
 
 ## Music and sounds
-Composed and generated in code by this project (`tools/generate_music.py`, `tools/generate_sounds.py`).
+Composed and generated in code by this project (`tools/generate_music.py`, `tools/generate_sounds.py`,
+`tools/generate_ambience.py`): 6 music pieces (menu and one per place), 5 scene soundscapes, and the bells.
 No samples or third-party recordings. Original work of the project.
 
 ## Illustrations

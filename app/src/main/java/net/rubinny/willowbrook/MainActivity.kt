@@ -20,11 +20,13 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         container.musicPlayer.onForeground()
+        container.ambiencePlayer.onForeground()
     }
 
     /** Leaving the app (Home button, another app) silences music and speech. */
     override fun onStop() {
         container.musicPlayer.onBackground()
+        container.ambiencePlayer.onBackground()
         container.narrator.stop()
         super.onStop()
     }
@@ -36,6 +38,7 @@ class MainActivity : ComponentActivity() {
             val settings by container.settingsRepository.settings
                 .collectAsStateWithLifecycle(initialValue = Settings())
             LaunchedEffect(settings.backgroundMusicVolume) { container.musicPlayer.setVolume(settings.backgroundMusicVolume) }
+            LaunchedEffect(settings.ambienceVolume) { container.ambiencePlayer.setVolume(settings.ambienceVolume) }
             var showRecovery by rememberSaveable { mutableStateOf(stoppedUnexpectedly) }
             WillowbrookTheme(
                 textScale = settings.textScale,

@@ -8,28 +8,62 @@ import android.os.Looper
 import android.util.Log
 import net.rubinny.willowbrook.R
 
+/** Each place in the story has its own piece, so the music itself helps say "where we are". */
 enum class MusicTrack(val resId: Int) {
     MENU(R.raw.music_menu),
-    STORY(R.raw.music_story),
+    COTTAGE(R.raw.music_cottage),
+    BAKERY(R.raw.music_bakery),
+    GARDEN(R.raw.music_garden),
+    LIBRARY(R.raw.music_library),
     FINALE(R.raw.music_finale),
+    ;
+
+    companion object {
+        fun forScene(scene: String?): MusicTrack = when (scene) {
+            "bakery" -> BAKERY
+            "garden" -> GARDEN
+            "library" -> LIBRARY
+            "square" -> FINALE
+            else -> COTTAGE
+        }
+    }
+}
+
+/** Soft scene sounds under the music (tools/generate_ambience.py). No voices, knocks or alarms. */
+enum class Ambience(val resId: Int) {
+    COTTAGE(R.raw.amb_cottage),
+    BAKERY(R.raw.amb_bakery),
+    GARDEN(R.raw.amb_garden),
+    LIBRARY(R.raw.amb_library),
+    SQUARE(R.raw.amb_square),
+    ;
+
+    companion object {
+        fun forScene(scene: String?): Ambience? = entries.firstOrNull { it.name.equals(scene, ignoreCase = true) }
+    }
 }
 
 /**
- * Quiet background music. Tracks cross-fade slowly (no sudden sound), the music dips while someone
- * is speaking, and it pauses when the TV switches to another app. Music is a comfort, never a
- * requirement: every failure is caught and the game simply carries on in silence.
+ * A quiet looping sound: the background music, or (a second instance) the scene ambience.
+ * Loops cross-fade slowly (no sudden sound), dip to [duckLevel] while someone is speaking, and pause
+ * when the TV switches to another app. Sound is a comfort, never a requirement: every failure is
+ * caught and the game simply carries on in silence.
  */
-class MusicPlayer(private val context: Context) {
+class MusicPlayer(private val context: Context, private val duckLevel: Float = 0.3f) {
     private val handler = Handler(Looper.getMainLooper())
     private var player: MediaPlayer? = null
-    private var track: MusicTrack? = null
+    private var track: Int? = null
     private var volume = 0.5f
     private var ducked = false
     private var inBackground = false
     private var fade = 0f
     private var fadeTarget = 0f
 
-    fun play(next: MusicTrack?) {
+    fun play(next: MusicTrack?) = playRes(next?.resId)
+
+    fun play(next: Ambience?) = playRes(next?.resId)
+
+    private fun playRes(next: Int?) {
         if (next == track) return
         track = next
         fadeTo(0f) {
@@ -60,12 +94,12 @@ class MusicPlayer(private val context: Context) {
         if (player == null) track?.let(::start) else safe { player?.start() }
     }
 
-    private fun start(next: MusicTrack) {
+    private fun start(next: Int) {
         if (volume <= 0f) return
         safe {
             player = MediaPlayer.create(
                 context,
-                next.resId,
+                next,
                 AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build(),
                 0,
             )?.apply {
@@ -97,7 +131,7 @@ class MusicPlayer(private val context: Context) {
     }
 
     private fun apply() {
-        val v = volume * fade * (if (ducked) DUCK_LEVEL else 1f)
+        val v = volume * fade * (if (ducked) duckLevel else 1f)
         safe { player?.setVolume(v, v) }
     }
 
@@ -121,9 +155,5 @@ class MusicPlayer(private val context: Context) {
             Log.w("MusicPlayer", "Music unavailable: ${e.javaClass.simpleName}")
             player = null
         }
-    }
-
-    private companion object {
-        const val DUCK_LEVEL = 0.3f
     }
 }

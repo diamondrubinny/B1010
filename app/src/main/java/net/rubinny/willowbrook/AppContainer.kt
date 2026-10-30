@@ -27,8 +27,11 @@ class AppContainer(context: Context) {
 
     /** Created on first use (text-to-speech start-up takes a moment) and kept for the app's lifetime. */
     val musicPlayer: MusicPlayer by lazy { MusicPlayer(context.applicationContext) }
+
+    /** Scene sounds dip less than music while someone speaks: they are already very soft. */
+    val ambiencePlayer: MusicPlayer by lazy { MusicPlayer(context.applicationContext, duckLevel = 0.5f) }
     val narrator: Narrator by lazy {
-        AndroidNarrator(context.applicationContext).also { n -> n.onSpeakingChanged = { musicPlayer.setDucked(it) } }
+        AndroidNarrator(context.applicationContext).also { n -> n.onSpeakingChanged = { musicPlayer.setDucked(it); ambiencePlayer.setDucked(it) } }
     }
     val soundPlayer: SoundPlayer by lazy { SoundPlayer(context.applicationContext) }
 
