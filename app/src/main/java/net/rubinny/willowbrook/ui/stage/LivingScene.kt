@@ -2,6 +2,8 @@ package net.rubinny.willowbrook.ui.stage
 
 import android.app.ActivityManager
 import android.content.Context
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.withInfiniteAnimationFrameNanos
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,7 +44,7 @@ private const val DEPTH_NEAR = 1f
 
 /**
  * A scene that gently lives: a far layer, warm lights, ambient particles and a near layer, seen through a
- * slow camera. With [still] (the "Less movement on screen" setting) it is one calm picture with steady
+ * slow camera ([calmCamera] holds it steady). With [still] (the "Less movement on screen" setting) it is one calm picture with steady
  * light and no particles.
  *
  * Only the drawing reads the clock, so each frame redraws the canvas without recomposing anything.
@@ -57,6 +59,7 @@ fun LivingScene(
     still: Boolean,
     sceneKey: String,
     modifier: Modifier = Modifier,
+    calmCamera: Boolean = false,
     fixedSeconds: Float? = null,
 ) {
     val context = LocalContext.current
@@ -67,6 +70,8 @@ fun LivingScene(
             .onEach { it.setQuality(governor.quality.particleFactor) }
     }
     var seconds by remember(sceneKey) { mutableFloatStateOf(0f) }
+    // Settles the camera smoothly (and lets it go again) when objects are placed on the scene.
+    val calm by animateFloatAsState(if (calmCamera) 1f else 0f, tween(1_500), label = "calmCamera")
 
     if (fixedSeconds != null) {
         LaunchedEffect(sceneKey, fixedSeconds) {
@@ -97,7 +102,7 @@ fun LivingScene(
     }
 
     Canvas(modifier.fillMaxSize()) {
-        val view = if (still) CameraView.STILL else camera.at(seconds)
+        val view = if (still) CameraView.STILL else CameraView.lerp(camera.at(seconds), CameraView.CALM, calm)
         val frame = SceneFrame(size, far.width.toFloat(), far.height.toFloat(), view)
         drawLayer(far, frame, DEPTH_FAR)
         fx?.lights?.forEach { light ->

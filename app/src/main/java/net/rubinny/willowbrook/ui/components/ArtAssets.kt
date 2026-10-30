@@ -54,6 +54,7 @@ fun rememberArtId(name: String?): Int {
 fun SceneBackground(
     scene: String?,
     modifier: Modifier = Modifier,
+    calmCamera: Boolean = false,
     fixedSeconds: Float? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
@@ -70,6 +71,7 @@ fun SceneBackground(
                 fx = SceneFxCatalog.forScene(scene),
                 still = LocalReduceMotion.current,
                 sceneKey = scene,
+                calmCamera = calmCamera,
                 fixedSeconds = fixedSeconds,
             )
             Box(Modifier.fillMaxSize().background(colors.background.copy(alpha = colors.sceneScrim)))

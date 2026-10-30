@@ -9,6 +9,15 @@ data class CameraView(val zoom: Float, val panX: Float, val panY: Float) {
         /** "Less movement on screen": the whole picture, still. */
         val STILL = CameraView(1f, 0f, 0f)
 
+        /** Held steady (e.g. while searching for objects placed on the scene). */
+        val CALM = CameraView(StageCamera.BASE_ZOOM, 0f, 0f)
+
+        fun lerp(a: CameraView, b: CameraView, t: Float) = CameraView(
+            Motion.lerp(a.zoom, b.zoom, t),
+            Motion.lerp(a.panX, b.panX, t),
+            Motion.lerp(a.panY, b.panY, t),
+        )
+
         /** The furthest the centre may move at [zoom] without showing the picture's edge. */
         fun maxPan(zoom: Float): Float = (1f - 1f / zoom.coerceAtLeast(1f)) / 2f
     }
@@ -20,7 +29,7 @@ data class CameraView(val zoom: Float, val panX: Float, val panY: Float) {
  * Pan is always clamped by the current zoom, so the edge of the picture is never shown.
  */
 class StageCamera(
-    private val baseZoom: Float = 1.06f,
+    private val baseZoom: Float = BASE_ZOOM,
     private val breathZoom: Float = 0.01f,
     private val drift: Float = 0.012f,
     private val introZoom: Float = 0.08f,
@@ -33,5 +42,9 @@ class StageCamera(
         val panX = (drift * Motion.wave(seconds, 1f / 31f)).coerceIn(-limit, limit)
         val panY = (drift * 0.6f * Motion.wave(seconds, 1f / 37f, 1f)).coerceIn(-limit, limit)
         return CameraView(zoom, panX, panY)
+    }
+
+    companion object {
+        const val BASE_ZOOM = 1.06f
     }
 }

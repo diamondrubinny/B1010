@@ -112,3 +112,27 @@ class StageEngineTest {
         }
     }
 }
+
+class SceneSpotsTest {
+    /** Objects placed on the scene never overlap, for every scene and any play area big enough to allow it. */
+    @Test fun `scene spots never overlap`() {
+        val objW = 176f
+        val objH = 146f
+        for (scene in listOf("cottage", "bakery", "garden", "library", "square", null)) {
+            val spots = net.rubinny.willowbrook.game.stage.SceneSpots.forScene(scene)
+            assertEquals(net.rubinny.willowbrook.game.stage.SceneSpots.MAX, spots.size)
+            for (areaH in listOf(objH * net.rubinny.willowbrook.game.stage.SceneSpots.MIN_HEIGHT_FACTOR, 320f, 400f)) {
+                for (areaW in listOf(objW * 5, 900f, 1200f)) {
+                    val rects = spots.map { it.left(areaW, objW) to it.top(areaH, objH) }
+                    for (i in rects.indices) for (j in i + 1 until rects.size) {
+                        val (ax, ay) = rects[i]
+                        val (bx, by) = rects[j]
+                        val apart = abs(ax - bx) >= objW - 0.5f || abs(ay - by) >= objH - 0.5f
+                        assertTrue("$scene $i/$j overlap at ${areaW}x$areaH", apart)
+                    }
+                    rects.forEach { (x, y) -> assertTrue(x >= 0f && x + objW <= areaW + 0.5f && y >= 0f && y + objH <= areaH + 0.5f) }
+                }
+            }
+        }
+    }
+}

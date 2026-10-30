@@ -52,6 +52,7 @@ import net.rubinny.willowbrook.audio.Narrator
 import net.rubinny.willowbrook.audio.SoundPlayer
 import net.rubinny.willowbrook.game.model.ChoiceKind
 import net.rubinny.willowbrook.game.model.Step
+import net.rubinny.willowbrook.game.stage.SceneSpots
 import net.rubinny.willowbrook.ui.components.BigButton
 import net.rubinny.willowbrook.ui.components.CompanionBar
 import net.rubinny.willowbrook.ui.components.ConfirmDialog
@@ -63,6 +64,7 @@ import net.rubinny.willowbrook.ui.components.SceneBackground
 import net.rubinny.willowbrook.ui.components.ScreenScaffold
 import net.rubinny.willowbrook.ui.components.requestFocusSafely
 import net.rubinny.willowbrook.ui.theme.Dimens
+import net.rubinny.willowbrook.ui.theme.LocalTextScale
 import net.rubinny.willowbrook.ui.theme.LocalWillowColors
 import net.rubinny.willowbrook.ui.theme.WillowType
 
@@ -108,7 +110,11 @@ fun ChapterPlayerScreen(
     when (val s = state) {
         PlayerUiState.Loading -> ScreenScaffold(title = "Opening the story…") {}
         is PlayerUiState.Error -> ErrorScreen(s.message, onGoHome)
-        is PlayerUiState.Playing -> SceneBackground(scene = s.chapter.scene) {
+        is PlayerUiState.Playing -> SceneBackground(
+            scene = s.chapter.scene,
+            // Objects are placed on the scene while searching, so the camera holds still.
+            calmCamera = s.phase == Phase.STEP && s.step is Step.HiddenObject,
+        ) {
             when (s.phase) {
                 Phase.RECAP -> RecapPhase(s, viewModel::onRecapContinue)
                 Phase.CHAPTER_INTRO -> ChapterIntroPhase(s, viewModel::onChapterIntroContinue)
@@ -405,8 +411,8 @@ private fun ColumnScope.HiddenObjectStep(s: PlayerUiState.Playing, viewModel: Ch
     ActivityHeader(
         goal = {
             Column {
-                Text("Please find", style = WillowType.label, color = colors.textSecondary)
-                Text("${ui.found.size} of ${ui.targets.size} found", style = WillowType.button, color = colors.textPrimary)
+                Text("Found", style = WillowType.label, color = colors.textSecondary)
+                Text("${ui.found.size} of ${ui.targets.size}", style = WillowType.button, color = colors.textPrimary)
             }
         },
         complete = ui.complete,
@@ -415,18 +421,32 @@ private fun ColumnScope.HiddenObjectStep(s: PlayerUiState.Playing, viewModel: Ch
         onContinue = viewModel::onStepContinue,
         onWhatAreWeDoing = onWhatAreWeDoing,
     )
-    Spacer(Modifier.weight(1f))
-    TileGrid(count = ui.cells.size) { index, modifier ->
-        val item = ui.cells[index]
-        HiddenObjectCell(
-            item = item,
-            found = item.id in ui.found,
-            glowing = s.hintIndex == index,
-            onClick = { viewModel.onHiddenCellSelected(index) },
-            modifier = modifier.focusRequester(cellFocus[index]),
+    // Objects lie on the scene itself. Labels must fit two full lines, so with enlarged caregiver text
+    // the familiar tile grid is used instead.
+    if (LocalTextScale.current <= 1.05f && ui.cells.size <= SceneSpots.MAX) {
+        SceneObjects(
+            scene = s.chapter.scene,
+            cells = ui.cells,
+            found = ui.found,
+            glowingIndex = s.hintIndex,
+            focus = cellFocus,
+            onSelect = viewModel::onHiddenCellSelected,
+            modifier = Modifier.weight(1f).heightIn(min = SCENE_OBJECTS_MIN_HEIGHT),
         )
+    } else {
+        Spacer(Modifier.weight(1f))
+        TileGrid(count = ui.cells.size) { index, modifier ->
+            val item = ui.cells[index]
+            HiddenObjectCell(
+                item = item,
+                found = item.id in ui.found,
+                glowing = s.hintIndex == index,
+                onClick = { viewModel.onHiddenCellSelected(index) },
+                modifier = modifier.focusRequester(cellFocus[index]),
+            )
+        }
+        Spacer(Modifier.weight(1f))
     }
-    Spacer(Modifier.weight(1f))
     CompanionBar(s.companionMessage, Modifier.fillMaxWidth())
 
     LaunchedEffect(s.step.id) { cellFocus.firstOrNull()?.requestFocusSafely() }
@@ -452,8 +472,8 @@ private fun ColumnScope.MemoryStep(
     ActivityHeader(
         goal = {
             Column {
-                Text("Matching pairs", style = WillowType.label, color = colors.textSecondary)
-                Text("$pairsDone of ${ui.cards.size / 2} found", style = WillowType.button, color = colors.textPrimary)
+                Text("Pairs found", style = WillowType.label, color = colors.textSecondary)
+                Text("$pairsDone of ${ui.cards.size / 2}", style = WillowType.button, color = colors.textPrimary)
             }
         },
         complete = ui.complete,
@@ -554,8 +574,8 @@ private fun ColumnScope.SortingStep(s: PlayerUiState.Playing, viewModel: Chapter
     ActivityHeader(
         goal = {
             Column {
-                Text("Sorting", style = WillowType.label, color = colors.textSecondary)
-                Text("${ui.placedCount} of ${ui.total} sorted", style = WillowType.button, color = colors.textPrimary)
+                Text("Sorted", style = WillowType.label, color = colors.textSecondary)
+                Text("${ui.placedCount} of ${ui.total}", style = WillowType.button, color = colors.textPrimary)
             }
         },
         complete = ui.complete,
@@ -570,11 +590,12 @@ private fun ColumnScope.SortingStep(s: PlayerUiState.Playing, viewModel: Chapter
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .background(colors.background.copy(alpha = 0.85f), RoundedCornerShape(Dimens.cornerRadius))
-                .padding(horizontal = 32.dp, vertical = 12.dp),
+                .padding(horizontal = 32.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(Dimens.gap),
         ) {
-            ItemPicture(item.id, item.emoji, size = 100.dp)
+            // Sized so the item, the bins (even when full) and Marmalade's bar all fit one TV screen.
+            ItemPicture(item.id, item.emoji, size = 76.dp)
             Column {
                 Text(item.label, style = WillowType.title, color = colors.textPrimary)
                 Text("Where does it belong?", style = WillowType.body, color = colors.textSecondary)

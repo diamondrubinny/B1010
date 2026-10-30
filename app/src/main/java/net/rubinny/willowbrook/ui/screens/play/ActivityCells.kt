@@ -46,6 +46,9 @@ import net.rubinny.willowbrook.ui.theme.WillowType
  * With "Less movement" it is a steady glow.
  */
 @Composable
+internal fun glowAlphaForHint(active: Boolean): Float = glowAlpha(active)
+
+@Composable
 private fun glowAlpha(active: Boolean): Float {
     if (!active) return 0f
     if (LocalReduceMotion.current) return 0.45f
@@ -181,7 +184,7 @@ fun BinTile(bin: SortingBinUi, glowing: Boolean, onClick: () -> Unit, modifier: 
             if (bin.placed.isEmpty()) "" else ", has " + bin.placed.joinToString(", ") { it.label },
         modifier = modifier,
     ) {
-        ArtPicture("cat_${bin.category.id}", bin.category.emoji, size = 72.dp)
+        ArtPicture("cat_${bin.category.id}", bin.category.emoji, size = 60.dp)
         Text(text = bin.category.label, style = WillowType.button, textAlign = TextAlign.Center)
         if (placed.isNotEmpty()) Text(text = placed, fontSize = 24.sp, modifier = Modifier.clearAndSetSemantics { })
     }

@@ -53,7 +53,7 @@ class PlayJourneyTest : TvUiTestBase() {
         shot("12_narration_marmalade")
         ok()
 
-        waitForText("Please find")
+        waitForText("Found")
         shot("13_hidden_object_start")
         focusButton("Help me")
         ok(); ok() // HIGHLIGHT: the answer glows
@@ -83,7 +83,7 @@ class PlayJourneyTest : TvUiTestBase() {
         ok()
         waitForText("Good morning, detective!", substring = true)
         ok()
-        waitForText("Please find")
+        waitForText("Found")
         repeat(3) {
             askForFullHelp()
             ok()
@@ -165,7 +165,7 @@ class PlayJourneyTest : TvUiTestBase() {
         ok()
         waitForText("Hello, detective!", substring = true)
         ok()
-        waitForText("Please find")
+        waitForText("Found")
         repeat(3) { askForFullHelp(); ok() }
         waitForText("Wonderful! You found everything.")
         ok()
@@ -245,7 +245,7 @@ class PlayJourneyTest : TvUiTestBase() {
         ok()
         waitForText("a lovely book about the sea", substring = true)
         ok()
-        waitForText("Please find")
+        waitForText("Found")
         shot("40_library_hidden")
         repeat(3) { askForFullHelp(); ok() }
         waitForText("Wonderful! You found everything.")
@@ -259,7 +259,7 @@ class PlayJourneyTest : TvUiTestBase() {
         ok()
         waitForText("Something glints", substring = true)
         ok()
-        waitForText("Matching pairs")
+        waitForText("Pairs found")
         repeat(2) { askForFullHelp(); ok(); ok() }
         waitForText("Every card has its twin. Well done!")
         ok()
@@ -353,12 +353,12 @@ class PlayJourneyTest : TvUiTestBase() {
         ok()
         waitForText("Getting started")
         ok(); ok(); ok(); ok()
-        waitForText("Please find")
+        waitForText("Found")
         back()
         waitForText("Would you like a break?")
         rule.onNodeWithText("Keep playing").assertIsFocused()
         shot("23_break_dialog")
         ok()
-        waitForText("Please find")
+        waitForText("Found")
     }
 }
