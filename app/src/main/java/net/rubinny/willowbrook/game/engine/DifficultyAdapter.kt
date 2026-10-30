@@ -1,6 +1,7 @@
 package net.rubinny.willowbrook.game.engine
 
 import net.rubinny.willowbrook.data.settings.Difficulty
+import net.rubinny.willowbrook.game.model.SpellSymbol
 
 /** The concrete difficulty used for one activity (AUTO is resolved into one of these). */
 enum class EffectiveDifficulty { GENTLE, STANDARD }
@@ -48,6 +49,15 @@ object DifficultyAdapter {
     fun spellLength(difficulty: EffectiveDifficulty, available: Int): Int = when (difficulty) {
         EffectiveDifficulty.GENTLE -> minOf(2, available)
         EffectiveDifficulty.STANDARD -> available
+    }
+
+    /** Beads: the starting string, the symbols used, and the longest the string may become. */
+    data class BeadsSetup(val length: Int, val palette: List<SpellSymbol>, val maxLength: Int)
+
+    /** Gentle = 8 beads in 3 symbols (string at most 11); standard = up to 11 beads in all 4 (at most 13). */
+    fun beads(difficulty: EffectiveDifficulty, length: Int): BeadsSetup = when (difficulty) {
+        EffectiveDifficulty.GENTLE -> BeadsSetup(minOf(8, length), listOf(SpellSymbol.STAR, SpellSymbol.MOON, SpellSymbol.FLOWER), 11)
+        EffectiveDifficulty.STANDARD -> BeadsSetup(length, SpellSymbol.entries, 13)
     }
 
     /** Memory match: gentle = 2 pairs (4 cards), standard = up to 4 pairs (8 cards). */

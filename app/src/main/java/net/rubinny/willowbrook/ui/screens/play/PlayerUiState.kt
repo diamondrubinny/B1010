@@ -55,6 +55,20 @@ data class SpellUi(
     val complete: Boolean,
 )
 
+data class BeadUi(val id: Int, val symbol: SpellSymbol)
+
+data class BeadsUi(
+    val chain: List<BeadUi>,
+    /** The bead the player is holding: always a symbol already on the string. */
+    val hand: SpellSymbol,
+    /** How many beads have turned into light so far. */
+    val lit: Int,
+    val complete: Boolean,
+    /** Gap where beads last turned into light, and a counter that changes once per match (for the sparkle). */
+    val sparkleGap: Int?,
+    val sparkles: Int,
+)
+
 sealed interface PlayerUiState {
     data object Loading : PlayerUiState
     data class Error(val message: String) : PlayerUiState
@@ -70,6 +84,7 @@ sealed interface PlayerUiState {
         val choice: ChoiceUi? = null,
         val sorting: SortingUi? = null,
         val spell: SpellUi? = null,
+        val beads: BeadsUi? = null,
         val hintLevel: HintLevel = HintLevel.NONE,
         /** The tile/card/option/bin/symbol the hint points at (glow at HIGHLIGHT, focus at GUIDE). */
         val hintIndex: Int? = null,
@@ -84,7 +99,7 @@ sealed interface PlayerUiState {
         val step: Step get() = chapter.steps[stepIndex]
         val activityComplete: Boolean
             get() = hiddenObject?.complete ?: memory?.complete ?: choice?.complete
-                ?: sorting?.complete ?: spell?.complete ?: true
+                ?: sorting?.complete ?: spell?.complete ?: beads?.complete ?: true
     }
 }
 

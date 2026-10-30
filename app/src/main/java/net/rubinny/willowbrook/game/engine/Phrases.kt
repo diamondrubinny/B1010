@@ -87,6 +87,18 @@ object Phrases {
     fun nextIs(symbol: SpellSymbol) = "Next is the ${symbol.label.lowercase()}."
     fun tryGlowingSymbol() = "Try the symbol that is glowing."
 
+    // Beads (no wrong moves: every placement gets a kind word)
+    fun beadPlural(symbol: SpellSymbol) = if (symbol == SpellSymbol.LEAF) "leaves" else symbol.label.lowercase() + "s"
+    fun beadsWhere(symbol: SpellSymbol) = "Where shall we put the ${symbol.label.lowercase()}?"
+    fun beadsThree() = "All three together! Look at them glow." // "Three together" was heard as "Free" (ASR test)
+    fun beadsAgain() = "And three more! Lovely."
+    fun beadsPair(symbol: SpellSymbol) = "Two ${beadPlural(symbol)} side by side. One more will make three."
+    fun beadsJoined() = "That's fine. Every bead finds its friends."
+    fun beadsRolled(symbol: SpellSymbol) = "The ${symbol.label.lowercase()} rolled to its friends."
+    fun beadsAllLit() = "Every bead is shining. Well done!"
+    fun beadsRemind() = "Choose a place on the string, then press OK."
+    fun beadsNextTo(symbol: SpellSymbol) = "Put it next to the other ${beadPlural(symbol)}."
+
     /** "a", "a and b", "a, b and c" — plain English for lists. */
     fun naturalList(parts: List<String>): String = when (parts.size) {
         0 -> ""
@@ -111,6 +123,10 @@ object PhraseCatalog {
                 turnACard(), tryGlowingCard(), allSorted(), goesWhereGlowing(), spellWorked(), watchAgain(), nowYouTry(),
                 sameOrder(), tryGlowingSymbol())
             SpellSymbol.entries.forEach { out += listOf(showing(it), symbolYes(it), nextIs(it)) }
+            if (case.chapters.any { c -> c.steps.any { it is Step.Beads } }) {
+                out += listOf(beadsThree(), beadsAgain(), beadsJoined(), beadsAllLit(), beadsRemind(), goesWhereGlowing())
+                SpellSymbol.entries.forEach { out += listOf(beadsWhere(it), beadsPair(it), beadsRolled(it), beadsNextTo(it)) }
+            }
             case.chapters.flatMap { it.steps }.forEach { step ->
                 when (step) {
                     is Step.HiddenObject -> {

@@ -5,10 +5,13 @@ Only voices trained from scratch on public-domain recordings are used (see docs/
 Output: app/src/main/assets/voice/<lineId>.ogg (mono Ogg Vorbis, loudness-normalised to -18 LUFS).
 
 Usage (Piper installed in a virtualenv, voices downloaded to VOICES_DIR):
-    venv/bin/python tools/voice/generate_voice.py --voices VOICES_DIR [--only ID ...]
+    venv/bin/python tools/voice/generate_voice.py --voices VOICES_DIR [--only ID ...] [--prune]
+All scripts in docs/voice/*.csv are read together (the story and the bead game share one voice folder),
+so --prune only removes recordings that no script uses.
 """
 import argparse
 import csv
+import glob
 import json
 import os
 import re
@@ -122,14 +125,19 @@ def encode(wav_path: str, ogg_path: str, tempo: float = 1.0) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--voices", required=True, help="folder with <voice>.onnx and <voice>.onnx.json")
-    parser.add_argument("--csv", default=os.path.join(ROOT, "docs", "voice", "lantern.csv"))
+    parser.add_argument("--csv", nargs="*", help="scripts to read (default: every docs/voice/*.csv)")
     parser.add_argument("--out", default=os.path.join(ROOT, "app", "src", "main", "assets", "voice"))
     parser.add_argument("--only", nargs="*", help="line ids to (re)generate")
     parser.add_argument("--prune", action="store_true", help="delete recordings whose line is no longer in the script")
     args = parser.parse_args()
 
-    with open(args.csv, newline="", encoding="utf-8") as f:
-        rows = list(csv.DictReader(f))
+    rows, seen = [], set()
+    for path in args.csv or sorted(glob.glob(os.path.join(ROOT, "docs", "voice", "*.csv"))):
+        with open(path, newline="", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                if row["id"] not in seen:  # shared play-time phrases appear in more than one script
+                    seen.add(row["id"])
+                    rows.append(row)
     unknown = sorted({r["speaker"] for r in rows} - CAST.keys())
     if unknown:
         print("No voice cast for: " + ", ".join(unknown), file=sys.stderr)

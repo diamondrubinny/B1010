@@ -1,6 +1,7 @@
 package net.rubinny.willowbrook.ui
 
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.runBlocking
@@ -309,6 +310,10 @@ class PlayJourneyTest : TvUiTestBase() {
         ok()
         waitForText("What a good memory", substring = true)
         ok()
+        // Lantern Beads: put three matching beads together. Help ×3 moves focus to the best place; OK drops it.
+        waitForText("all muddled on their string", substring = true)
+        ok()
+        playBeadsWithHelp(shotName = "44a_beads")
         waitForText("the kindest spell of all", substring = true)
         ok()
         waitForText("A kind spell")
@@ -343,6 +348,43 @@ class PlayJourneyTest : TvUiTestBase() {
         waitForText("Chapters finished: 5 of 5", substring = true)
         waitForText("not a medical assessment", substring = true)
         shot("46_progress_summary")
+    }
+
+    /** Plays a beads round with remote keys only, the guided way, until every bead shines. */
+    private fun playBeadsWithHelp(shotName: String) {
+        waitForText("Beads left")
+        waitForText("Your bead")
+        shot(shotName)
+        var moves = 0
+        while (rule.onAllNodesWithText("Every bead is shining. Well done!").fetchSemanticsNodes().isEmpty()) {
+            check(moves++ < 30) { "beads took too many moves" }
+            askForFullHelp()
+            if (moves == 1) shot(shotName + "_guided")
+            ok()
+        }
+        shot(shotName + "_done")
+        rule.onNodeWithText("Continue").assertIsFocused()
+        ok()
+    }
+
+    /** "Lantern Beads" from the home screen: a calm standalone game that never changes story progress. */
+    @Test fun lanternBeadsFromHome() {
+        runBlocking { app.container.profileRepository.add("Ruth", Avatar.SAGE) }
+        waitForText("Who is playing today?")
+        ok()
+        waitForText("Start the case")
+        focusButton("✨ Lantern Beads")
+        shot("50_home_beads_button")
+        ok()
+        waitForText("Lantern Beads")
+        ok() // Play again / Begin
+        waitForText("Welcome to Lantern Beads", substring = true)
+        ok()
+        playBeadsWithHelp(shotName = "51_beads")
+        waitForText("Every bead is shining. What a lovely glow!", substring = true)
+        ok()
+        waitForText("Well done, detective!")
+        shot("52_beads_complete")
     }
 
     @Test fun backDuringActivity_asksAndKeepsPlaying() {

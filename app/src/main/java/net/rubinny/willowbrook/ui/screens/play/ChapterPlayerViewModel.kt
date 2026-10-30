@@ -27,6 +27,7 @@ import net.rubinny.willowbrook.game.engine.MemoryMatchEngine
 import net.rubinny.willowbrook.game.engine.Noun
 import net.rubinny.willowbrook.game.engine.Phrases
 import net.rubinny.willowbrook.game.engine.Place
+import net.rubinny.willowbrook.game.engine.BeadsEngine
 import net.rubinny.willowbrook.game.engine.SortingEngine
 import net.rubinny.willowbrook.game.engine.SpellEngine
 import net.rubinny.willowbrook.game.engine.SpokenLine
@@ -72,6 +73,11 @@ class ChapterPlayerViewModel(
     private var memoryEngine: MemoryMatchEngine? = null
     private var choiceEngine: ChoiceEngine? = null
     private var sortingEngine: SortingEngine? = null
+    private var beadsEngine: BeadsEngine? = null
+
+    /** Where beads last turned into light, and a counter so the screen can play one sparkle per match. */
+    private var beadsSparkleGap: Int? = null
+    private var beadsSparkles = 0
     private var spellEngine: SpellEngine? = null
     private var spellShowing = false
     private var spellShowingSymbol: Int? = null
@@ -204,7 +210,7 @@ class ChapterPlayerViewModel(
             stopActivityJobs()
             _state.value = s.copy(
                 phase = Phase.CHAPTER_COMPLETE,
-                hiddenObject = null, memory = null, choice = null, sorting = null, spell = null,
+                hiddenObject = null, memory = null, choice = null, sorting = null, spell = null, beads = null,
                 companionMessage = null,
             )
             speak(VoiceLines.chapterComplete(chapter))
@@ -246,6 +252,8 @@ class ChapterPlayerViewModel(
         memoryEngine = null
         choiceEngine = null
         sortingEngine = null
+        beadsEngine = null
+        beadsSparkleGap = null
         spellEngine = null
         spellShowing = false
         spellShowingSymbol = null
@@ -269,6 +277,10 @@ class ChapterPlayerViewModel(
                 sortingEngine = SortingEngine(step.id, items, categories)
             }
             is Step.Spell -> spellEngine = SpellEngine(step.sequence.take(DifficultyAdapter.spellLength(difficulty, step.sequence.size)))
+            is Step.Beads -> {
+                val setup = DifficultyAdapter.beads(difficulty, step.length)
+                beadsEngine = BeadsEngine(BeadsEngine.newString(setup.length, setup.palette, step.seed), setup.maxLength, step.seed)
+            }
             is Step.Narration -> Unit
             is Step.Reward -> if (step.charm) sound(SoundCue.REWARD) else sound(SoundCue.COMPLETE)
         }
@@ -388,6 +400,47 @@ class ChapterPlayerViewModel(
         refresh()
     }
 
+    // ---- Beads ----
+
+    /** Puts the bead in hand at [gap]. Every placement gets a kind word; none is ever "wrong". */
+    fun onBeadGapSelected(gap: Int) {
+        val engine = beadsEngine ?: return
+        if (engine.isComplete) return
+        val hand = engine.hand
+        val r = engine.place(gap) as? BeadsEngine.Result.Placed ?: return
+        when {
+            r.cleared -> {
+                markProgress()
+                beadsSparkleGap = r.gap
+                beadsSparkles++
+                val complete = engine.isComplete
+                sound(if (complete) SoundCue.COMPLETE else SoundCue.FOUND)
+                feedback = when {
+                    complete -> Phrases.beadsAllLit()
+                    r.rolled -> Phrases.beadsRolled(hand)
+                    r.rounds.size > 1 -> Phrases.beadsAgain()
+                    else -> Phrases.beadsThree()
+                }
+                if (complete) stopActivityJobs()
+            }
+            r.madePair -> {
+                markProgress()
+                SoundCue.noteFor(hand.id)?.let(::sound)
+                feedback = if (r.rolled) Phrases.beadsRolled(hand) else Phrases.beadsPair(hand)
+            }
+            else -> {
+                // Not a mistake (nothing is lost), but it is a sign that help may be welcome.
+                wrongChoices++
+                SoundCue.noteFor(hand.id)?.let(::sound)
+                feedback = if (r.rolled) Phrases.beadsRolled(hand) else Phrases.beadsJoined()
+            }
+        }
+        refresh()
+    }
+
+    /** The place a hint would point at (tests use it to play the way a well-helped player would). */
+    internal fun suggestedBeadGap(): Int? = beadsEngine?.takeUnless { it.isComplete }?.bestGap()
+
     // ---- Spell ----
 
     fun onSpellSymbolSelected(symbolIndex: Int) {
@@ -483,7 +536,7 @@ class ChapterPlayerViewModel(
         val case = s.case
         val step = s.step
         val complete = hiddenEngine?.isComplete ?: memoryEngine?.isComplete ?: choiceEngine?.isComplete
-            ?: sortingEngine?.isComplete ?: spellEngine?.isComplete ?: true
+            ?: sortingEngine?.isComplete ?: spellEngine?.isComplete ?: beadsEngine?.isComplete ?: true
         val level = if (complete || spellShowing) {
             HintLevel.NONE
         } else {
@@ -512,6 +565,7 @@ class ChapterPlayerViewModel(
             choice = choiceEngine?.let { choiceUi(case, step as Step.Choice) },
             sorting = sortingEngine?.let { sortingUi(case, step as Step.Sorting) },
             spell = spellEngine?.let { spellUi(it) },
+            beads = beadsEngine?.let { beadsUi(it) },
             hintLevel = level,
             hintIndex = if (level >= HintLevel.HIGHLIGHT) hint.index else null,
             companionMessage = message,
@@ -584,6 +638,16 @@ class ChapterPlayerViewModel(
                 }
                 Hint(text, next.ordinal)
             }
+            is Step.Beads -> {
+                val engine = beadsEngine ?: return Hint.NONE
+                val text = when (level) {
+                    HintLevel.REMIND -> Phrases.beadsRemind()
+                    HintLevel.VERBAL -> Phrases.beadsNextTo(engine.hand)
+                    HintLevel.HIGHLIGHT -> Phrases.goesWhereGlowing()
+                    else -> guide
+                }
+                Hint(text, engine.bestGap())
+            }
             is Step.Narration, is Step.Reward -> Hint.NONE
         }
     }
@@ -599,6 +663,7 @@ class ChapterPlayerViewModel(
         is Step.Choice -> Phrases.takeYourTime()
         is Step.Sorting -> sortingEngine?.current?.let { Phrases.whereBelongs(noun(case, it.item)) }
         is Step.Spell -> if (spellShowing) Phrases.watchTheMagic() else Phrases.nowYouTry()
+        is Step.Beads -> beadsEngine?.takeUnless { it.isComplete }?.let { Phrases.beadsWhere(it.hand) }
         else -> null
     }
 
@@ -644,6 +709,15 @@ class ChapterPlayerViewModel(
         showingSymbol = spellShowingSymbol,
         showing = spellShowing,
         complete = e.isComplete,
+    )
+
+    private fun beadsUi(e: BeadsEngine) = BeadsUi(
+        chain = e.chain.map { BeadUi(it.id, it.symbol) },
+        hand = e.hand,
+        lit = e.lit,
+        complete = e.isComplete,
+        sparkleGap = beadsSparkleGap,
+        sparkles = beadsSparkles,
     )
 
     private fun item(case: CaseContent, id: String): Item = case.item(id) ?: Item(id, id, "❔")

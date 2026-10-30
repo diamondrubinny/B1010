@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
 import net.rubinny.willowbrook.audio.Ambience
+import net.rubinny.willowbrook.data.content.ContentRepository
 import net.rubinny.willowbrook.audio.MusicTrack
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -86,6 +87,7 @@ fun AppNavHost(
                 viewModel = vm,
                 onContinue = { navController.navigate(Routes.play(profileId)) },
                 onCaseFiles = { navController.navigate(Routes.caseFiles(profileId)) },
+                onBeads = { navController.navigate(Routes.beads(profileId)) },
                 onChangePlayer = { navController.popBackStack(Routes.PROFILES, inclusive = false) },
                 onOpenSettings = { navController.navigate(Routes.PIN_GATE) },
                 onProfileMissing = { navController.popBackStack(Routes.PROFILES, inclusive = false) },
@@ -98,17 +100,22 @@ fun AppNavHost(
             arguments = listOf(
                 navArgument(Routes.ARG_PROFILE_ID) { type = NavType.StringType },
                 navArgument(Routes.ARG_CHAPTER) { type = NavType.IntType; defaultValue = -1 },
+                navArgument(Routes.ARG_CASE) { type = NavType.StringType; defaultValue = ContentRepository.DEFAULT_CASE },
             ),
         ) { entry ->
             val profileId = entry.arguments?.getString(Routes.ARG_PROFILE_ID).orEmpty()
             val chapter = entry.arguments?.getInt(Routes.ARG_CHAPTER)?.takeIf { it >= 0 }
-            val vm = viewModel(key = "play-$profileId-$chapter") {
+            // Only known case ids are accepted (the content loader reads assets/cases/<id>.json).
+            val caseId = entry.arguments?.getString(Routes.ARG_CASE)
+                ?.takeIf { it == Routes.BEADS_CASE } ?: ContentRepository.DEFAULT_CASE
+            val vm = viewModel(key = "play-$profileId-$chapter-$caseId") {
                 ChapterPlayerViewModel(
                     profileId = profileId,
                     replayChapter = chapter,
                     content = container.contentRepository,
                     progressRepo = container.progressRepository,
                     settingsRepo = container.settingsRepository,
+                    caseId = caseId,
                 )
             }
             ChapterPlayerScreen(

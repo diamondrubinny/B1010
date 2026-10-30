@@ -116,6 +116,19 @@ sealed interface Step {
         val sequence: List<String>,
     ) : Step
 
+    /**
+     * "Lantern Beads": put three matching beads side by side and they turn into light (game/engine/BeadsEngine).
+     * [length] is the starting string at standard difficulty; [seed] makes the string the same every time.
+     */
+    @Serializable
+    @SerialName("beads")
+    data class Beads(
+        override val id: String,
+        val goal: String,
+        val length: Int = 11,
+        val seed: Int = 1,
+    ) : Step
+
     @Serializable
     @SerialName("reward")
     data class Reward(

@@ -797,6 +797,21 @@
         },
         {
           "type": "narration",
+          "id": "ch4_beads_intro",
+          "speaker": "Marmalade",
+          "portrait": "marmalade",
+          "portraitEmoji": "🐈",
+          "text": "Look, the lantern's light beads are all muddled on their string. Let's put three that match side by side, and they will glow!"
+        },
+        {
+          "type": "beads",
+          "id": "ch4_light_beads",
+          "goal": "Put three matching beads side by side, and they turn into light.",
+          "length": 9,
+          "seed": 4
+        },
+        {
+          "type": "narration",
           "id": "ch4_spell_intro",
           "portrait": "marmalade",
           "portraitEmoji": "🐈",

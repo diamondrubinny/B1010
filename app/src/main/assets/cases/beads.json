@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "beads",
+  "title": "Lantern Beads",
+  "premise": "A calm game of light beads. Put three that match side by side, and they turn into light.",
+  "items": [],
+  "chapters": [
+    {
+      "id": "beads_square",
+      "title": "Lantern Beads",
+      "location": "The village square",
+      "scene": "square",
+      "goal": "Put three matching beads side by side, and they turn into light.",
+      "recap": "You were lighting the lantern beads in the village square.",
+      "steps": [
+        {
+          "type": "narration",
+          "id": "beads_welcome",
+          "speaker": "Dr. Rubinny",
+          "portrait": "rubinny",
+          "portraitEmoji": "👨‍🏫",
+          "text": "Welcome to Lantern Beads. Put three beads that match side by side, and they turn into light. There is no hurry."
+        },
+        {
+          "type": "beads",
+          "id": "beads_round",
+          "goal": "Put three matching beads side by side, and they turn into light.",
+          "length": 11,
+          "seed": 7
+        },
+        {
+          "type": "reward",
+          "id": "beads_done",
+          "text": "Every bead is shining. What a lovely glow!",
+          "charm": true
+        }
+      ],
+      "chat": [
+        "Which colours do you like best?",
+        "What do you like to make with your hands?"
+      ]
+    }
+  ]
+}

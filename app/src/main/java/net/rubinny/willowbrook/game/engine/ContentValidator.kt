@@ -24,6 +24,8 @@ object ContentValidator {
     const val MAX_SORT_ITEMS = 6
     const val MIN_SPELL = 2
     const val MAX_SPELL = 4
+    const val MIN_BEADS = 6
+    const val MAX_BEADS = 11
     const val MAX_CHAT = 4
 
     /**
@@ -114,6 +116,10 @@ object ContentValidator {
                             if (it.category !in categoryIds) err("${step.id}: unknown category '${it.category}'")
                         }
                         categoryIds.forEach { c -> if (step.items.none { it.category == c }) err("${step.id}: category '$c' is empty") }
+                    }
+                    is Step.Beads -> {
+                        texts += step.goal
+                        if (step.length !in MIN_BEADS..MAX_BEADS) err("${step.id}: beads need $MIN_BEADS-$MAX_BEADS on the string")
                     }
                     is Step.Spell -> {
                         texts += step.goal

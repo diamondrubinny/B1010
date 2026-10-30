@@ -116,6 +116,10 @@ class ChapterPlayerViewModelTest {
                     onMemoryCardSelected(partner)
                 }
             }
+            is Step.Beads -> {
+                var moves = 0
+                while (!playing().beads!!.complete && moves++ < 40) onBeadGapSelected(suggestedBeadGap()!!)
+            }
             else -> Unit
         }
         onStepContinue()
@@ -419,5 +423,45 @@ class ChapterPlayerViewModelTest {
         val vm = vm()
         backgroundScope.launch { vm.effects.collect { effects += it } }
         assertNotNull(vm.await { it.phase == Phase.CASE_FINISHED })
+    }
+
+    @Test fun `beads - every placement is kind, nothing is lost, and the string can always be lit`() {
+        startAt("ch4_light_beads")
+        val vm = vm()
+        val effects = mutableListOf<PlayerEffect>()
+        vm.openSavedStep(effects)
+        val start = vm.playing().beads!!
+        assertEquals(8, start.chain.size) // gentle: 8 beads
+        assertTrue(start.hand in start.chain.map { it.symbol })
+
+        // A place that makes no match is still welcomed, and the bead stays on the string.
+        val ui = vm.playing().beads!!
+        val lonely = (0..ui.chain.size).firstOrNull { gap ->
+            val left = ui.chain.getOrNull(gap - 1)?.symbol
+            val right = ui.chain.getOrNull(gap)?.symbol
+            left != ui.hand && right != ui.hand
+        }
+        if (lonely != null) {
+            vm.onBeadGapSelected(lonely)
+            assertEquals(ui.chain.size + 1, vm.playing().beads!!.chain.size)
+            assertEquals("That's fine. Every bead finds its friends.", vm.playing().companionMessage)
+            assertTrue(sounds().none { it == net.rubinny.willowbrook.audio.SoundCue.COMPLETE })
+        }
+
+        var moves = 0
+        while (!vm.playing().beads!!.complete && moves++ < 40) vm.onBeadGapSelected(vm.suggestedBeadGap()!!)
+        assertTrue(vm.playing().beads!!.complete)
+        assertEquals("Every bead is shining. Well done!", vm.playing().companionMessage)
+        assertTrue(vm.playing().activityComplete)
+    }
+
+    @Test fun `beads - help points at the best place, then moves focus there`() {
+        startAt("ch4_light_beads")
+        val vm = vm()
+        val effects = mutableListOf<PlayerEffect>()
+        vm.openSavedStep(effects)
+        repeat(3) { vm.onHelpMe() }
+        assertEquals(HintLevel.GUIDE, vm.playing().hintLevel)
+        assertEquals(vm.suggestedBeadGap(), vm.playing().hintIndex)
     }
 }

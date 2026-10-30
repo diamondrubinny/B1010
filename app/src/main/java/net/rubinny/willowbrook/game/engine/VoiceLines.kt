@@ -46,6 +46,7 @@ object VoiceLines {
         is Step.MemoryMatch -> SpokenLine("${step.id}_goal", step.goal)
         is Step.Sorting -> SpokenLine("${step.id}_goal", step.goal)
         is Step.Spell -> SpokenLine("${step.id}_goal", step.goal)
+        is Step.Beads -> SpokenLine("${step.id}_goal", step.goal)
         is Step.Choice -> SpokenLine("${step.id}_question", step.question)
     }
 

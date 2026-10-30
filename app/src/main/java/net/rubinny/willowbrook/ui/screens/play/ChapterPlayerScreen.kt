@@ -309,6 +309,7 @@ private fun StepPhase(s: PlayerUiState.Playing, viewModel: ChapterPlayerViewMode
             is Step.Choice -> ChoiceStep(s, viewModel, onWhatAreWeDoing)
             is Step.Sorting -> SortingStep(s, viewModel, onWhatAreWeDoing)
             is Step.Spell -> SpellStep(s, viewModel, onWhatAreWeDoing)
+            is Step.Beads -> BeadsStep(s, viewModel, onWhatAreWeDoing)
         }
     }
     }
@@ -627,6 +628,61 @@ private fun ColumnScope.SortingStep(s: PlayerUiState.Playing, viewModel: Chapter
 }
 
 @Composable
+private fun ColumnScope.BeadsStep(s: PlayerUiState.Playing, viewModel: ChapterPlayerViewModel, onWhatAreWeDoing: () -> Unit) {
+    val ui = s.beads ?: return
+    val colors = LocalWillowColors.current
+    val gapFocus = remember(s.step.id) { List(MAX_BEAD_GAPS) { FocusRequester() } }
+    val continueFocus = remember { FocusRequester() }
+
+    ActivityHeader(
+        goal = {
+            Column {
+                Text("Beads left", style = WillowType.label, color = colors.textSecondary)
+                Text("${ui.chain.size}", style = WillowType.button, color = colors.textPrimary)
+            }
+        },
+        complete = ui.complete,
+        continueFocus = continueFocus,
+        onHelp = viewModel::onHelpMe,
+        onContinue = viewModel::onStepContinue,
+        onWhatAreWeDoing = onWhatAreWeDoing,
+    )
+    Spacer(Modifier.weight(1f))
+    if (ui.complete) {
+        Icon(
+            painterResource(R.drawable.ic_lantern),
+            contentDescription = "Every bead is shining",
+            tint = Color.Unspecified,
+            modifier = Modifier.size(150.dp).align(Alignment.CenterHorizontally),
+        )
+    } else {
+        OnScene(Modifier.align(Alignment.CenterHorizontally)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimens.gap)) {
+                BeadView(ui.hand, 72.dp)
+                Column {
+                    Text("Your bead", style = WillowType.label, color = colors.textSecondary)
+                    Text(ui.hand.label, style = WillowType.title, color = colors.textPrimary)
+                }
+            }
+        }
+        Spacer(Modifier.height(Dimens.gap))
+        BeadString(
+            ui = ui,
+            glowingGap = s.hintIndex,
+            gapFocus = gapFocus,
+            onPlace = viewModel::onBeadGapSelected,
+        )
+    }
+    Spacer(Modifier.weight(1f))
+    CompanionBar(s.companionMessage, Modifier.fillMaxWidth())
+
+    // Start in the middle of the string: the nearest places on both sides are one press away.
+    LaunchedEffect(s.step.id) { gapFocus.getOrNull(ui.chain.size / 2)?.requestFocusSafely() }
+    GuideFocus(s, gapFocus)
+    LaunchedEffect(ui.complete) { if (ui.complete) continueFocus.requestFocusSafely() }
+}
+
+@Composable
 private fun ColumnScope.SpellStep(s: PlayerUiState.Playing, viewModel: ChapterPlayerViewModel, onWhatAreWeDoing: () -> Unit) {
     val ui = s.spell ?: return
     val colors = LocalWillowColors.current
@@ -733,7 +789,7 @@ private fun ChatDialog(question: String, onAnother: () -> Unit, onDone: () -> Un
 
 /** At the last hint level, focus jumps to the answer so pressing OK always succeeds. */
 @Composable
-private fun GuideFocus(s: PlayerUiState.Playing, requesters: List<FocusRequester>) {
+internal fun GuideFocus(s: PlayerUiState.Playing, requesters: List<FocusRequester>) {
     LaunchedEffect(s.hintLevel, s.hintIndex) {
         if (s.hintLevel == HintLevel.GUIDE) s.hintIndex?.let { requesters.getOrNull(it)?.requestFocusSafely() }
     }

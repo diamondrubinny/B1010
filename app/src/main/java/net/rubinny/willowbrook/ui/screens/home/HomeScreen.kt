@@ -33,6 +33,7 @@ fun HomeScreen(
     viewModel: HomeViewModel,
     onContinue: () -> Unit,
     onCaseFiles: () -> Unit,
+    onBeads: () -> Unit,
     onChangePlayer: () -> Unit,
     onOpenSettings: () -> Unit,
     onProfileMissing: () -> Unit,
@@ -70,6 +71,8 @@ fun HomeScreen(
                     modifier = Modifier.focusRequester(continueFocus),
                 )
                 Spacer(Modifier.height(8.dp))
+                // A calm game to play any time, outside the story.
+                BigButton(text = "✨ Lantern Beads", subtitle = "A calm game of light beads", onClick = onBeads, minWidth = 640.dp)
                 Row(horizontalArrangement = Arrangement.spacedBy(Dimens.gap)) {
                     BigButton(text = "Case files", onClick = onCaseFiles, minWidth = 240.dp)
                     BigButton(text = "Change player", onClick = onChangePlayer, minWidth = 240.dp)
