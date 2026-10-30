@@ -324,11 +324,15 @@ private fun ColumnScope.NarrationStep(
                 .padding(28.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            step.speaker?.let { Text(it, style = WillowType.button, color = colors.accent) }
-            StoryText(s, step.text, WillowType.body)
-            if (s.canListen) {
-                BigButton("🔊 Listen again", onClick = onListenAgain, minWidth = 300.dp, minHeight = 72.dp)
+            // Speaker and "Listen again" share one row, so a four-line speech still fits a TV screen
+            // with "Continue" fully visible.
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimens.gap)) {
+                Text(step.speaker.orEmpty(), style = WillowType.button, color = colors.accent, modifier = Modifier.weight(1f))
+                if (s.canListen) {
+                    BigButton("🔊 Listen again", onClick = onListenAgain, minWidth = 300.dp, minHeight = 72.dp)
+                }
             }
+            StoryText(s, step.text, WillowType.body)
         }
     }
     Spacer(Modifier.weight(1f))

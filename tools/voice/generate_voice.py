@@ -29,6 +29,8 @@ CAST = {
     "Mrs. Bramble": ("en_US-kristin-medium", 1.22),
     "Miss Penrose": ("en_US-kristin-medium", 1.22),
     "Mr. Hollis": ("en_US-norman-medium", 1.25),
+    # The guide. LibriVox (public domain), fine-tuned from kristin, which is itself public domain.
+    "Dr. Rubinny": ("en_US-john-medium", 1.25),
 }
 
 SENTENCE_PAUSE_SEC = 0.45
@@ -44,6 +46,7 @@ MAX_WORDS_PER_SEC = 2.7
 PRONUNCIATION = {
     "Mrs. ": "Missus ",
     "Mr. ": "Mister ",
+    "Dr. ": "Doctor ",
     # A British word the American-trained voices otherwise say as "laid bird".
     "ladybird": "lady bird",
     "Willowbrook": "Willow-brook",

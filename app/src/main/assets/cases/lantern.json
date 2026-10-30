@@ -260,6 +260,14 @@
         },
         {
           "type": "narration",
+          "id": "ch0_rubinny_hello",
+          "speaker": "Dr. Rubinny",
+          "portrait": "rubinny",
+          "portraitEmoji": "👨‍🏫",
+          "text": "Good morning, detective. I am Dr. Rubinny, and I will be your guide on this case. There is no hurry, and you can ask for help at any time."
+        },
+        {
+          "type": "narration",
           "id": "ch0_marmalade_hello",
           "speaker": "Marmalade",
           "portrait": "marmalade",
@@ -285,9 +293,9 @@
         {
           "type": "narration",
           "id": "ch0_news",
-          "speaker": "Marmalade",
-          "portrait": "marmalade",
-          "portraitEmoji": "🐈",
+          "speaker": "Dr. Rubinny",
+          "portrait": "rubinny",
+          "portraitEmoji": "👨‍🏫",
           "text": "Well done! Now, some news. The lantern for tonight's autumn fair has gone dim. Three little light charms have rolled away around the village."
         },
         {
@@ -313,6 +321,14 @@
           "type": "narration",
           "id": "ch1_arrive",
           "text": "The bakery smells of warm bread. Mrs. Bramble is busy baking for the fair."
+        },
+        {
+          "type": "narration",
+          "id": "ch1_rubinny_guide",
+          "speaker": "Dr. Rubinny",
+          "portrait": "rubinny",
+          "portraitEmoji": "👨‍🏫",
+          "text": "Our first stop is the bakery. Look carefully and take your time. Marmalade will help if you need it."
         },
         {
           "type": "narration",
@@ -417,6 +433,14 @@
           "type": "narration",
           "id": "ch2_arrive",
           "text": "Mr. Hollis's garden is bright with autumn colours. He is raking leaves into a tidy pile."
+        },
+        {
+          "type": "narration",
+          "id": "ch2_rubinny_guide",
+          "speaker": "Dr. Rubinny",
+          "portrait": "rubinny",
+          "portraitEmoji": "👨‍🏫",
+          "text": "Here we are in the garden. Mr. Hollis would be glad of a sharp-eyed detective today."
         },
         {
           "type": "narration",
@@ -572,6 +596,14 @@
           "type": "narration",
           "id": "ch3_arrive",
           "text": "The village library is quiet and warm. Tall shelves are full of books, and a clock ticks softly."
+        },
+        {
+          "type": "narration",
+          "id": "ch3_rubinny_guide",
+          "speaker": "Dr. Rubinny",
+          "portrait": "rubinny",
+          "portraitEmoji": "👨‍🏫",
+          "text": "This is the library, our last stop before the fair. One more charm to find, and I know you can do it."
         },
         {
           "type": "narration",
@@ -786,6 +818,14 @@
           "type": "narration",
           "id": "ch4_celebration",
           "text": "The three charms glow, and the great lantern lights up with a warm golden light! Everyone cheers, and the band begins to play."
+        },
+        {
+          "type": "narration",
+          "id": "ch4_rubinny_proud",
+          "speaker": "Dr. Rubinny",
+          "portrait": "rubinny",
+          "portraitEmoji": "👨‍🏫",
+          "text": "Wonderful work, detective. You found every charm, and Willowbrook is shining again. I am very proud of you."
         },
         {
           "type": "narration",

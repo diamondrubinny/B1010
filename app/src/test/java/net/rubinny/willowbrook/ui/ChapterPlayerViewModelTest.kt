@@ -136,18 +136,18 @@ class ChapterPlayerViewModelTest {
     }
 
     @Test fun `returning player sees a recap, then resumes at the saved step`() = runBlocking {
-        progress.save("p1", progress.get("p1", "lantern").copy(chapterIndex = 1, stepIndex = 2))
+        startAt("ch1_tidy_kitchen")
         val vm = vm()
         val recap = vm.await { it.phase == Phase.RECAP }
         assertTrue(recap.recapText!!.contains("bakery"))
         vm.onRecapContinue()
         val step = vm.await { it.phase == Phase.STEP }
         assertTrue(step.step is Step.HiddenObject)
-        assertEquals(2, step.stepIndex)
+        assertEquals(positionOf("ch1_tidy_kitchen").second, step.stepIndex)
     }
 
     @Test fun `wrong pick gets kind feedback and nothing is lost`() = runBlocking {
-        progress.save("p1", progress.get("p1", "lantern").copy(chapterIndex = 1, stepIndex = 2))
+        startAt("ch1_tidy_kitchen")
         val vm = vm()
         vm.await { it.phase == Phase.RECAP }
         vm.onRecapContinue()
@@ -162,7 +162,7 @@ class ChapterPlayerViewModelTest {
     }
 
     @Test fun `hints climb with time, help me and finally guide to the answer`() = runBlocking {
-        progress.save("p1", progress.get("p1", "lantern").copy(chapterIndex = 1, stepIndex = 2))
+        startAt("ch1_tidy_kitchen")
         val vm = vm()
         vm.await { it.phase == Phase.RECAP }
         vm.onRecapContinue()
@@ -192,7 +192,7 @@ class ChapterPlayerViewModelTest {
     }
 
     @Test fun `memory mismatch is shown, then turned back after a pause`() = runBlocking {
-        progress.save("p1", progress.get("p1", "lantern").copy(chapterIndex = 1, stepIndex = 4))
+        startAt("ch1_recipe_pairs")
         val vm = vm()
         vm.await { it.phase == Phase.RECAP }
         vm.onRecapContinue()
@@ -227,6 +227,17 @@ class ChapterPlayerViewModelTest {
         progress.save("p1", progress.get("p1", "lantern").copy(chapterIndex = chapter, stepIndex = step))
     }
 
+    /** Saved position of a step by its id, so tests don't break when story lines are added. */
+    private fun positionOf(stepId: String): Pair<Int, Int> {
+        runBlocking { content.load("lantern") }.chapters.forEachIndexed { c, chapter ->
+            val i = chapter.steps.indexOfFirst { it.id == stepId }
+            if (i >= 0) return c to i
+        }
+        error("No step $stepId")
+    }
+
+    private fun startAt(stepId: String) = positionOf(stepId).let { (c, i) -> startAt(c, i) }
+
     /** Starts at a saved step, passes the recap, and records every effect from then on. */
     private fun ChapterPlayerViewModel.openSavedStep(effects: MutableList<PlayerEffect>) = runBlocking {
         await { it.phase == Phase.RECAP }
@@ -242,7 +253,7 @@ class ChapterPlayerViewModelTest {
     private fun sounds() = effects.filterIsInstance<PlayerEffect.Sound>().map { it.cue }
 
     @Test fun `entering a step speaks its line with the recorded-voice id`() {
-        startAt(1, 2)
+        startAt("ch1_tidy_kitchen")
         val vm = vm()
         vm.openSavedStep(effects)
         assertEquals(SpokenLine("ch1_tidy_kitchen_goal", "Find the honey pot, the loaf of bread and the strawberries."), spoken().last())
@@ -251,7 +262,7 @@ class ChapterPlayerViewModelTest {
 
     @Test fun `narration off means no speech, and captions cannot be hidden`() = runBlocking {
         settings.update { it.copy(narrationEnabled = false, captionsEnabled = false) }
-        startAt(1, 2)
+        startAt("ch1_tidy_kitchen")
         val vm = vm()
         vm.openSavedStep(effects)
         assertTrue(spoken().isEmpty())
@@ -261,7 +272,7 @@ class ChapterPlayerViewModelTest {
 
     @Test fun `captions off with narration on hides story text`() = runBlocking {
         settings.update { it.copy(captionsEnabled = false) }
-        startAt(1, 1)
+        startAt("ch1_bramble_hello")
         val vm = vm()
         vm.openSavedStep(effects)
         assertTrue(!vm.playing().showStoryText)
@@ -270,7 +281,7 @@ class ChapterPlayerViewModelTest {
     }
 
     @Test fun `found plays a chime, a wrong pick plays nothing and is spoken kindly`() {
-        startAt(1, 2)
+        startAt("ch1_tidy_kitchen")
         val vm = vm()
         vm.openSavedStep(effects)
         val ui = vm.playing().hiddenObject!!
@@ -285,7 +296,7 @@ class ChapterPlayerViewModelTest {
     }
 
     @Test fun `hints are spoken once, not every second`() {
-        startAt(1, 2)
+        startAt("ch1_tidy_kitchen")
         val vm = vm()
         vm.openSavedStep(effects)
         // Count only Marmalade's lines: the story lines (recap, goal) arrive from another thread at slightly
@@ -301,7 +312,7 @@ class ChapterPlayerViewModelTest {
     }
 
     @Test fun `recall question - wrong option is dimmed, right option completes`() {
-        startAt(1, 6)
+        startAt("ch1_recall_fruit")
         val vm = vm()
         vm.openSavedStep(effects)
         val ui = vm.playing().choice!!
@@ -317,7 +328,7 @@ class ChapterPlayerViewModelTest {
     }
 
     @Test fun `sorting - gentle uses 4 items and a wrong bin gets a kind question`() {
-        startAt(2, 4)
+        startAt("ch2_sort_basket")
         val vm = vm()
         vm.openSavedStep(effects)
         val ui = vm.playing().sorting!!
@@ -333,7 +344,7 @@ class ChapterPlayerViewModelTest {
     }
 
     @Test fun `spell - the magic is shown with notes, input waits, mistakes show it again`() {
-        startAt(2, 6)
+        startAt("ch2_bloom_spell")
         val vm = vm()
         vm.openSavedStep(effects)
         val spell = vm.playing().spell!!
