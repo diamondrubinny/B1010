@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -13,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.painterResource
@@ -23,6 +24,10 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Text
+import net.rubinny.willowbrook.game.stage.SceneFxCatalog
+import net.rubinny.willowbrook.ui.stage.LivingScene
+import net.rubinny.willowbrook.ui.stage.rememberSceneLayers
+import net.rubinny.willowbrook.ui.theme.LocalReduceMotion
 import net.rubinny.willowbrook.ui.theme.LocalWillowColors
 
 /**
@@ -40,20 +45,34 @@ fun rememberArtId(name: String?): Int {
     }
 }
 
-/** Full-screen scene: AI painting under a dark scrim (keeps text contrast), or a calm gradient placeholder. */
+/**
+ * Full-screen scene under a scrim (WillowColors.sceneScrim). Text never sits directly on it: use [OnScene]. With artwork it is a living scene
+ * (ui/stage/LivingScene): layers, warm light and gentle particles, still when "Less movement on screen"
+ * is on. Without artwork, a calm gradient placeholder.
+ */
 @Composable
-fun SceneBackground(scene: String?, modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
+fun SceneBackground(
+    scene: String?,
+    modifier: Modifier = Modifier,
+    fixedSeconds: Float? = null,
+    content: @Composable BoxScope.() -> Unit,
+) {
     val colors = LocalWillowColors.current
-    val artId = rememberArtId(scene?.let { "scene_$it" })
+    val layers = rememberSceneLayers(
+        farId = rememberArtId(scene?.let { "scene_$it" }),
+        nearId = rememberArtId(scene?.let { "scene_${it}_near" }),
+    )
     Box(modifier = modifier.fillMaxSize().background(colors.background)) {
-        if (artId != 0) {
-            Image(
-                painter = painterResource(artId),
-                contentDescription = null, // decorative; the scene is described in text
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize(),
+        if (layers != null && scene != null) {
+            LivingScene(
+                far = layers.first,
+                near = layers.second,
+                fx = SceneFxCatalog.forScene(scene),
+                still = LocalReduceMotion.current,
+                sceneKey = scene,
+                fixedSeconds = fixedSeconds,
             )
-            Box(Modifier.fillMaxSize().background(colors.background.copy(alpha = 0.72f)))
+            Box(Modifier.fillMaxSize().background(colors.background.copy(alpha = colors.sceneScrim)))
         } else {
             Box(
                 Modifier.fillMaxSize().background(
@@ -98,5 +117,17 @@ private fun EmojiGlyph(emoji: String, fontSize: TextUnit) {
         fontSize = fontSize,
         color = Color.Unspecified,
         modifier = Modifier.clearAndSetSemantics { },
+    )
+}
+
+/** A readable patch for text that would otherwise sit directly on the living scene. */
+@Composable
+fun OnScene(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
+    val colors = LocalWillowColors.current
+    Box(
+        modifier = modifier
+            .background(colors.background.copy(alpha = 0.85f), RoundedCornerShape(16.dp))
+            .padding(horizontal = 20.dp, vertical = 10.dp),
+        content = content,
     )
 }

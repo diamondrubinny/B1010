@@ -27,7 +27,7 @@ def svg_doc(body: str, w: int, h: int, view_w: int, view_h: int) -> str:
 
 
 def jobs(only: str | None):
-    """(output name, svg, lossless?)"""
+    """(output name, svg, encoding: True = lossless, False = lossy opaque, "alpha" = lossy with transparency)"""
     out = []
     if only in (None, "obj"):
         for name, body in OBJECTS.items():
@@ -45,8 +45,10 @@ def jobs(only: str | None):
             out.append(("obj_" + name, svg_doc(body, 320, 320, 512, 512), True))
     if only in (None, "scene"):
         from scenes import SCENES
-        for name, body in SCENES.items():
-            out.append(("scene_" + name, svg_doc(body, 1920, 1080, 1920, 1080), False))
+        for name, (far, near) in SCENES.items():
+            # Far layer: opaque, lossy. Near layer: transparent foreground for parallax (lossy with alpha).
+            out.append(("scene_" + name, svg_doc(far, 1920, 1080, 1920, 1080), False))
+            out.append(("scene_" + name + "_near", svg_doc(near, 1920, 1080, 1920, 1080), "alpha"))
     if only in (None, "banner"):
         from scenes import BANNER
         out.append(("tv_banner_art", svg_doc(BANNER, 640, 360, 640, 360), False))      # xhdpi (1080p TVs)
@@ -78,7 +80,9 @@ def main() -> int:
                 folder = DRAWABLE.replace("drawable-nodpi", "drawable-xxhdpi" if name.endswith("@xxhdpi") else "drawable-xhdpi")
             os.makedirs(folder, exist_ok=True)
             target = os.path.join(folder, name.split("@")[0] + ".webp")
-            if lossless:
+            if lossless == "alpha":
+                img.save(target, "WEBP", quality=82, alpha_quality=90, method=6)
+            elif lossless:
                 img.save(target, "WEBP", lossless=True, method=6)
             else:
                 img.convert("RGB").save(target, "WEBP", quality=82, method=6)

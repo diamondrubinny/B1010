@@ -19,6 +19,11 @@ data class WillowColors(
     val focusRing: Color,
     val danger: Color,
     val success: Color,
+    /**
+     * How much the background colour covers the living scene. All text sits on cards or buttons
+     * (>= 0.85 opaque), so even a white patch of scene keeps body text above 8:1 (docs/DESIGN_SYSTEM.md).
+     */
+    val sceneScrim: Float,
 )
 
 val StandardColors = WillowColors(
@@ -32,6 +37,7 @@ val StandardColors = WillowColors(
     focusRing = Color(0xFFFFFFFF),
     danger = Color(0xFFFFB4A8),         // soft coral, never alarming red
     success = Color(0xFFB8E0B0),
+    sceneScrim = 0.45f,
 )
 
 val HighContrastColors = WillowColors(
@@ -45,4 +51,5 @@ val HighContrastColors = WillowColors(
     focusRing = Color(0xFFFFFFFF),
     danger = Color(0xFFFFB4A8),
     success = Color(0xFFB8FFB0),
+    sceneScrim = 0.75f,                 // calmer, darker picture in the strongest contrast mode
 )

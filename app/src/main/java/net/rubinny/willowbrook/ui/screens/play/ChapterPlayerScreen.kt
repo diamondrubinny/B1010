@@ -57,6 +57,7 @@ import net.rubinny.willowbrook.ui.components.CompanionBar
 import net.rubinny.willowbrook.ui.components.ConfirmDialog
 import net.rubinny.willowbrook.ui.components.InfoDialog
 import net.rubinny.willowbrook.ui.components.ItemPicture
+import net.rubinny.willowbrook.ui.components.OnScene
 import net.rubinny.willowbrook.ui.components.Portrait
 import net.rubinny.willowbrook.ui.components.SceneBackground
 import net.rubinny.willowbrook.ui.components.ScreenScaffold
@@ -309,7 +310,7 @@ private fun ColumnScope.NarrationStep(
 ) {
     val colors = LocalWillowColors.current
     val focus = remember { FocusRequester() }
-    Text(s.chapter.location, style = WillowType.label, color = colors.textSecondary)
+    OnScene { Text(s.chapter.location, style = WillowType.label, color = colors.textSecondary) }
     Spacer(Modifier.weight(1f))
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -384,7 +385,7 @@ private fun ActivityHeader(
     onWhatAreWeDoing: () -> Unit,
 ) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        Box(Modifier.weight(1f)) { goal() }
+        OnScene(Modifier.weight(1f)) { goal() }
         if (complete) {
             BigButton("Continue", onClick = onContinue, minWidth = 220.dp, minHeight = 80.dp, modifier = Modifier.focusRequester(continueFocus))
         } else {

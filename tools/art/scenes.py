@@ -2,6 +2,11 @@
 
 Scenes sit under a dark scrim in the game, so they are calm and soft: big shapes, warm light,
 an uncluttered middle (where the text and tiles go), and nothing that could look frightening.
+
+Each scene is two layers for the living-scene parallax (ui/stage/LivingScene.kt):
+  far  -> scene_<id>.webp       opaque background (also the still picture)
+  near -> scene_<id>_near.webp  transparent foreground that moves a little more with the camera
+Warm glows (fire, oven, lamp, lantern) are drawn by the game (game/stage/SceneFx.kt), so they can flicker.
 """
 import math
 import random
@@ -56,7 +61,6 @@ def cottage():
       <g clip-path="inset(0)">{tree(1480, 520, 0.9)}{tree(1660, 540, 0.8, "#f0b84a")}</g>
       {window(1380, 180, 360, 420, "none")}
       <rect x="1350" y="590" width="420" height="30" rx="8" fill="#9a6237" {S}/>
-      <circle cx="500" cy="640" r="320" fill="url(#fire)"/>
       <path d="M260 780 L260 380 L740 380 L740 780 Z" fill="#a9563d" {S}/>
       {"".join(f'<path d="M260 {y} L740 {y}" stroke="#8c4430" stroke-width="5"/>' for y in range(420, 780, 50))}
       <rect x="220" y="340" width="560" height="60" rx="10" fill="#7a4a28" {S}/>
@@ -66,6 +70,7 @@ def cottage():
       <rect x="330" y="750" width="340" height="30" rx="8" fill="#5a3a24"/>
       <rect x="380" y="270" width="70" height="70" rx="8" fill="#e2b23c" {THIN}/>
       <circle cx="600" cy="300" r="36" fill="#fbf0d9" {THIN}/>
+      ''', f'''
       <path d="M940 900 Q940 620 1060 600 L1240 600 Q1290 620 1290 760 L1290 900 Z" fill="#8e5a7a" {S}/>
       <rect x="900" y="700" width="80" height="210" rx="30" fill="#7a4766" {S}/>
       <rect x="1250" y="700" width="80" height="210" rx="30" fill="#7a4766" {S}/>
@@ -79,7 +84,6 @@ def bakery():
     return f'''<defs>{grad("bwall", "#f3e3c3", "#e6cfa6")}{glow("oven", "#ff9f43", 0.85)}</defs>
       <rect width="{W}" height="{H}" fill="url(#bwall)"/>
       {"".join(f'<rect x="{x}" y="{y}" width="118" height="58" fill="none" stroke="#e0c9a0" stroke-width="5"/>' for x in range(0, W, 120) for y in range(0, 700, 60))}
-      <circle cx="420" cy="560" r="330" fill="url(#oven)"/>
       <path d="M150 820 L150 400 Q150 230 420 220 Q690 230 690 400 L690 820 Z" fill="#b6714a" {S}/>
       {"".join(f'<path d="M150 {y} L690 {y}" stroke="#9a5a38" stroke-width="5"/>' for y in range(300, 820, 60))}
       <path d="M260 820 L260 520 Q260 430 420 425 Q580 430 580 520 L580 820 Z" fill="#3a2a22" {S}/>
@@ -87,6 +91,7 @@ def bakery():
       {"".join(f'<rect x="900" y="{y}" width="900" height="26" rx="8" fill="#9a6237" {S}/>' for y in (230, 430))}
       {"".join(f'<path d="M{x} {y} Q{x} {y - 70} {x + 75} {y - 75} Q{x + 150} {y - 70} {x + 150} {y} Z" fill="#c98a4b" {THIN}/>' for x in range(930, 1750, 190) for y in (230, 430))}
       <rect x="0" y="780" width="{W}" height="300" fill="#7a4a28"/>
+      ''', f'''
       <rect x="760" y="640" width="1160" height="160" rx="14" fill="#9a6237" {S}/>
       <rect x="760" y="640" width="1160" height="40" rx="14" fill="#c48a4f" {S}/>
       {"".join(f'<circle cx="{x}" cy="610" r="34" fill="{c}" {THIN}/>' for x, c in [(900, "#f2a93b"), (1000, "#e6b877"), (1600, "#d93b30")])}
@@ -107,6 +112,7 @@ def garden():
       {tree(260, 640, 1.5)}{tree(1700, 620, 1.3, "#d9862c")}
       {"".join(f'<rect x="{x}" y="700" width="26" height="140" rx="6" fill="#f3ead8" {THIN}/>' for x in range(560, 1360, 90))}
       <rect x="540" y="730" width="840" height="22" fill="#f3ead8" {THIN}/><rect x="540" y="790" width="840" height="22" fill="#f3ead8" {THIN}/>
+      ''', f'''
       <path d="M0 830 L1920 830 L1920 1080 L0 1080 Z" fill="#8a5a33"/>
       {flowers}
       <g transform="translate(1000 870)">{sunflower_head(0, -120, 70)}</g>
@@ -126,9 +132,9 @@ def library():
       <rect y="880" width="{W}" height="200" fill="#8a5a33"/>
       {shelves}
       {window(760, 140, 400, 440, "#cfe8f5")}
+      ''', f'''
       <rect x="720" y="700" width="480" height="40" rx="10" fill="#9a6237" {S}/>
       <path d="M760 740 L740 900 M1160 740 L1180 900" stroke="{O}" stroke-width="18" stroke-linecap="round"/>
-      <circle cx="1040" cy="660" r="140" fill="url(#lamp)"/>
       <path d="M990 640 L1090 640 L1070 580 L1010 580 Z" fill="#3c7a52" {S}/>
       <rect x="1034" y="640" width="12" height="60" fill="{O}"/>
       <rect x="820" y="660" width="140" height="40" rx="6" fill="#c0503f" {THIN}/>'''
@@ -157,8 +163,8 @@ def square():
       {houses}
       <rect y="780" width="{W}" height="300" fill="#a99a8a"/>
       {"".join(f'<path d="M0 {y} L{W} {y}" stroke="#8f8172" stroke-width="5"/>' for y in (850, 930, 1010))}
+      ''', f'''
       {bunting}
-      <circle cx="960" cy="520" r="260" fill="url(#lantern)"/>
       <rect x="945" y="560" width="30" height="400" fill="#3a3a44" {S}/>
       <path d="M880 470 L1040 470 L1020 600 L900 600 Z" fill="#ffd166" {S}/>
       <path d="M860 470 L960 400 L1060 470 Z" fill="#3a3a44" {S}/>

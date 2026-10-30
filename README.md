@@ -26,6 +26,8 @@
 - **מדריך: Dr. Rubinny ✅** דמות המדריך מציגה את התיק, מלווה כל פרק ומברכת בסיום. הפורטרט צויר מתמונה אמיתית
   (`tools/art/portrait_from_photo.py`; התמונה המקורית לא נשמרת בריפו), והקול הוא `en_US-john-medium` (נחלת הכלל).
   פרסום מחייב הסכמה בכתב של האדם המצולם (ראו `docs/CREDITS.md`).
+- **שלב 6.1 ✅ סצנות חיות:** שכבות עם parallax, מצלמה איטית, אור מהבהב וחלקיקים (`game/stage`, `ui/stage`).
+  "Less movement on screen" מציג תמונה סטטית. תוכנית ההמשך: [`docs/STAGE6.md`](docs/STAGE6.md).
 - **הבא:** בדיקה על טלוויזיה אמיתית ועם משתמשים, אישורים מקצועיים, ומפתח חתימה אמיתי.
 
 ## טכנולוגיות
@@ -96,6 +98,8 @@ cp keystore.properties.example keystore.properties   # למלא ערכים אמ�
 app/src/main/java/net/rubinny/willowbrook/
 ├── audio/       narrator (recorded voice → on-device TTS fallback), gentle sound effects
 ├── data/        settings, profiles, progress (DataStore, local only), content loader
+├── game/stage/  living scenes: camera, particles, light flicker, quality governor, per-scene effects
+├── ui/stage/    LivingScene renderer (Canvas, one draw per frame, no recomposition)
 ├── game/        content model, validator, engines (hints, difficulty, hidden object, memory,
 │                choice, sorting, spell), VoiceLines (ids + wording of every spoken line)
 ├── security/    PIN hashing (PBKDF2) + lockout

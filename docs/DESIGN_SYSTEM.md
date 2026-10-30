@@ -31,6 +31,14 @@
 | gold focus fill / background (רכיב לא-טקסטואלי) | 9.8:1 | ≥3:1 ✅ |
 | High contrast: text / background | 21:1 | AAA ✅ |
 | High contrast: text on yellow | 19.6:1 | AAA ✅ |
+| textSecondary על כרטיס (0.85) מעל סצנה חיה, במקרה הגרוע (פיקסל לבן בסצנה, scrim 0.45) | 8.6:1 | AAA ✅ |
+| textPrimary באותו מקרה | 12.3:1 | AAA ✅ |
+
+### סצנות חיות (שלב 6)
+- הסצנה מוצגת מתחת ל-scrim בצבע הרקע: ‏0.45 ב-Standard ו-0.75 ב-High contrast (`WillowColors.sceneScrim`).
+- **אף טקסט לא יושב ישירות על הסצנה.** כל טקסט נמצא על כרטיס (0.85 לפחות), על כפתור, או בתוך `OnScene`.
+  לכן החישוב למעלה מתייחס למקרה הגרוע ביותר ולא לרקע הממוצע.
+- "Less movement on screen" מציג תמונה סטטית: בלי מצלמה, בלי חלקיקים, ואור קבוע.
 
 ## פוקוס — תמיד בשלוש דרכים, לא רק בצבע
 1. מילוי זהב (או צהוב ב-High contrast).
