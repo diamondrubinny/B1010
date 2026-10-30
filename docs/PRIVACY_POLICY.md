@@ -21,9 +21,8 @@ Willowbrook Mysteries is provided by [legal name, address, contact email].
 | Player nickname and colour | To show "Who is playing today?" | Until the player is removed or the app is uninstalled |
 | Game progress, and how much help was used in the last 20 puzzles | To continue where you stopped and adjust difficulty quietly | Until the player is removed or the app is uninstalled |
 | Settings (text size, voice, contrast…) | To make the game comfortable | Until "Delete all data" or uninstall |
-| Caregiver PIN (stored only as a one-way hash) | To prevent settings being changed by accident | Until changed, "Delete all data" or uninstall |
 
-The caregiver can see a short **progress summary** in Caregiver settings (behind the PIN). It is built from the information above and is not stored separately. It is only about the game and is not a medical assessment.
+The person who set up the game can see a short **progress summary** in Settings (opened by holding the remote's Menu button for 3 seconds). Earlier versions stored a settings PIN as a one-way hash; it is deleted automatically. It is built from the information above and is not stored separately. It is only about the game and is not a medical assessment.
 
 **"Let's chat"** conversation cards are only shown and read aloud. Nothing that is said is recorded or stored.
 

@@ -9,8 +9,6 @@ object Routes {
     const val HOME = "home/{profileId}"
     const val PLAY = "play/{profileId}?chapter={chapter}&case={case}"
     const val CASE_FILES = "casefiles/{profileId}"
-    const val PIN_GATE = "pin"
-    const val CHANGE_PIN = "pin/change"
     const val SETTINGS = "settings"
     const val ABOUT = "about"
     const val SUMMARY = "summary"

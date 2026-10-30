@@ -13,6 +13,10 @@ import net.rubinny.willowbrook.data.content.ContentRepository
 import net.rubinny.willowbrook.data.profiles.ProfileRepository
 import net.rubinny.willowbrook.data.progress.ProgressRepository
 import net.rubinny.willowbrook.data.settings.SettingsRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 private val Context.appDataStore: DataStore<Preferences> by preferencesDataStore(name = "willowbrook")
 
@@ -24,6 +28,11 @@ class AppContainer(context: Context) {
     val profileRepository = ProfileRepository(dataStore)
     val progressRepository = ProgressRepository(dataStore)
     val contentRepository = ContentRepository { path -> context.applicationContext.assets.open(path) }
+
+    init {
+        // One-time tidy-up of the caregiver PIN that earlier versions stored.
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch { runCatching { settingsRepository.removeLegacyPin() } }
+    }
 
     /** Created on first use (text-to-speech start-up takes a moment) and kept for the app's lifetime. */
     val musicPlayer: MusicPlayer by lazy { MusicPlayer(context.applicationContext) }
@@ -42,7 +51,7 @@ class AppContainer(context: Context) {
         settingsRepository.update { if (it.lastProfileId == profileId) it.copy(lastProfileId = null) else it }
     }
 
-    /** "Delete all data": profiles, progress, settings and PIN. Cannot be undone. */
+    /** "Delete all data": profiles, progress and settings. Cannot be undone. */
     suspend fun deleteAllData() {
         dataStore.edit { it.clear() }
     }

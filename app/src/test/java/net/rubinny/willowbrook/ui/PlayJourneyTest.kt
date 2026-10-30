@@ -336,12 +336,13 @@ class PlayJourneyTest : TvUiTestBase() {
         rule.onNodeWithText("Back home").assertIsFocused()
         ok()
 
-        // Home, then the caregiver summary behind the PIN.
+        // Home, then the progress summary in the hidden settings: holding OK (5 s) asks first and does
+        // not press the button that has focus.
         waitForText("Visit the case again")
-        focusButton("Settings")
-        ok()
-        waitForText("Choose a 4-digit caregiver PIN")
-        repeat(2) { listOf(android.view.KeyEvent.KEYCODE_1, android.view.KeyEvent.KEYCODE_3, android.view.KeyEvent.KEYCODE_5, android.view.KeyEvent.KEYCODE_7).forEach(::press) }
+        hold(android.view.KeyEvent.KEYCODE_DPAD_CENTER, 5_200)
+        waitForText("These settings are for the person who set up the game.")
+        right()
+        ok() // Open settings
         waitForText("Reading and seeing")
         focusButton("Progress summary")
         ok()

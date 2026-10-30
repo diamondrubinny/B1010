@@ -12,6 +12,7 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -87,18 +88,30 @@ class TvJourneyTest : TvUiTestBase() {
         assertTrue("activity must still be running", !rule.activity.isFinishing)
     }
 
-    @Test fun caregiverPin_createThenSettings_largeText_highContrast() {
+    /** No settings button: a short press does nothing special; holding Menu asks first, with "Back to the game" ready. */
+    @Test fun hiddenSettings_holdMenu_thenLargeText_highContrast() {
         waitForText("Welcome to Willowbrook")
-        down() // -> Caregiver settings
-        rule.onNodeWithText("Caregiver settings").assertIsFocused()
-        ok()
+        assertTrue(rule.onAllNodesWithText("Caregiver settings").fetchSemanticsNodes().isEmpty())
+        assertTrue(rule.onAllNodesWithText("Settings").fetchSemanticsNodes().isEmpty())
 
-        // Create PIN with the remote's number keys, then confirm.
-        waitForText("Choose a 4-digit caregiver PIN")
-        shot("07_pin_create")
-        listOf(KeyEvent.KEYCODE_1, KeyEvent.KEYCODE_3, KeyEvent.KEYCODE_5, KeyEvent.KEYCODE_7).forEach(::press)
-        waitForText("Type the same PIN again")
-        listOf(KeyEvent.KEYCODE_1, KeyEvent.KEYCODE_3, KeyEvent.KEYCODE_5, KeyEvent.KEYCODE_7).forEach(::press)
+        // A short press of Menu does nothing.
+        press(KeyEvent.KEYCODE_MENU)
+        assertTrue(rule.onAllNodesWithText("Open settings").fetchSemanticsNodes().isEmpty())
+
+        // Held by accident: the safe choice is ready, OK returns to the game.
+        hold(KeyEvent.KEYCODE_MENU, 3_200)
+        waitForText("These settings are for the person who set up the game.")
+        rule.onNodeWithText("Back to the game").assertIsFocused()
+        shot("07_secret_settings_ask")
+        ok()
+        waitForText("Set up a player")
+        rule.onNodeWithText("Set up a player").assertIsFocused()
+
+        // Held on purpose: Right to "Open settings", OK.
+        hold(KeyEvent.KEYCODE_MENU, 3_200)
+        waitForText("Open settings")
+        right()
+        ok()
 
         // Settings open with "Done" focused.
         waitForText("Reading and seeing")

@@ -768,7 +768,7 @@ private fun ChatDialog(question: String, onAnother: () -> Unit, onDone: () -> Un
             ) {
                 Text("💬 Let's chat", style = WillowType.title, color = colors.accent, modifier = Modifier.semantics { heading() })
                 Text(
-                    "For the caregiver: a gentle way to start a conversation. There are no right or wrong answers.",
+                    "A gentle way to start a conversation. There are no right or wrong answers.",
                     style = WillowType.label,
                     color = colors.textSecondary,
                     textAlign = TextAlign.Center,

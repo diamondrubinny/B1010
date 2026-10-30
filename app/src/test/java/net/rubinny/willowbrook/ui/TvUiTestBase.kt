@@ -59,6 +59,25 @@ abstract class TvUiTestBase {
         rule.waitForIdle()
     }
 
+    /** Holds a key like a remote does: a first press, auto-repeats (every 100 ms) for [millis], then release. */
+    protected fun hold(keyCode: Int, millis: Long) {
+        rule.runOnUiThread {
+            val down = SystemClock.uptimeMillis()
+            fun send(action: Int, at: Long, repeat: Int) = rule.activity.dispatchKeyEvent(
+                KeyEvent(down, at, action, keyCode, repeat, 0, KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0, InputDevice.SOURCE_DPAD),
+            )
+            send(KeyEvent.ACTION_DOWN, down, 0)
+            var t = 100L
+            var repeat = 1
+            while (t <= millis) {
+                send(KeyEvent.ACTION_DOWN, down + t, repeat++)
+                t += 100
+            }
+            send(KeyEvent.ACTION_UP, down + millis, 0)
+        }
+        rule.waitForIdle()
+    }
+
     protected fun ok() = press(KeyEvent.KEYCODE_DPAD_CENTER)
     protected fun down() = press(KeyEvent.KEYCODE_DPAD_DOWN)
     protected fun right() = press(KeyEvent.KEYCODE_DPAD_RIGHT)

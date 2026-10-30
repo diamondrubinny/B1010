@@ -15,28 +15,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
-/** Stored caregiver PIN (salted hash only, never the PIN itself) plus brute-force lockout state. */
-data class PinState(
-    val hash: String?,
-    val failedAttempts: Int,
-    val lockedUntilMillis: Long,
-)
-
 class SettingsRepository(private val dataStore: DataStore<Preferences>) {
 
     val settings: Flow<Settings> = dataStore.data
         .catch { e -> if (e is IOException) emit(emptyPreferences()) else throw e }
         .map { it.toSettings() }
-
-    val pinState: Flow<PinState> = dataStore.data
-        .catch { e -> if (e is IOException) emit(emptyPreferences()) else throw e }
-        .map {
-            PinState(
-                hash = it[Keys.PIN_HASH],
-                failedAttempts = it[Keys.PIN_FAILED] ?: 0,
-                lockedUntilMillis = it[Keys.PIN_LOCKED_UNTIL] ?: 0L,
-            )
-        }
 
     suspend fun current(): Settings = settings.first()
 
@@ -58,29 +41,19 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         }
     }
 
-    suspend fun setPinHash(hash: String) {
+    /**
+     * Earlier versions kept a caregiver PIN (salted hash and lockout state). Settings no longer have a PIN,
+     * so anything left from it is removed rather than kept on the device without a purpose.
+     */
+    suspend fun removeLegacyPin() {
         dataStore.edit {
-            it[Keys.PIN_HASH] = hash
-            it[Keys.PIN_FAILED] = 0
-            it[Keys.PIN_LOCKED_UNTIL] = 0L
+            it.remove(Keys.LEGACY_PIN_HASH)
+            it.remove(Keys.LEGACY_PIN_FAILED)
+            it.remove(Keys.LEGACY_PIN_LOCKED_UNTIL)
         }
     }
 
-    suspend fun recordPinFailure(failedAttempts: Int, lockedUntilMillis: Long) {
-        dataStore.edit {
-            it[Keys.PIN_FAILED] = failedAttempts
-            it[Keys.PIN_LOCKED_UNTIL] = lockedUntilMillis
-        }
-    }
-
-    suspend fun clearPinFailures() {
-        dataStore.edit {
-            it[Keys.PIN_FAILED] = 0
-            it[Keys.PIN_LOCKED_UNTIL] = 0L
-        }
-    }
-
-    /** Removes every setting, including the PIN. Used by "Delete all data". */
+    /** Removes every setting. Used by "Delete all data". */
     suspend fun clearAll() {
         dataStore.edit { it.clear() }
     }
@@ -118,8 +91,8 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         val BACKGROUND_MUSIC = floatPreferencesKey("background_music_volume")
         val AMBIENCE = floatPreferencesKey("ambience_volume")
         val LAST_PROFILE = stringPreferencesKey("last_profile_id")
-        val PIN_HASH = stringPreferencesKey("pin_hash")
-        val PIN_FAILED = intPreferencesKey("pin_failed_attempts")
-        val PIN_LOCKED_UNTIL = longPreferencesKey("pin_locked_until")
+        val LEGACY_PIN_HASH = stringPreferencesKey("pin_hash")
+        val LEGACY_PIN_FAILED = intPreferencesKey("pin_failed_attempts")
+        val LEGACY_PIN_LOCKED_UNTIL = longPreferencesKey("pin_locked_until")
     }
 }

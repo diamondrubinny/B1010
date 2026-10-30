@@ -64,7 +64,7 @@ fun CreateProfileScreen(viewModel: CreateProfileViewModel, onDone: () -> Unit) {
 
     ScreenScaffold(
         title = "New player",
-        subtitle = "For the caregiver: type a first name or nickname.",
+        subtitle = "Type a first name or nickname.",
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(Dimens.gap),

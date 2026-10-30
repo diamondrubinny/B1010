@@ -22,6 +22,8 @@ import net.rubinny.willowbrook.ui.components.BigButton
 import net.rubinny.willowbrook.ui.components.ConfirmDialog
 import net.rubinny.willowbrook.ui.components.ScreenScaffold
 import net.rubinny.willowbrook.ui.components.requestFocusSafely
+import net.rubinny.willowbrook.ui.components.SecretSettingsDialog
+import net.rubinny.willowbrook.ui.components.secretSettingsHold
 import net.rubinny.willowbrook.ui.theme.Dimens
 
 @Composable
@@ -34,6 +36,7 @@ fun ProfilePickerScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var confirmExit by rememberSaveable { mutableStateOf(false) }
+    var askSettings by rememberSaveable { mutableStateOf(false) }
     val primaryFocus = remember { FocusRequester() }
 
     BackHandler { confirmExit = true }
@@ -45,6 +48,7 @@ fun ProfilePickerScreen(
 
     if (state.profiles.isEmpty()) {
         ScreenScaffold(
+            modifier = Modifier.secretSettingsHold { askSettings = true },
             title = "Welcome to Willowbrook",
             subtitle = "A gentle village mystery. First, let's set up a player.",
         ) {
@@ -54,12 +58,11 @@ fun ProfilePickerScreen(
                 onClick = onCreateProfile,
                 modifier = Modifier.focusRequester(primaryFocus),
             )
-            BigButton(text = "Caregiver settings", onClick = onOpenSettings, minWidth = 280.dp)
         }
     } else {
         // Remembered player goes first, so "OK" right away continues as the same person.
         val ordered = state.profiles.sortedByDescending { it.id == state.lastProfileId }
-        ScreenScaffold(title = "Who is playing today?") {
+        ScreenScaffold(title = "Who is playing today?", modifier = Modifier.secretSettingsHold { askSettings = true }) {
             Spacer(Modifier.height(Dimens.gap))
             Row(horizontalArrangement = Arrangement.spacedBy(Dimens.gap)) {
                 ordered.forEachIndexed { index, profile ->
@@ -77,11 +80,14 @@ fun ProfilePickerScreen(
                 }
             }
             Spacer(Modifier.height(Dimens.gapLarge))
-            BigButton(text = "Caregiver settings", onClick = onOpenSettings, minWidth = 280.dp)
         }
     }
 
     LaunchedEffect(state.profiles.size) { primaryFocus.requestFocusSafely() }
+
+    if (askSettings) {
+        SecretSettingsDialog(onOpen = { askSettings = false; onOpenSettings() }, onDismiss = { askSettings = false })
+    }
 
     if (confirmExit) {
         ConfirmDialog(

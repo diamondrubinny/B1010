@@ -33,6 +33,11 @@
 - **שלב 6.6 ✅** "Lantern Beads": משחק חרוזים רגוע ומקורי, בלי הפסד, בפרק 4 וגם מהמסך הראשי.
 - **הבא:** בדיקה על טלוויזיה אמיתית ועם משתמשים, אישורים מקצועיים, ומפתח חתימה אמיתי.
 
+## הגדרות (כניסה סודית)
+אין כפתור הגדרות במסך, כדי שהשחקן לא ייתקל בו. כדי לפתוח את ההגדרות, במסך הבית או במסך בחירת השחקן,
+לוחצים לחיצה ארוכה על **Menu** בשלט (3 שניות) או על **OK** (5 שניות). מופיעה שאלת אישור, שבה "Back to the game" נבחר מראש.
+בהגדרות: גודל טקסט, ניגודיות, פחות תנועה, קריינות, עוצמות, קושי, סיכום התקדמות, הסרת שחקן ומחיקת כל הנתונים.
+
 ## טכנולוגיות
 Kotlin 2.4 · Jetpack Compose (BOM 2026.09) · Compose for TV (`tv-material` 1.1) · Navigation Compose ·
 DataStore · kotlinx.serialization · AGP 9.5 / Gradle 9.8 · minSdk 24 (Android 7.0) · compileSdk 37 · targetSdk 36.
@@ -105,9 +110,8 @@ app/src/main/java/net/rubinny/willowbrook/
 ├── ui/stage/    LivingScene renderer (Canvas, one draw per frame, no recomposition)
 ├── game/        content model, validator, engines (hints, difficulty, hidden object, memory,
 │                choice, sorting, spell), VoiceLines (ids + wording of every spoken line)
-├── security/    PIN hashing (PBKDF2) + lockout
 ├── ui/theme/    colours, typography, dimensions
-├── ui/components/  BigButton, ConfirmDialog, PinPad, setting rows…
+├── ui/components/  BigButton, ConfirmDialog, SecretEntry (hidden settings), setting rows…
 ├── ui/navigation/  routes + NavHost
 └── ui/screens/  profiles, home, settings, play (chapter player), case files
 app/src/main/assets/cases/lantern.json   story content (validated by tests)

@@ -1,6 +1,9 @@
 package net.rubinny.willowbrook.data
 
 import kotlinx.coroutines.flow.first
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.runBlocking
 import net.rubinny.willowbrook.data.settings.Difficulty
 import net.rubinny.willowbrook.data.settings.Settings
@@ -54,23 +57,25 @@ class SettingsRepositoryTest {
         assertEquals(1.0f, s.textScale)
     }
 
-    @Test fun `pin state lifecycle`() = runBlocking {
-        val repo = SettingsRepository(tmp.newDataStore())
-        assertNull(repo.pinState.first().hash)
-        repo.setPinHash("pbkdf2\$1\$aa\$bb")
-        repo.recordPinFailure(3, 0L)
-        assertEquals(3, repo.pinState.first().failedAttempts)
-        repo.clearPinFailures()
-        assertEquals(0, repo.pinState.first().failedAttempts)
-        assertEquals("pbkdf2\$1\$aa\$bb", repo.pinState.first().hash)
+    @Test fun `a PIN left by an earlier version is removed`() = runBlocking {
+        val store = tmp.newDataStore()
+        store.edit {
+            it[stringPreferencesKey("pin_hash")] = "pbkdf2\$1\$aa\$bb"
+            it[intPreferencesKey("pin_failed_attempts")] = 2
+        }
+        val repo = SettingsRepository(store)
+        repo.update { it.copy(textScale = 1.2f) }
+        repo.removeLegacyPin()
+        val left = store.data.first()
+        assertNull(left[stringPreferencesKey("pin_hash")])
+        assertNull(left[intPreferencesKey("pin_failed_attempts")])
+        assertEquals(1.2f, repo.current().textScale)
     }
 
-    @Test fun `clearAll removes pin and settings`() = runBlocking {
+    @Test fun `clearAll removes every setting`() = runBlocking {
         val repo = SettingsRepository(tmp.newDataStore())
-        repo.setPinHash("x")
         repo.update { it.copy(textScale = 1.6f) }
         repo.clearAll()
-        assertNull(repo.pinState.first().hash)
         assertEquals(Settings(), repo.current())
     }
 }

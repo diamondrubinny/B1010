@@ -1,5 +1,7 @@
 package net.rubinny.willowbrook.ui.screens.home
 
+import net.rubinny.willowbrook.ui.components.SecretSettingsDialog
+import net.rubinny.willowbrook.ui.components.secretSettingsHold
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -41,6 +43,7 @@ fun HomeScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var confirmExit by rememberSaveable { mutableStateOf(false) }
+    var askSettings by rememberSaveable { mutableStateOf(false) }
     val continueFocus = remember { FocusRequester() }
 
     // Back on Home never exits silently: it asks first, with "Keep playing" pre-selected.
@@ -50,7 +53,7 @@ fun HomeScreen(
         HomeUiState.Loading -> ScreenScaffold(title = "Willowbrook Mysteries") {}
         HomeUiState.ProfileMissing -> LaunchedEffect(Unit) { onProfileMissing() }
         is HomeUiState.Ready -> {
-            ScreenScaffold(title = "Hello, ${s.profile.nickname}") {
+            ScreenScaffold(title = "Hello, ${s.profile.nickname}", modifier = Modifier.secretSettingsHold { askSettings = true }) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(Dimens.gap),
                     verticalAlignment = Alignment.CenterVertically,
@@ -76,11 +79,14 @@ fun HomeScreen(
                 Row(horizontalArrangement = Arrangement.spacedBy(Dimens.gap)) {
                     BigButton(text = "Case files", onClick = onCaseFiles, minWidth = 240.dp)
                     BigButton(text = "Change player", onClick = onChangePlayer, minWidth = 240.dp)
-                    BigButton(text = "Settings", onClick = onOpenSettings, minWidth = 240.dp, accessibilityLabel = "Caregiver settings")
                 }
             }
             LaunchedEffect(s.profile.id) { continueFocus.requestFocusSafely() }
         }
+    }
+
+    if (askSettings) {
+        SecretSettingsDialog(onOpen = { askSettings = false; onOpenSettings() }, onDismiss = { askSettings = false })
     }
 
     if (confirmExit) {

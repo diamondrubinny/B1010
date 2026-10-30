@@ -43,7 +43,6 @@ private sealed interface PendingConfirm {
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     onAddPlayer: () -> Unit,
-    onChangePin: () -> Unit,
     onAbout: () -> Unit,
     onSummary: () -> Unit,
     onAllDataDeleted: () -> Unit,
@@ -56,7 +55,7 @@ fun SettingsScreen(
     val firstFocus = remember { FocusRequester() }
     val rowWidth = Modifier.widthIn(max = 860.dp)
 
-    ScreenScaffold(title = "Caregiver settings", horizontalAlignment = Alignment.CenterHorizontally) {
+    ScreenScaffold(title = "Settings", horizontalAlignment = Alignment.CenterHorizontally) {
         BigButton(
             text = "Done",
             onClick = onClose,
@@ -158,11 +157,10 @@ fun SettingsScreen(
         }
 
         Section("Privacy and safety")
-        ActionRow(label = "Change caregiver PIN", onClick = onChangePin, modifier = rowWidth)
         ActionRow(label = "About, privacy and accessibility", onClick = onAbout, modifier = rowWidth)
         ActionRow(
             label = "Delete all data",
-            detail = "Removes all players, progress, settings and the PIN",
+            detail = "Removes all players, progress and settings",
             onClick = { deleteAllStep = 1; pending = PendingConfirm.DeleteAll },
             modifier = rowWidth,
         )
@@ -184,7 +182,7 @@ fun SettingsScreen(
             // Two steps for the most destructive action in the app.
             title = if (deleteAllStep == 1) "Delete all data?" else "Are you completely sure?",
             message = if (deleteAllStep == 1) {
-                "All players, progress, settings and the PIN will be removed from this TV."
+                "All players, progress and settings will be removed from this TV."
             } else {
                 "This cannot be undone."
             },

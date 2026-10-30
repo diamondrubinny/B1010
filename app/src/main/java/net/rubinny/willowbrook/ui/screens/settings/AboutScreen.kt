@@ -42,7 +42,7 @@ fun AboutScreen(onClose: () -> Unit) {
         )
         ReadableBlock(
             heading = "Deleting information",
-            body = "In Caregiver settings you can remove a single player or delete all data. " +
+            body = "In Settings (hold the Menu button on the remote for 3 seconds, or OK for 5 seconds) you can remove a single player or delete all data. " +
                 "Uninstalling the game also removes everything.",
             modifier = width,
         )

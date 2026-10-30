@@ -26,8 +26,6 @@ import net.rubinny.willowbrook.ui.screens.profiles.CreateProfileViewModel
 import net.rubinny.willowbrook.ui.screens.profiles.ProfilePickerScreen
 import net.rubinny.willowbrook.ui.screens.profiles.ProfilesViewModel
 import net.rubinny.willowbrook.ui.screens.settings.AboutScreen
-import net.rubinny.willowbrook.ui.screens.settings.PinGateScreen
-import net.rubinny.willowbrook.ui.screens.settings.PinViewModel
 import net.rubinny.willowbrook.ui.screens.settings.SettingsScreen
 import net.rubinny.willowbrook.ui.screens.settings.SettingsViewModel
 import net.rubinny.willowbrook.ui.screens.settings.SummaryScreen
@@ -56,7 +54,7 @@ fun AppNavHost(
                 viewModel = vm,
                 onProfileChosen = { id -> navController.navigate(Routes.home(id)) },
                 onCreateProfile = { navController.navigate(Routes.CREATE_PROFILE) },
-                onOpenSettings = { navController.navigate(Routes.PIN_GATE) },
+                onOpenSettings = { navController.navigate(Routes.SETTINGS) },
                 onExitApp = onExitApp,
             )
         }
@@ -89,7 +87,7 @@ fun AppNavHost(
                 onCaseFiles = { navController.navigate(Routes.caseFiles(profileId)) },
                 onBeads = { navController.navigate(Routes.beads(profileId)) },
                 onChangePlayer = { navController.popBackStack(Routes.PROFILES, inclusive = false) },
-                onOpenSettings = { navController.navigate(Routes.PIN_GATE) },
+                onOpenSettings = { navController.navigate(Routes.SETTINGS) },
                 onProfileMissing = { navController.popBackStack(Routes.PROFILES, inclusive = false) },
                 onExitApp = onExitApp,
             )
@@ -148,25 +146,11 @@ fun AppNavHost(
             )
         }
 
-        composable(Routes.PIN_GATE) {
-            val vm = viewModel { PinViewModel(container.settingsRepository) }
-            PinGateScreen(
-                viewModel = vm,
-                onUnlocked = {
-                    navController.navigate(Routes.SETTINGS) {
-                        popUpTo(Routes.PIN_GATE) { inclusive = true }
-                    }
-                },
-                onCancel = { navController.popBackStack() },
-            )
-        }
-
         composable(Routes.SETTINGS) {
             val vm = viewModel { SettingsViewModel(container) }
             SettingsScreen(
                 viewModel = vm,
                 onAddPlayer = { navController.navigate(Routes.CREATE_PROFILE) },
-                onChangePin = { navController.navigate(Routes.CHANGE_PIN) },
                 onAbout = { navController.navigate(Routes.ABOUT) },
                 onSummary = { navController.navigate(Routes.SUMMARY) },
                 onAllDataDeleted = {
@@ -175,15 +159,6 @@ fun AppNavHost(
                     }
                 },
                 onClose = { navController.popBackStack() },
-            )
-        }
-
-        composable(Routes.CHANGE_PIN) {
-            val vm = viewModel { PinViewModel(container.settingsRepository, forceCreate = true) }
-            PinGateScreen(
-                viewModel = vm,
-                onUnlocked = { navController.popBackStack() },
-                onCancel = { navController.popBackStack() },
             )
         }
 
