@@ -69,6 +69,11 @@ class PlayJourneyTest : TvUiTestBase() {
         ok()
         waitForText("Well done! Now, some news.", substring = true)
         ok()
+        // The mystery's first clue, under a glowing magnifying glass.
+        waitForText("📓 A clue: Tiny paw prints")
+        rule.onNodeWithText("Continue").assertIsFocused()
+        shot("12b_clue")
+        ok()
         waitForText("You are ready to begin.", substring = true)
         ok()
         waitForText("Well done, detective!")
@@ -122,6 +127,8 @@ class PlayJourneyTest : TvUiTestBase() {
         waitForText("What a good memory", substring = true)
         ok() // Continue (focused)
         waitForText("Something is twinkling", substring = true)
+        ok()
+        waitForText("📓 A clue: Apple with tiny bites")
         ok()
         waitForText("You found the first light charm!", substring = true)
         shot("19_reward_charm")
@@ -215,6 +222,8 @@ class PlayJourneyTest : TvUiTestBase() {
         ok()
         waitForText("Well solved!", substring = true)
         ok()
+        waitForText("📓 A clue: Trail of leaves")
+        ok()
         waitForText("You found the second light charm!", substring = true)
         ok()
         waitForText("Well done, detective!")
@@ -273,6 +282,8 @@ class PlayJourneyTest : TvUiTestBase() {
         ok()
         waitForText("third light charm, shining", substring = true)
         ok()
+        waitForText("📓 A clue: Soft little prickle")
+        ok()
         waitForText("You found the third light charm!", substring = true)
         ok()
 
@@ -314,6 +325,21 @@ class PlayJourneyTest : TvUiTestBase() {
         waitForText("all muddled on their string", substring = true)
         ok()
         playBeadsWithHelp(shotName = "44a_beads")
+
+        // The mystery: the clues are shown with the question; Help ×3 guides to the answer.
+        waitForText("let's solve our little mystery", substring = true)
+        ok()
+        waitForText("Who rolled the light charms away?")
+        shot("44c_whodunit")
+        askForFullHelp()
+        ok()
+        waitForText("Mystery solved!", substring = true)
+        ok()
+        waitForText("a little hedgehog called Hazel", substring = true)
+        shot("44d_hazel")
+        ok()
+        waitForText("A fine piece of detective work!", substring = true)
+        ok()
         waitForText("the kindest spell of all", substring = true)
         ok()
         waitForText("A kind spell")
@@ -386,6 +412,29 @@ class PlayJourneyTest : TvUiTestBase() {
         ok()
         waitForText("Well done, detective!")
         shot("52_beads_complete")
+    }
+
+    /** The detective notebook from Home: clues found so far, and friendly "Still to find" pages. */
+    @Test fun notebookFromHome() {
+        runBlocking {
+            val profile = (app.container.profileRepository.add("Ruth", Avatar.SAGE) as ProfileRepository.AddResult.Added).profile
+            app.container.progressRepository.save(
+                profile.id,
+                CaseProgress("lantern", chapterIndex = 2, completedChapters = listOf("ch0_cottage", "ch1_bakery")),
+            )
+        }
+        waitForText("Who is playing today?")
+        ok()
+        waitForText("Continue the case")
+        focusButton("📓 Notebook")
+        ok()
+        waitForText("Clues found: 2 of 4")
+        waitForText("Tiny paw prints")
+        waitForText("Apple with tiny bites")
+        assertTrue(rule.onAllNodesWithText("Still to find").fetchSemanticsNodes().size == 2)
+        shot("53_notebook")
+        back()
+        waitForText("Continue the case")
     }
 
     @Test fun backDuringActivity_asksAndKeepsPlaying() {

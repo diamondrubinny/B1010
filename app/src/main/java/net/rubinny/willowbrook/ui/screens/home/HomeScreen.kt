@@ -36,6 +36,7 @@ fun HomeScreen(
     onContinue: () -> Unit,
     onCaseFiles: () -> Unit,
     onBeads: () -> Unit,
+    onNotebook: () -> Unit,
     onChangePlayer: () -> Unit,
     onOpenSettings: () -> Unit,
     onProfileMissing: () -> Unit,
@@ -77,6 +78,7 @@ fun HomeScreen(
                 // A calm game to play any time, outside the story.
                 BigButton(text = "✨ Lantern Beads", subtitle = "A calm game of light beads", onClick = onBeads, minWidth = 640.dp)
                 Row(horizontalArrangement = Arrangement.spacedBy(Dimens.gap)) {
+                    BigButton(text = "📓 Notebook", onClick = onNotebook, minWidth = 240.dp, accessibilityLabel = "Detective notebook")
                     BigButton(text = "Case files", onClick = onCaseFiles, minWidth = 240.dp)
                     BigButton(text = "Change player", onClick = onChangePlayer, minWidth = 240.dp)
                 }

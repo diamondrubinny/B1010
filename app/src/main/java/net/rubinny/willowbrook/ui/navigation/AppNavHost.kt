@@ -28,6 +28,8 @@ import net.rubinny.willowbrook.ui.screens.profiles.ProfilesViewModel
 import net.rubinny.willowbrook.ui.screens.settings.AboutScreen
 import net.rubinny.willowbrook.ui.screens.settings.SettingsScreen
 import net.rubinny.willowbrook.ui.screens.settings.SettingsViewModel
+import net.rubinny.willowbrook.ui.screens.notebook.NotebookScreen
+import net.rubinny.willowbrook.ui.screens.notebook.NotebookViewModel
 import net.rubinny.willowbrook.ui.screens.settings.SummaryScreen
 import net.rubinny.willowbrook.ui.screens.settings.SummaryViewModel
 
@@ -86,6 +88,7 @@ fun AppNavHost(
                 onContinue = { navController.navigate(Routes.play(profileId)) },
                 onCaseFiles = { navController.navigate(Routes.caseFiles(profileId)) },
                 onBeads = { navController.navigate(Routes.beads(profileId)) },
+                onNotebook = { navController.navigate(Routes.notebook(profileId)) },
                 onChangePlayer = { navController.popBackStack(Routes.PROFILES, inclusive = false) },
                 onOpenSettings = { navController.navigate(Routes.SETTINGS) },
                 onProfileMissing = { navController.popBackStack(Routes.PROFILES, inclusive = false) },
@@ -144,6 +147,15 @@ fun AppNavHost(
                 },
                 onBack = { navController.popBackStack() },
             )
+        }
+
+        composable(
+            Routes.NOTEBOOK,
+            arguments = listOf(navArgument(Routes.ARG_PROFILE_ID) { type = NavType.StringType }),
+        ) { entry ->
+            val profileId = entry.arguments?.getString(Routes.ARG_PROFILE_ID).orEmpty()
+            val vm = viewModel(key = "notebook-$profileId") { NotebookViewModel(container, profileId) }
+            NotebookScreen(viewModel = vm, narrator = container.narrator, onClose = { navController.popBackStack() })
         }
 
         composable(Routes.SETTINGS) {

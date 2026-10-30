@@ -42,6 +42,7 @@ object VoiceLines {
     fun stepLine(step: Step): SpokenLine = when (step) {
         is Step.Narration -> SpokenLine(step.id, step.text)
         is Step.Reward -> SpokenLine(step.id, step.text)
+        is Step.Clue -> SpokenLine(step.id, step.text)
         is Step.HiddenObject -> SpokenLine("${step.id}_goal", step.goal)
         is Step.MemoryMatch -> SpokenLine("${step.id}_goal", step.goal)
         is Step.Sorting -> SpokenLine("${step.id}_goal", step.goal)
@@ -66,7 +67,7 @@ object VoiceLines {
             lines += "Narrator" to recapAfterChapter(chapter)
             lines += "Narrator" to whatAreWeDoing(case, chapter)
             chapter.steps.forEach { step ->
-                val speaker = (step as? Step.Narration)?.speaker ?: if (step is Step.Narration || step is Step.Reward) "Narrator" else "Marmalade"
+                val speaker = (step as? Step.Narration)?.speaker ?: if (step is Step.Narration || step is Step.Reward || step is Step.Clue) "Narrator" else "Marmalade"
                 lines += speaker to stepLine(step)
                 var i = 0
                 while (true) {

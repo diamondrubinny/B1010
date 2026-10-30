@@ -63,8 +63,11 @@ object Phrases {
     fun tryGlowingCard() = "Try the card that is glowing."
 
     // Choice
-    fun correct(kind: ChoiceKind, answer: Noun) =
-        if (kind == ChoiceKind.RECALL) "Yes! It was ${answer.the}. What a good memory!" else "Yes! It's ${answer.the}. Well solved!"
+    fun correct(kind: ChoiceKind, answer: Noun) = when (kind) {
+        ChoiceKind.RECALL -> "Yes! It was ${answer.the}. What a good memory!"
+        ChoiceKind.RIDDLE -> "Yes! It's ${answer.the}. Well solved!"
+        ChoiceKind.MYSTERY -> "Yes! It was ${answer.the}. Mystery solved!"
+    }
     fun notThis(item: Noun) = "Not ${item.the}. Let's think again."
     fun takeYourTime() = "Take your time. Choose the picture you think is right."
 

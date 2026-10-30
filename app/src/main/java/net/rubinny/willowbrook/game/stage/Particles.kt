@@ -18,6 +18,9 @@ enum class ParticleKind {
 
     /** Warm steam from fresh baking: rises, widens and fades. */
     STEAM,
+
+    /** A soft wisp of evening mist: very large, very faint, drifting slowly sideways (the mystery's air). */
+    MIST,
 }
 
 /** A rectangle in scene fractions (0..1 of the scene width and height). */
@@ -89,6 +92,10 @@ class ParticleSystem(val emitter: Emitter, seed: Int) {
                     p.y += p.vy * step
                     p.size += emitter.size * 0.35f * step
                 }
+                ParticleKind.MIST -> {
+                    p.x += p.vx * step
+                    p.y += 0.002f * sin(p.age * 0.2f + p.phase) * step
+                }
             }
             val area = emitter.area
             if (emitter.kind == ParticleKind.MOTE || emitter.kind == ParticleKind.FIREFLY) {
@@ -106,6 +113,7 @@ class ParticleSystem(val emitter: Emitter, seed: Int) {
         ParticleKind.STEAM -> p.fade * 0.35f
         ParticleKind.MOTE -> p.fade * 0.7f
         ParticleKind.LEAF -> p.fade
+        ParticleKind.MIST -> p.fade * 0.14f
     }
 
     private fun Random.between(a: Float, b: Float) = a + nextFloat() * (b - a)
@@ -135,6 +143,13 @@ class ParticleSystem(val emitter: Emitter, seed: Int) {
             ParticleKind.FIREFLY -> {
                 p.y = random.between(a.top, a.bottom)
                 p.life = random.between(10f, 20f)
+            }
+            ParticleKind.MIST -> {
+                // Drifts in from the left; on its way across it fades in and, before the far edge, out again.
+                p.x = if (initial) random.between(a.left, a.right) else a.left
+                p.y = random.between(a.top, a.bottom)
+                p.vx = random.between(0.004f, 0.008f)
+                p.life = ((a.right - p.x) / p.vx).coerceAtLeast(1f)
             }
             ParticleKind.STEAM -> {
                 p.y = if (initial) random.between(a.top, a.bottom) else a.bottom

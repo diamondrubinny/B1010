@@ -232,7 +232,7 @@ class ChapterPlayerViewModel(
         viewModelScope.launch { progressRepo.save(profileId, next) }
     }
 
-    private fun Step.isActivity() = this !is Step.Narration && this !is Step.Reward
+    private fun Step.isActivity() = this !is Step.Narration && this !is Step.Reward && this !is Step.Clue
 
     private fun stopActivityJobs() {
         hintJob?.cancel()
@@ -282,6 +282,7 @@ class ChapterPlayerViewModel(
                 beadsEngine = BeadsEngine(BeadsEngine.newString(setup.length, setup.palette, step.seed), setup.maxLength, step.seed)
             }
             is Step.Narration -> Unit
+            is Step.Clue -> sound(SoundCue.CLUE)
             is Step.Reward -> if (step.charm) sound(SoundCue.REWARD) else sound(SoundCue.COMPLETE)
         }
         _state.value = s.copy(
@@ -648,7 +649,7 @@ class ChapterPlayerViewModel(
                 }
                 Hint(text, engine.bestGap())
             }
-            is Step.Narration, is Step.Reward -> Hint.NONE
+            is Step.Narration, is Step.Reward, is Step.Clue -> Hint.NONE
         }
     }
 
@@ -688,7 +689,10 @@ class ChapterPlayerViewModel(
 
     private fun choiceUi(case: CaseContent, step: Step.Choice): ChoiceUi {
         val e = choiceEngine!!
-        return ChoiceUi(step.kind, step.question, e.options.map { item(case, it) }, e.triedOptions.toSet(), e.answer, e.isComplete)
+        return ChoiceUi(
+            step.kind, step.question, e.options.map { item(case, it) }, e.triedOptions.toSet(), e.answer, e.isComplete,
+            clues = step.clues.map { item(case, it) },
+        )
     }
 
     private fun sortingUi(case: CaseContent, step: Step.Sorting): SortingUi {

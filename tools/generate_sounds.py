@@ -13,7 +13,7 @@ RATE = 22050
 OUT = os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "res", "raw")
 PEAK = 0.4
 
-NOTE = {"C5": 523.25, "D5": 587.33, "E5": 659.25, "G5": 783.99, "A5": 880.00, "C6": 1046.50, "E6": 1318.51, "G4": 392.00}
+NOTE = {"C5": 523.25, "D5": 587.33, "E5": 659.25, "G5": 783.99, "A5": 880.00, "C6": 1046.50, "E6": 1318.51, "G4": 392.00, "F#5": 739.99}
 
 
 def bell(freq, duration, start, buf):
@@ -69,6 +69,11 @@ def main():
     for i, note in enumerate(["G5", "C6", "E6", "C6", "E6"]):
         bell(NOTE[note], 1.0, i * 0.09, b)
     write("sfx_reward", b)
+    # A clue: a slow, curious rising figure (Lydian: the raised fourth sounds like "hmm, what's this?").
+    b = []
+    for i, note in enumerate(["C5", "E5", "F#5", "G5"]):
+        bell(NOTE[note], 1.4, i * 0.24, b)
+    write("sfx_clue", [x * 0.85 for x in b])
     # Card flip: very short, low and soft.
     b = []
     bell(NOTE["G4"], 0.25, 0, b)

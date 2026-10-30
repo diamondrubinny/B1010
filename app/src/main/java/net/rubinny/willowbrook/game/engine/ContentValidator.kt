@@ -1,6 +1,7 @@
 package net.rubinny.willowbrook.game.engine
 
 import net.rubinny.willowbrook.game.model.CaseContent
+import net.rubinny.willowbrook.game.model.ChoiceKind
 import net.rubinny.willowbrook.game.model.SpellSymbol
 import net.rubinny.willowbrook.game.model.Step
 
@@ -100,6 +101,12 @@ object ContentValidator {
                         if (step.options.toSet().size != step.options.size) err("${step.id}: duplicate option")
                         if (step.answer !in step.options) err("${step.id}: the answer must be one of the options")
                         step.options.forEach { if (it !in itemIds) err("${step.id}: unknown item '$it'") }
+                        step.clues.forEach { if (it !in itemIds) err("${step.id}: unknown clue '$it'") }
+                        if (step.kind == ChoiceKind.MYSTERY && step.clues.isEmpty()) err("${step.id}: a mystery question shows its clues")
+                    }
+                    is Step.Clue -> {
+                        texts += step.text
+                        if (step.clue !in itemIds) err("${step.id}: unknown clue '${step.clue}'")
                     }
                     is Step.Sorting -> {
                         texts += step.goal

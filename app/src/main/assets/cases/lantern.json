@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "id": "lantern",
-  "title": "The Lantern of Willowbrook",
-  "premise": "The lantern for tonight's autumn fair has gone dim. We are finding three little light charms to make it shine again.",
+  "title": "The Mystery of the Lantern",
+  "premise": "The lantern for tonight's autumn fair has gone dim, and its three light charms have rolled away. A little animal left clues around the village. Who could it be?",
   "items": [
     {
       "id": "glasses",
@@ -242,6 +242,48 @@
       "label": "Miss Penrose",
       "emoji": "👩",
       "properName": true
+    },
+    {
+      "id": "hedgehog",
+      "label": "Hedgehog",
+      "emoji": "🦔"
+    },
+    {
+      "id": "squirrel",
+      "label": "Squirrel",
+      "emoji": "🐿️"
+    },
+    {
+      "id": "owl",
+      "label": "Owl",
+      "emoji": "🦉"
+    },
+    {
+      "id": "clue_pawprints",
+      "label": "Tiny paw prints",
+      "emoji": "🐾",
+      "plural": true
+    },
+    {
+      "id": "clue_bitten_apple",
+      "label": "Apple with tiny bites",
+      "emoji": "🍎"
+    },
+    {
+      "id": "clue_leaf_trail",
+      "label": "Trail of leaves",
+      "emoji": "🍂"
+    },
+    {
+      "id": "clue_prickle",
+      "label": "Soft little prickle",
+      "emoji": "🔸"
+    },
+    {
+      "id": "hazel",
+      "label": "Hazel the hedgehog",
+      "emoji": "🦔",
+      "properName": true
     }
   ],
   "chapters": [
@@ -264,7 +306,7 @@
           "speaker": "Dr. Rubinny",
           "portrait": "rubinny",
           "portraitEmoji": "👨‍🏫",
-          "text": "Good morning, detective. I am Dr. Rubinny, and I will be your guide on this case. There is no hurry, and you can ask for help at any time."
+          "text": "Good morning, detective. I am Dr. Rubinny, and I will be your guide on this case. Something curious has happened in Willowbrook. There is no hurry."
         },
         {
           "type": "narration",
@@ -299,6 +341,12 @@
           "text": "Well done! Now, some news. The lantern for tonight's autumn fair has gone dim. Three little light charms have rolled away around the village."
         },
         {
+          "type": "clue",
+          "id": "ch0_clue",
+          "clue": "clue_pawprints",
+          "text": "Look by the garden gate. Tiny paw prints, small and round! A little animal has been passing by. Who could it be? Let's keep this clue."
+        },
+        {
           "type": "reward",
           "id": "ch0_ready",
           "text": "You are ready to begin. Let's visit the bakery first."
@@ -328,7 +376,7 @@
           "speaker": "Dr. Rubinny",
           "portrait": "rubinny",
           "portraitEmoji": "👨‍🏫",
-          "text": "Our first stop is the bakery. Look carefully and take your time. Marmalade will help if you need it."
+          "text": "Our first stop is the bakery. Keep your eyes open for clues, detective. Who could have rolled the charms away?"
         },
         {
           "type": "narration",
@@ -409,6 +457,12 @@
           "text": "Look! Something is twinkling under the last recipe card. It's the first light charm!"
         },
         {
+          "type": "clue",
+          "id": "ch1_clue",
+          "clue": "clue_bitten_apple",
+          "text": "And look, beside the charm: an apple with tiny bite marks. A little animal was hungry here! Another clue for our notebook."
+        },
+        {
           "type": "reward",
           "id": "ch1_charm",
           "text": "You found the first light charm! Mrs. Bramble gives you a warm scone to say thank you. Two more charms to find.",
@@ -440,7 +494,7 @@
           "speaker": "Dr. Rubinny",
           "portrait": "rubinny",
           "portraitEmoji": "👨‍🏫",
-          "text": "Here we are in the garden. Mr. Hollis would be glad of a sharp-eyed detective today."
+          "text": "Here we are in the garden. Mr. Hollis would be glad of a sharp-eyed detective. I wonder what clue we will find today."
         },
         {
           "type": "narration",
@@ -572,10 +626,16 @@
           "hint": "Think of a big, bright yellow flower."
         },
         {
+          "type": "clue",
+          "id": "ch2_clue",
+          "clue": "clue_leaf_trail",
+          "text": "Do you see? A trail of crunchy leaves leads under the hedge. A little animal has been this way. Into the notebook it goes!"
+        },
+        {
           "type": "reward",
           "id": "ch2_charm",
-          "charm": true,
-          "text": "You found the second light charm! Mr. Hollis gives you a bunch of autumn flowers. Just one more charm to find."
+          "text": "You found the second light charm! Mr. Hollis gives you a bunch of autumn flowers. Just one more charm to find.",
+          "charm": true
         }
       ],
       "chat": [
@@ -603,14 +663,14 @@
           "speaker": "Dr. Rubinny",
           "portrait": "rubinny",
           "portraitEmoji": "👨‍🏫",
-          "text": "This is the library, our last stop before the fair. One more charm to find, and I know you can do it."
+          "text": "This is the library, our last stop before the fair. One more charm to find, and perhaps the last clue to our little mystery."
         },
         {
           "type": "narration",
           "id": "ch3_penrose_hello",
+          "speaker": "Miss Penrose",
           "portrait": "penrose",
           "portraitEmoji": "👩",
-          "speaker": "Miss Penrose",
           "text": "Welcome, detective! I was reading a lovely book about the sea when I heard a little tinkle. I think the last charm has rolled somewhere in here."
         },
         {
@@ -638,9 +698,9 @@
         {
           "type": "narration",
           "id": "ch3_lost_property",
+          "speaker": "Miss Penrose",
           "portrait": "penrose",
           "portraitEmoji": "👩",
-          "speaker": "Miss Penrose",
           "text": "Thank you! People leave all sorts of things here. Books and papers go on the bookshelf, and hats and umbrellas go to the cloakroom."
         },
         {
@@ -690,9 +750,9 @@
         {
           "type": "narration",
           "id": "ch3_cards",
+          "speaker": "Marmalade",
           "portrait": "marmalade",
           "portraitEmoji": "🐈",
-          "speaker": "Marmalade",
           "text": "Something glints behind the reading cards. Let's put the pairs together and look underneath!"
         },
         {
@@ -709,9 +769,9 @@
         {
           "type": "narration",
           "id": "ch3_question_intro",
+          "speaker": "Miss Penrose",
           "portrait": "penrose",
           "portraitEmoji": "👩",
-          "speaker": "Miss Penrose",
           "text": "Lovely work! Before you look, a little question for a good detective."
         },
         {
@@ -730,16 +790,22 @@
         {
           "type": "narration",
           "id": "ch3_twinkle",
+          "speaker": "Marmalade",
           "portrait": "marmalade",
           "portraitEmoji": "🐈",
-          "speaker": "Marmalade",
           "text": "Look under the last card! It's the third light charm, shining brightly!"
+        },
+        {
+          "type": "clue",
+          "id": "ch3_clue",
+          "clue": "clue_prickle",
+          "text": "What is this by the shelf? A soft little prickle, like a tiny brush. What an interesting clue! That makes four."
         },
         {
           "type": "reward",
           "id": "ch3_charm",
-          "charm": true,
-          "text": "You found the third light charm! Miss Penrose claps her hands. Now let's take all three charms to the village square."
+          "text": "You found the third light charm! Miss Penrose claps her hands. Now let's take all three charms to the village square.",
+          "charm": true
         }
       ],
       "chat": [
@@ -764,9 +830,9 @@
         {
           "type": "narration",
           "id": "ch4_thank_friends",
+          "speaker": "Marmalade",
           "portrait": "marmalade",
           "portraitEmoji": "🐈",
-          "speaker": "Marmalade",
           "text": "Here are the three light charms you found. Before we light the lantern, let's thank the friends who helped us."
         },
         {
@@ -812,10 +878,52 @@
         },
         {
           "type": "narration",
+          "id": "ch4_mystery_intro",
+          "speaker": "Dr. Rubinny",
+          "portrait": "rubinny",
+          "portraitEmoji": "👨‍🏫",
+          "text": "Before we light the lantern, let's solve our little mystery. Our clues: tiny paw prints, little bites, a trail of leaves and a soft prickle. Who could it be?"
+        },
+        {
+          "type": "choice",
+          "id": "ch4_whodunit",
+          "kind": "mystery",
+          "question": "Who rolled the light charms away?",
+          "options": [
+            "squirrel",
+            "hedgehog",
+            "owl"
+          ],
+          "answer": "hedgehog",
+          "hint": "Which little animal has soft prickles on its back?",
+          "clues": [
+            "clue_pawprints",
+            "clue_bitten_apple",
+            "clue_leaf_trail",
+            "clue_prickle"
+          ]
+        },
+        {
+          "type": "narration",
+          "id": "ch4_reveal",
+          "portrait": "hazel",
+          "portraitEmoji": "🦔",
+          "text": "Out from under the bandstand peeps a little hedgehog called Hazel. She rolled the charms home because they shone like berries, to make her winter nest cosy."
+        },
+        {
+          "type": "narration",
+          "id": "ch4_mystery_solved",
+          "speaker": "Dr. Rubinny",
+          "portrait": "rubinny",
+          "portraitEmoji": "👨‍🏫",
+          "text": "A fine piece of detective work! Every clue pointed the right way. Mrs. Bramble gives Hazel a little bell, so she has something shiny of her own."
+        },
+        {
+          "type": "narration",
           "id": "ch4_spell_intro",
+          "speaker": "Marmalade",
           "portrait": "marmalade",
           "portraitEmoji": "🐈",
-          "speaker": "Marmalade",
           "text": "Now for the kindest spell of all. Watch the magic, then do the same, and the lantern will shine!"
         },
         {
@@ -845,16 +953,16 @@
         {
           "type": "narration",
           "id": "ch4_thanks",
+          "speaker": "Mrs. Bramble",
           "portrait": "bramble",
           "portraitEmoji": "👵",
-          "speaker": "Mrs. Bramble",
           "text": "Thank you, detective! The fair can begin. Willowbrook is lucky to have you."
         },
         {
           "type": "reward",
           "id": "ch4_lantern",
-          "charm": true,
-          "text": "You solved the mystery of the lantern! Enjoy the autumn fair, detective."
+          "text": "You solved the mystery of the lantern! Enjoy the autumn fair, detective.",
+          "charm": true
         }
       ],
       "chat": [

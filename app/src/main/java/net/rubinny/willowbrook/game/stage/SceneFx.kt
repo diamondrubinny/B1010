@@ -28,29 +28,33 @@ object SceneFxCatalog {
     private const val SUNBEAM = 0xFFFFF3C4
     private val autumn = listOf(0xFFE8762C, 0xFFD9862C, 0xFFF0B84A, 0xFFC96A2C)
 
+    /** The mystery's soft evening mist, low in every scene. */
+    private fun mist(top: Int = 520) = Emitter(ParticleKind.MIST, area(0, top, 1920, 1060), 5, 0.16f, listOf(0xFFF4F1EA))
+
     val all: Map<String, SceneFx> = mapOf(
         "cottage" to SceneFx(
             lights = listOf(light(500, 660, 340, 0xFFFFB347, 0.85f, 0.12f, 1)),
-            emitters = listOf(Emitter(ParticleKind.MOTE, area(1390, 190, 1730, 760), 14, 0.006f, listOf(SUNBEAM))),
+            emitters = listOf(Emitter(ParticleKind.MOTE, area(1390, 190, 1730, 760), 14, 0.006f, listOf(SUNBEAM)), mist()),
         ),
         "bakery" to SceneFx(
             lights = listOf(light(420, 580, 340, 0xFFFF9F43, 0.85f, 0.10f, 2)),
             emitters = listOf(
                 Emitter(ParticleKind.STEAM, area(960, 470, 1040, 585), 6, 0.03f, listOf(0xFFFFFFFF)),
                 Emitter(ParticleKind.MOTE, area(760, 60, 1880, 620), 8, 0.005f, listOf(0xFFFFF8EC)),
+                mist(),
             ),
         ),
         "garden" to SceneFx(
             lights = listOf(light(1600, 180, 300, 0xFFFFD166, 0.55f, 0.04f, 3)),
-            emitters = listOf(Emitter(ParticleKind.LEAF, area(80, 260, 1840, 920), 10, 0.016f, autumn)),
+            emitters = listOf(Emitter(ParticleKind.LEAF, area(80, 260, 1840, 920), 10, 0.016f, autumn), mist()),
         ),
         "library" to SceneFx(
             lights = listOf(light(1040, 650, 220, 0xFFFFE08A, 0.7f, 0.05f, 4)),
-            emitters = listOf(Emitter(ParticleKind.MOTE, area(770, 150, 1150, 700), 14, 0.006f, listOf(SUNBEAM))),
+            emitters = listOf(Emitter(ParticleKind.MOTE, area(770, 150, 1150, 700), 14, 0.006f, listOf(SUNBEAM)), mist()),
         ),
         "square" to SceneFx(
             lights = listOf(light(960, 530, 300, 0xFFFFD166, 0.85f, 0.10f, 5)),
-            emitters = listOf(Emitter(ParticleKind.FIREFLY, area(60, 470, 1860, 1000), 12, 0.008f, listOf(0xFFFFE680))),
+            emitters = listOf(Emitter(ParticleKind.FIREFLY, area(60, 470, 1860, 1000), 12, 0.008f, listOf(0xFFFFE680)), mist()),
         ),
     )
 

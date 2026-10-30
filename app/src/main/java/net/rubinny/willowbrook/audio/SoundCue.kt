@@ -8,6 +8,7 @@ enum class SoundCue(val resId: Int) {
     COMPLETE(R.raw.sfx_complete),
     REWARD(R.raw.sfx_reward),
     FLIP(R.raw.sfx_flip),
+    CLUE(R.raw.sfx_clue),
     NOTE_STAR(R.raw.note_star),
     NOTE_MOON(R.raw.note_moon),
     NOTE_LEAF(R.raw.note_leaf),

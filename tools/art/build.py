@@ -17,6 +17,9 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 sys.path.insert(0, HERE)
 
 from objects import OBJECTS  # noqa: E402
+from mystery import HAZEL, MYSTERY_OBJECTS  # noqa: E402
+
+OBJECTS = {**OBJECTS, **MYSTERY_OBJECTS}
 
 DRAWABLE = os.path.join(ROOT, "app", "src", "main", "res", "drawable-nodpi")
 
@@ -43,6 +46,7 @@ def jobs(only: str | None):
         out.append(("char_marmalade_face", f'<svg xmlns="http://www.w3.org/2000/svg" data-w="320" data-h="320" width="320" height="320" viewBox="150 40 468 468">{CHARACTERS["marmalade"]}</svg>', True))
         for name, body in PORTRAITS.items():
             out.append(("obj_" + name, svg_doc(body, 320, 320, 512, 512), True))
+        out.append(("char_hazel", svg_doc(HAZEL, 384, 384, 512, 512), True))
     if only in (None, "scene"):
         from scenes import SCENES
         for name, (far, near) in SCENES.items():

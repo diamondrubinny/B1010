@@ -95,6 +95,20 @@ sealed interface Step {
         val options: List<String>,
         val answer: String,
         val hint: String,
+        /** For a mystery question: the clue item ids shown above the options (nothing to remember by heart). */
+        val clues: List<String> = emptyList(),
+    ) : Step
+
+    /**
+     * A clue for the case's gentle mystery: shown under a glowing magnifying glass and kept in the
+     * detective notebook ([clue] is an item id; [text] is read aloud).
+     */
+    @Serializable
+    @SerialName("clue")
+    data class Clue(
+        override val id: String,
+        val clue: String,
+        val text: String,
     ) : Step
 
     /** Put each item where it belongs, one at a time. */
@@ -142,6 +156,9 @@ sealed interface Step {
 enum class ChoiceKind {
     @SerialName("recall") RECALL,
     @SerialName("riddle") RIDDLE,
+
+    /** "Who was it?": the mystery is worked out from the clues (shown with the question). */
+    @SerialName("mystery") MYSTERY,
 }
 
 @Serializable

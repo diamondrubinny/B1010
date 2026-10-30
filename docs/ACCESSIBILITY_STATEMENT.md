@@ -31,6 +31,8 @@ We aim to meet **WCAG 2.1 level AA**, and use **AAA contrast (7:1 or higher)** f
 - Narration is paced slowly (at most about 2.7 words per second, with pauses between sentences), and the speaking-speed setting also applies to recordings.
 - Lantern Beads: every bead has a shape (star, moon, leaf, flower) as well as a colour; there is no wrong move, no timer and no moving string; places on the string are described for TalkBack ("Between the moon and the star").
 - Living scenes and objects placed on them; with "Less movement on screen" the scene is a still picture.
+- The mystery is gentle: clues are shown and read aloud, kept in a detective notebook (a memory aid that can be read again at any time), and shown again with the "Who was it?" question, so nothing has to be remembered by heart.
+- Settings are reached by holding the remote's Menu button (3 s) or OK (5 s), so players do not change them by accident; a confirmation with "Back to the game" pre-selected appears first.
 - Hints never rely on colour alone: a glowing frame, a spoken-style message, and finally the answer is selected for you.
 
 ## Known limitations

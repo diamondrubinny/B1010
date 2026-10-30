@@ -121,7 +121,9 @@ fun ChapterPlayerScreen(
         is PlayerUiState.Playing -> SceneBackground(
             scene = s.chapter.scene,
             // Objects are placed on the scene while searching, so the camera holds still.
-            calmCamera = s.phase == Phase.STEP && s.step is Step.HiddenObject,
+            calmCamera = s.phase == Phase.STEP && (s.step is Step.HiddenObject || s.step is Step.Clue),
+            // Clues and the "Who was it?" question: the edges of the room grow a little darker, like dusk.
+            mystery = s.phase == Phase.STEP && (s.step is Step.Clue || (s.step as? Step.Choice)?.kind == ChoiceKind.MYSTERY),
         ) {
             when (s.phase) {
                 Phase.RECAP -> RecapPhase(s, viewModel::onRecapContinue)
@@ -303,6 +305,7 @@ private fun StepPhase(s: PlayerUiState.Playing, viewModel: ChapterPlayerViewMode
     ) {
         when (val step = s.step) {
             is Step.Narration -> NarrationStep(s, step, viewModel::onStepContinue, viewModel::onListenAgain, onWhatAreWeDoing)
+            is Step.Clue -> ClueStep(s, step, viewModel::onStepContinue, viewModel::onListenAgain, onWhatAreWeDoing)
             is Step.Reward -> RewardStep(s, step, viewModel::onStepContinue, viewModel::onListenAgain)
             is Step.HiddenObject -> HiddenObjectStep(s, viewModel, onWhatAreWeDoing)
             is Step.MemoryMatch -> MemoryStep(s, step, viewModel, onWhatAreWeDoing)
@@ -535,7 +538,11 @@ private fun ColumnScope.ChoiceStep(s: PlayerUiState.Playing, viewModel: ChapterP
     ActivityHeader(
         goal = {
             Text(
-                if (ui.kind == ChoiceKind.RECALL) "Memory question" else "A riddle",
+                when (ui.kind) {
+                    ChoiceKind.RECALL -> "Memory question"
+                    ChoiceKind.RIDDLE -> "A riddle"
+                    ChoiceKind.MYSTERY -> "🔍 The mystery"
+                },
                 style = WillowType.button,
                 color = colors.accent,
             )
@@ -553,7 +560,10 @@ private fun ColumnScope.ChoiceStep(s: PlayerUiState.Playing, viewModel: ChapterP
             .background(colors.background.copy(alpha = 0.85f), RoundedCornerShape(Dimens.cornerRadius))
             .padding(horizontal = 28.dp, vertical = 16.dp),
     ) {
-        Text(ui.question, style = WillowType.title, color = colors.textPrimary, modifier = Modifier.semantics { heading() })
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimens.gap)) {
+            Text(ui.question, style = WillowType.title, color = colors.textPrimary, modifier = Modifier.weight(1f).semantics { heading() })
+            if (ui.clues.isNotEmpty()) ClueStrip(ui.clues)
+        }
     }
     TileGrid(count = ui.options.size) { index, modifier ->
         val item = ui.options[index]
@@ -571,6 +581,51 @@ private fun ColumnScope.ChoiceStep(s: PlayerUiState.Playing, viewModel: ChapterP
     LaunchedEffect(s.step.id) { optionFocus.firstOrNull()?.requestFocusSafely() }
     GuideFocus(s, optionFocus)
     LaunchedEffect(ui.complete) { if (ui.complete) continueFocus.requestFocusSafely() }
+}
+
+/** "A clue!": the clue glows under a magnifying glass, is read aloud, and goes into the notebook. */
+@Composable
+private fun ColumnScope.ClueStep(
+    s: PlayerUiState.Playing,
+    step: Step.Clue,
+    onContinue: () -> Unit,
+    onListenAgain: () -> Unit,
+    onWhatAreWeDoing: () -> Unit,
+) {
+    val colors = LocalWillowColors.current
+    val focus = remember { FocusRequester() }
+    val clue = s.case.item(step.clue)
+    OnScene { Text(s.chapter.location, style = WillowType.label, color = colors.textSecondary) }
+    Spacer(Modifier.weight(1f))
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colors.background.copy(alpha = 0.88f), RoundedCornerShape(Dimens.cornerRadius))
+            .padding(24.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(Dimens.gapLarge),
+    ) {
+        if (clue != null) ClueGlass(clue, 170.dp)
+        // Same height as a story card, so the whole screen fits a TV without scrolling.
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Dimens.gap)) {
+                Text(
+                    "📓 A clue: ${clue?.label.orEmpty()}",
+                    style = WillowType.button,
+                    color = colors.accent,
+                    modifier = Modifier.weight(1f).semantics { heading() },
+                )
+                if (s.canListen) BigButton("🔊 Listen again", onClick = onListenAgain, minWidth = 300.dp, minHeight = 72.dp)
+            }
+            StoryText(s, step.text, WillowType.body)
+        }
+    }
+    Spacer(Modifier.weight(1f))
+    Row(horizontalArrangement = Arrangement.spacedBy(Dimens.gap), modifier = Modifier.align(Alignment.CenterHorizontally)) {
+        BigButton("Continue", onClick = onContinue, modifier = Modifier.focusRequester(focus))
+        BigButton("What are we doing?", onClick = onWhatAreWeDoing, minWidth = 360.dp)
+    }
+    LaunchedEffect(step.id) { focus.requestFocusSafely() }
 }
 
 @Composable

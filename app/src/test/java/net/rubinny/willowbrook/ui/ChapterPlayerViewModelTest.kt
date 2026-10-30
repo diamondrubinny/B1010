@@ -428,7 +428,6 @@ class ChapterPlayerViewModelTest {
     @Test fun `beads - every placement is kind, nothing is lost, and the string can always be lit`() {
         startAt("ch4_light_beads")
         val vm = vm()
-        val effects = mutableListOf<PlayerEffect>()
         vm.openSavedStep(effects)
         val start = vm.playing().beads!!
         assertEquals(8, start.chain.size) // gentle: 8 beads
@@ -446,6 +445,7 @@ class ChapterPlayerViewModelTest {
             assertEquals(ui.chain.size + 1, vm.playing().beads!!.chain.size)
             assertEquals("That's fine. Every bead finds its friends.", vm.playing().companionMessage)
             assertTrue(sounds().none { it == net.rubinny.willowbrook.audio.SoundCue.COMPLETE })
+            assertEquals(net.rubinny.willowbrook.audio.SoundCue.noteFor(ui.hand.id), sounds().last())
         }
 
         var moves = 0
@@ -458,10 +458,21 @@ class ChapterPlayerViewModelTest {
     @Test fun `beads - help points at the best place, then moves focus there`() {
         startAt("ch4_light_beads")
         val vm = vm()
-        val effects = mutableListOf<PlayerEffect>()
         vm.openSavedStep(effects)
         repeat(3) { vm.onHelpMe() }
         assertEquals(HintLevel.GUIDE, vm.playing().hintLevel)
         assertEquals(vm.suggestedBeadGap(), vm.playing().hintIndex)
     }
+
+    @Test fun `a clue plays its soft sound, is read aloud, and needs no answer`() {
+        startAt("ch0_clue")
+        val vm = vm()
+        vm.openSavedStep(effects)
+        assertTrue(sounds().contains(net.rubinny.willowbrook.audio.SoundCue.CLUE))
+        assertEquals("ch0_clue", spoken().last().id)
+        assertTrue(vm.playing().activityComplete)
+        vm.onStepContinue()
+        runBlocking { vm.await { it.step.id != "ch0_clue" } }
+    }
 }
+

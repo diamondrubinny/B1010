@@ -9,6 +9,7 @@ object Routes {
     const val HOME = "home/{profileId}"
     const val PLAY = "play/{profileId}?chapter={chapter}&case={case}"
     const val CASE_FILES = "casefiles/{profileId}"
+    const val NOTEBOOK = "notebook/{profileId}"
     const val SETTINGS = "settings"
     const val ABOUT = "about"
     const val SUMMARY = "summary"
@@ -26,4 +27,5 @@ object Routes {
         "play/${Uri.encode(profileId)}?chapter=${replayChapter ?: -1}&case=${Uri.encode(caseId)}"
     fun beads(profileId: String) = play(profileId, replayChapter = 0, caseId = BEADS_CASE)
     fun caseFiles(profileId: String) = "casefiles/${Uri.encode(profileId)}"
+    fun notebook(profileId: String) = "notebook/${Uri.encode(profileId)}"
 }

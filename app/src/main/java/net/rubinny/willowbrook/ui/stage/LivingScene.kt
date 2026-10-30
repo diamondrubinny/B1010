@@ -174,6 +174,11 @@ private fun DrawScope.drawParticles(system: ParticleSystem, frame: SceneFrame) {
                 r,
                 at,
             )
+            ParticleKind.MIST -> drawCircle(
+                Brush.radialGradient(listOf(color.copy(alpha = alpha), Color.Transparent), center = at, radius = r * 1.6f),
+                r * 1.6f,
+                at,
+            )
             ParticleKind.LEAF -> rotate(p.turn, at) {
                 drawOval(color.copy(alpha = alpha), topLeft = Offset(at.x - r, at.y - r * 0.45f), size = Size(r * 2f, r * 0.9f))
             }

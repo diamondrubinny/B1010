@@ -1,7 +1,10 @@
 package net.rubinny.willowbrook.ui.components
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.runtime.getValue
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -55,9 +58,11 @@ fun SceneBackground(
     scene: String?,
     modifier: Modifier = Modifier,
     calmCamera: Boolean = false,
+    mystery: Boolean = false,
     fixedSeconds: Float? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
+    val dusk by animateFloatAsState(if (mystery) 1f else 0f, tween(1_200), label = "mysteryDusk")
     val colors = LocalWillowColors.current
     val layers = rememberSceneLayers(
         farId = rememberArtId(scene?.let { "scene_$it" }),
@@ -75,6 +80,17 @@ fun SceneBackground(
                 fixedSeconds = fixedSeconds,
             )
             Box(Modifier.fillMaxSize().background(colors.background.copy(alpha = colors.sceneScrim)))
+            if (dusk > 0f) {
+                // A soft vignette: the middle stays as it was, the edges fade toward dusk. Text sits on cards.
+                Box(
+                    Modifier.fillMaxSize().background(
+                        Brush.radialGradient(
+                            0.35f to Color.Transparent,
+                            1f to colors.background.copy(alpha = 0.6f * dusk),
+                        ),
+                    ),
+                )
+            }
         } else {
             Box(
                 Modifier.fillMaxSize().background(

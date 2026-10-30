@@ -32,6 +32,8 @@ data class ChoiceUi(
     val tried: Set<String>,
     val answer: String,
     val complete: Boolean,
+    /** A mystery question shows its clues, so nothing has to be remembered by heart. */
+    val clues: List<Item> = emptyList(),
 )
 
 data class SortingBinUi(val category: Category, val placed: List<Item>)
